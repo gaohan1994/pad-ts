@@ -1,6 +1,20 @@
+import moment from 'moment';
 import { checkStatus, ConstructErrorResponse } from './exception';
 import history from '../history';
 import config from '../common/config';
+
+/**
+ * 加密处理
+ */
+export const getDefaultConfig = (body: any) => {
+    return {
+        ...body,
+        timestamp: moment().format('YYYY-MM-DD HH:MM:SS'),
+        mac: 111,
+        session_id: 111,
+    };
+};
+
 /**
  * 打印工具如果是测试环境打印，生产环境不打印
  * @param message string 打印信息
@@ -69,6 +83,7 @@ export interface RequsetError {
  * 
  * request(
  *  '/me',
+ *  'POST',
  *  { body: 'hi there' },
  *  function(r) {
  *     console.log(r)
@@ -80,16 +95,13 @@ export interface RequsetError {
  * @class CentermSDK
  */
 const request = (
-    url: string,
+    url: string = config.FETCH_ENTRY,
     ...args: Array<any>
 ) => {
 
     const argByType: any = {};
-
     const functions: Array<GenericCallbackFn> = [];
-
     let callback: GenericCallbackFn;
-    
     let errorCallback: GenericCallbackT<RequsetError> = defaultErrorCallback;
 
     args.forEach(arg => {
@@ -98,10 +110,8 @@ const request = (
             /**
              * 如果是 function push 到 functions 中
              */
-
             functions.push(arg);
         } else {
-
             argByType[typeof arg] = arg;
         }
     });
@@ -119,10 +129,8 @@ const request = (
         }
     }
 
-    const httpMethod = (argByType.method || config.DEFAULT_FETCH_METHOD).toUpperCase();
-    
+    const httpMethod = (argByType.string || config.DEFAULT_FETCH_METHOD).toUpperCase();
     const params = argByType.object || {};
-
     let options: RequestInit = {
 
         /* 默认method */
@@ -141,7 +149,7 @@ const request = (
     if (options.method) {
         if (options.method.toUpperCase() === 'POST') {
             options.body = params
-            ? JSON.stringify(params) 
+            ? JSON.stringify(getDefaultConfig(params)) 
             : '';
         }
     }

@@ -3,8 +3,11 @@
  * @todo 设置常用的配置信息并根据环境变量导出
  */
 
+/**
+ * @param FETCH_ENTRY -- 统一访问入口
+ */
 export type InterfaceConfig = {
-  
+  FETCH_ENTRY: string;
 } & DefaultCommonConfig;
 
 /**
@@ -33,10 +36,12 @@ const defaultCommonConfig: DefaultCommonConfig = {
 
 const devConfig: InterfaceConfig = {
   ...defaultCommonConfig,
+  FETCH_ENTRY: '//dev/GateWayAction.do',
 };
 
 const proConfig: InterfaceConfig = {
   ...defaultCommonConfig,
+  FETCH_ENTRY: '//prod/GateWayAction.do',
 };
 
 interface ProcessChoiceFilterFunc<T> {

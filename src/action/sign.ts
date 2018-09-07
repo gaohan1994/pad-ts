@@ -1,10 +1,7 @@
-// import request from '../common/request';
 
 class Sign {
-  static registerUser = async (): Promise<void> => {
-    // 
-    
+
+  static doRegisterHandle = () => () => {
+     //
   }
 }
-
-export default Sign;
