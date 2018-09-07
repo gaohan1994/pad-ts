@@ -139,6 +139,12 @@
     "@types/node" "*"
     "@types/react" "*"
 
+"@types/react-motion@^0.0.27":
+  version "0.0.27"
+  resolved "http://registry.npm.taobao.org/@types/react-motion/download/@types/react-motion-0.0.27.tgz#e15f6415bf7c3d57336e9e97965d725d04953ac2"
+  dependencies:
+    "@types/react" "*"
+
 "@types/react-redux@^5.0.15":
   version "5.0.21"
   resolved "http://registry.npm.taobao.org/@types/react-redux/download/@types/react-redux-5.0.21.tgz#98a3a371dfc22c894889f660d7515717639d20f4"
@@ -6054,7 +6060,7 @@ react-error-overlay@^4.0.1:
   version "4.0.1"
   resolved "http://registry.npm.taobao.org/react-error-overlay/download/react-error-overlay-4.0.1.tgz#417addb0814a90f3a7082eacba7cee588d00da89"
 
-react-motion@^0.5.0:
+react-motion@^0.5.0, react-motion@^0.5.2:
   version "0.5.2"
   resolved "http://registry.npm.taobao.org/react-motion/download/react-motion-0.5.2.tgz#0dd3a69e411316567927917c6626551ba0607316"
   dependencies:

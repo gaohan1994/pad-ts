@@ -1,0 +1,57 @@
+
+.container {
+  z-index: 1001;
+  position: fixed;
+  overflow: hidden;
+}
+
+.mainItem {
+  z-index: 1001;
+  position: fixed;
+  bottom: 80px;
+  left: 10px;
+}
+
+.item {
+  position: absolute;
+}
+
+.modal {
+  position: fixed;
+  z-index: 100;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, .7);
+  -webkit-transition: all .5s ease-out;
+  transition: all .5s ease-out;
+}
+
+.hidebox {
+  z-index: 1001;
+  position: fixed;
+  bottom: 80px;
+  left: 10px;
+}
+
+.box {
+  z-index: 1001;
+  position: absolute;
+  bottom: 80px;
+  left: 10px;
+}
+
+.childBox {
+  position: absolute;
+  bottom: 0px;
+}
+
+.itemImg {
+  background-repeat: no-repeat;
+  background-size: 100% 100%;
+  border-radius: 35px;
+}
+
+.itemName {
+  color: #ffffff;
+  margin: 5px 0 10px 0;
+}

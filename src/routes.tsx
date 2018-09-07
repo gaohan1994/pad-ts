@@ -11,13 +11,18 @@ import { connect } from 'react-redux';
 import config from './common/config';
 import DocumentTitle from 'react-document-title';
 import history from './history';
-import App from './container/App';
-import Stores from './container/store/Stores';
-import Store from './container/store/Store';
 import BasicLayout from './component/basicLayout';
 import { Stores as ReducerStores } from './store/index';
 import { getDocumentTitle } from './store/status';
 
+/**
+ * ------ routes ------
+ */
+import App from './container/App';
+import Stores from './container/store/Stores';
+import Store from './container/store/Store';
+import Exception from './container/exception/Exception';
+import NotFound from './container/exception/NotFound';
 /**
  * @param title -- 网页 title
  *
@@ -67,6 +72,8 @@ const RouterConfig = ({ title }: DocumentTitleProps) => {
             <Route path="/" exact={true} component={App} />
             <Route path="/stores" component={Stores} />
             <Route path="/store/:id" component={Store} />
+            <Route path="/exception/:status" component={Exception} />
+            <Route component={NotFound}/>
           </AnimatedSwitch>
         </Router>
       </BasicLayout>

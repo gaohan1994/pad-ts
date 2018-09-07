@@ -1,6 +1,7 @@
 import * as React from 'react';
 import history from '../../history';
 import styles from './index.css';
+import Navbar from '../Navbar';
 
 class Layout extends React.Component {
 
@@ -11,9 +12,7 @@ class Layout extends React.Component {
   public render() {
     return (
       <div className={styles.container}>
-        <span onClick={() => this.onNavHandle('/')}>app</span>
-        <span onClick={() => this.onNavHandle('/stores')}>stores</span>
-        <span onClick={() => this.onNavHandle('/store/123')}>store</span>
+        <Navbar />
         {this.props.children}
       </div>
     );

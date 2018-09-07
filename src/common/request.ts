@@ -1,3 +1,6 @@
+import { checkStatus, ConstructErrorResponse } from './exception';
+import history from '../history';
+import config from '../common/config';
 /**
  * 打印工具如果是测试环境打印，生产环境不打印
  * @param message string 打印信息
@@ -66,7 +69,6 @@ export interface RequsetError {
  * 
  * request(
  *  '/me',
- *  'post',
  *  { body: 'hi there' },
  *  function(r) {
  *     console.log(r)
@@ -117,7 +119,7 @@ const request = (
         }
     }
 
-    const httpMethod = (argByType.string || 'get').toUpperCase();
+    const httpMethod = (argByType.method || config.DEFAULT_FETCH_METHOD).toUpperCase();
     
     const params = argByType.object || {};
 
@@ -128,7 +130,9 @@ const request = (
 
         /* 默认headers */
         headers: {
-            'Content-Type': 'application/x-www-form-urlencoded', /* 默认格式 */
+            'Accept': 'text/html',
+            'Content-Type': 'text/html; charset=utf-8',
+            // 'Content-Type': 'application/x-www-form-urlencoded', /* 默认格式 */
             'credentials': 'include', /* 包含cookie */
         }
     };
@@ -144,25 +148,46 @@ const request = (
     
     ConsoleUtil(options, '请求报文');
 
-    fetch(url, options)
-    .then((response: any) => response.json())
-    .then((responseJson: any) => {
-
-      ConsoleUtil(responseJson, '响应报文');
-
-      try {
-          if (callback) {
-              callback(responseJson);
+    try {
+        fetch(url, options)
+        .then(checkStatus)
+        .then((response: any) => response.json())
+        .then((responseJson: any) => {
+          ConsoleUtil(responseJson, '响应报文');
+          try {
+              if (callback) {
+                  callback(responseJson);
+              }
+          } catch (error) {
+            ConsoleUtil(error, '错误信息');
+            errorCallback(error);
           }
-      } catch (error) {
-        ConsoleUtil(error, '错误信息');
-
-        errorCallback(error);
-      }
-    }).catch((err: any) => {
-        errorCallback(err);
-    });
+        }).catch((err: any) => {
+            errorCallback(err);
+        })
+        .catch((e: ConstructErrorResponse) => {
+            if (e.status === 401) {
+                history.push('/exception/401');
+                return;
+            }
+            if (e.status === 403) {
+                history.push('/exception/403');
+                return;
+            }
+            if (e.status <= 504 && e.status >= 500) {
+                history.push('/exception/500');
+                return;
+            }
+            if (e.status >= 404 && e.status < 422) {
+                history.push('/exception/404');
+                return;
+            }
+        });
+    } catch (error) {
+        console.log('error: ', error);
+    }
 };
+
 export { ConsoleUtil };
 
 export default request;

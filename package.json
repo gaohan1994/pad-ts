@@ -4,6 +4,7 @@
   "private": true,
   "dependencies": {
     "@types/react-css-modules": "^4.6.2",
+    "@types/react-motion": "^0.0.27",
     "antd-mobile": "^2.2.3",
     "autoprefixer": "7.1.6",
     "babel-jest": "^22.1.0",
@@ -32,6 +33,7 @@
     "react-dev-utils": "^5.0.1",
     "react-document-title": "^2.0.3",
     "react-dom": "^16.4.2",
+    "react-motion": "^0.5.2",
     "react-redux": "^5.0.7",
     "react-router-dom": "^4.3.1",
     "react-router-transition": "^1.2.1",

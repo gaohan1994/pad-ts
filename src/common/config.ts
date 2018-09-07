@@ -3,8 +3,6 @@
  * @todo 设置常用的配置信息并根据环境变量导出
  */
 
-import { merge } from 'lodash';
-
 export type InterfaceConfig = {
   
 } & DefaultCommonConfig;
@@ -12,15 +10,25 @@ export type InterfaceConfig = {
 /**
  * @todo 配置不会因为环境改变的数据项
  *
+ * @param DEFAULT_DOCUMENT_TITLE -- 默认head title
+ * 
+ * @param DEFAULT_FETCH_METHOD -- 默认请求method defalut post
+ * 
+ * @param DEFAULT_BALL_SPEED -- 购物车小球默认速度 220
+ * 
  * @export
  * @interface DefaultCommonConfig
  */
 export interface DefaultCommonConfig {
   DEFAULT_DOCUMENT_TITLE: string;
+  DEFAULT_FETCH_METHOD: 'POST' | 'GET' | 'post' | 'get';
+  DEFAULT_BALL_SPEED: number;
 }
 
 const defaultCommonConfig: DefaultCommonConfig = {
   DEFAULT_DOCUMENT_TITLE: '慧美食点餐',
+  DEFAULT_FETCH_METHOD: 'POST',
+  DEFAULT_BALL_SPEED: 220,
 };
 
 const devConfig: InterfaceConfig = {
@@ -49,9 +57,8 @@ const processChoiceFilter: ProcessChoiceFilterFunc<InterfaceConfig> = (devConfig
  * @param dispatchProps 
  * @param ownProps 
  */
-const mergeProps = (stateProps: Object, dispatchProps: Object, ownProps: Object, ...rest: Array<any>) => {
-  return merge({}, ownProps, stateProps, dispatchProps, rest);
-};
+const mergeProps = (stateProps: Object, dispatchProps: Object, ownProps: Object) => 
+    Object.assign({}, ownProps, stateProps, dispatchProps);
 
 export { 
   devConfig, 
