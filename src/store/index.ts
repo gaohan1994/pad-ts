@@ -10,13 +10,16 @@ import createLogger from 'redux-logger';
 import thunk from 'redux-thunk';
 import rootReducer from './index';
 import status, { Status } from './status';
+import sign, { Sign } from './sign';
 
 export interface Stores {
   status: Status;
+  sign: Sign;
 }
 
 export default combineReducers({
   status,
+  sign,
 });
 
 const configureStore = () => {

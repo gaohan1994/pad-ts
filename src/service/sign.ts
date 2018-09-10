@@ -5,6 +5,7 @@
  */
 
 import request from '../common/request';
+import { RegisterParams } from '../action/sign';
 
 class SignService {
 
@@ -14,7 +15,7 @@ class SignService {
    * @static
    * @memberof SignService
    */
-  static registerUser = async (params: any): Promise<any> => {
+  static registerUser = async (params: RegisterParams): Promise<any> => {
     return request(
       '', 
       'post', 

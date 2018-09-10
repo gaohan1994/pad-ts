@@ -18,11 +18,12 @@ import { getDocumentTitle } from './store/status';
 /**
  * ------ routes ------
  */
-import App from './container/App';
+// import App from './container/App';
 import Stores from './container/store/Stores';
 import Store from './container/store/Store';
 import Exception from './container/exception/Exception';
 import NotFound from './container/exception/NotFound';
+import InterfaceTest from './container/interfaceTest';
 /**
  * @param title -- 网页 title
  *
@@ -62,17 +63,19 @@ const RouterConfig = ({ title }: DocumentTitleProps) => {
             atActive={{ opacity: 1, foo: 1 }}
             mapStyles={(styles) => {
               return {
-                position: (styles.foo <= 1) ? 'relative' : 'absolute',
+                position: (styles.foo <= 1) ? '' : 'absolute',
                 width: '100%',
                 height: '100%',
                 opacity: styles.opacity
               };
             }}
           >
-            <Route path="/" exact={true} component={App} />
+            <Route path="/" exact={true} component={InterfaceTest} />
             <Route path="/stores" component={Stores} />
             <Route path="/store/:id" component={Store} />
             <Route path="/exception/:status" component={Exception} />
+
+            <Route path="/interfacetest" component={InterfaceTest}/>
             <Route component={NotFound}/>
           </AnimatedSwitch>
         </Router>

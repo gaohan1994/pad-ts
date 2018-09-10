@@ -3,3 +3,10 @@ export type CHANGE_STATUS_SHOW = typeof CHANGE_STATUS_SHOW;
 
 export const CHANGE_DOCUMENT_TITLE = 'CHANGE_DOCUMENT_TITLE';
 export type CHANGE_DOCUMENT_TITLE = typeof CHANGE_DOCUMENT_TITLE;
+
+/**
+ * --- sign module ---
+ */
+
+export const CHANGE_SIGN_LOADING = 'CHANGE_SIGN_LOADING';
+export type CHANGE_SIGN_LOADING = typeof CHANGE_SIGN_LOADING;

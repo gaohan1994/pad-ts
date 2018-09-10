@@ -10,12 +10,12 @@ import request from '../common/request';
 class CommandService {
 
   /**
-   * @todo  添加命令
+   * @todo 添加命令
    *
    * @static
    * @memberof CommandService
    */
-  static getPrinterInfo = async (params: any): Promise<any> => {
+  static addCommandInfo = async (params: any): Promise<any> => {
     return request(
       '',
       'post',
