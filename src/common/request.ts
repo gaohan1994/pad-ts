@@ -10,8 +10,8 @@ export const getDefaultConfig = (body: any) => {
     return {
         ...body,
         timestamp: moment().format('YYYY-MM-DD HH:MM:SS'),
-        mac: 111,
-        session_id: 111,
+        mac: '111',
+        session_id: '111',
     };
 };
 
@@ -95,10 +95,11 @@ export interface RequsetError {
  * @class CentermSDK
  */
 const request = (
-    url: string = config.FETCH_ENTRY,
+    url: string,
     ...args: Array<any>
-) => {
-
+): any => {
+    url = config.FETCH_ENTRY;
+    console.log('fetch url: ', url);
     const argByType: any = {};
     const functions: Array<GenericCallbackFn> = [];
     let callback: GenericCallbackFn;
@@ -138,10 +139,10 @@ const request = (
 
         /* 默认headers */
         headers: {
-            'Accept': 'text/html',
             'Content-Type': 'text/html; charset=utf-8',
+            // 'Accept': 'text/html',
             // 'Content-Type': 'application/x-www-form-urlencoded', /* 默认格式 */
-            'credentials': 'include', /* 包含cookie */
+            // 'credentials': 'include',
         }
     };
 
@@ -157,20 +158,22 @@ const request = (
     ConsoleUtil(options, '请求报文');
 
     try {
-        fetch(url, options)
+        return fetch(url, options)
         .then(checkStatus)
         .then((response: any) => response.json())
         .then((responseJson: any) => {
           ConsoleUtil(responseJson, '响应报文');
           try {
-              if (callback) {
-                  callback(responseJson);
-              }
+            if (callback) {
+                callback(responseJson);
+            }
+            return responseJson;
           } catch (error) {
             ConsoleUtil(error, '错误信息');
             errorCallback(error);
           }
-        }).catch((err: any) => {
+        })
+        .catch((err: any) => {
             errorCallback(err);
         })
         .catch((e: ConstructErrorResponse) => {
@@ -193,6 +196,7 @@ const request = (
         });
     } catch (error) {
         console.log('error: ', error);
+        return error;
     }
 };
 

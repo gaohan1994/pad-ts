@@ -48,23 +48,23 @@ export interface SendOrderParams {
 }
 
 export interface UpdateOrderDetailParam {
-  order_no
-  ispos
-  terminal_cd
-  mchnt_cd
-  term_trans_trc
-  oper_id
-  term_datetime
-  stdtrnsamt
-  discount
-  packing_price
-  pay_ty
-  totalnum
-  table_no
-  people_num
-  table_name
-  meal_fee
-  account_paid
+  order_no: string;
+  ispos: string;
+  terminal_cd: string;
+  mchnt_cd: string;
+  term_trans_trc: string;
+  oper_id: string;
+  term_datetime: string;
+  stdtrnsamt: string;
+  discount: string;
+  packing_price: string;
+  pay_ty: string;
+  totalnum: string;
+  table_no: string;
+  people_num: string;
+  table_name: string;
+  meal_fee: string;
+  account_paid: string;
 }
 
 class CommmandController {

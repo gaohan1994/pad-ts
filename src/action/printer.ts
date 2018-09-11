@@ -13,7 +13,9 @@ class PrinterController {
   static getPrinterInfo = (mchnt_cd: string) => async (dispatch: Dispatch) => {
     ConsoleUtil('getPrinterInfo');
 
-    const result = await PrinterService.getPrinterInfo(mchnt_cd);
+    const params = { mchnt_cd };
+
+    const result = await PrinterService.getPrinterInfo(params);
     if (result.code === '10000') {
       console.log(result);
     } else {

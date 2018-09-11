@@ -10,3 +10,10 @@ export type CHANGE_DOCUMENT_TITLE = typeof CHANGE_DOCUMENT_TITLE;
 
 export const CHANGE_SIGN_LOADING = 'CHANGE_SIGN_LOADING';
 export type CHANGE_SIGN_LOADING = typeof CHANGE_SIGN_LOADING;
+
+/**
+ * --- menu module ---
+ */
+
+export const RECEIVE_MENU_TP = 'RECEIVE_MENU_TP';
+export type RECEIVE_MENU_TP = typeof RECEIVE_MENU_TP;

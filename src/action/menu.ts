@@ -1,8 +1,10 @@
+
 import { Dispatch } from 'redux';
-// import { CHANGE_SIGN_LOADING } from './constants';
+import { RECEIVE_MENU_TP } from './constants';
 import { ConsoleUtil } from '../common/request';
 import MenuService from '../service/menu';
-
+import { Stores } from '../store/index';
+import Base from './base';
 export interface GetMenuByIdParam {
   mchntCd: string;
   menutpId: string;
@@ -22,39 +24,69 @@ export interface EditPriceAndInventoryParam {
   inventory: string;
 }
 
-class MenuController {
+export interface ReceiveMenuTp {
+  type: RECEIVE_MENU_TP;
+  payload: any;
+}
+
+export type MenuActions = ReceiveMenuTp;
+
+class MenuController extends Base {
   /**
    * @todo 获取所有menuTp
    *
    * @static
    * @memberof MenuController
    */
-  static getMenuTp = (params: any) => async (dispatch: Dispatch) => {
+  static getMenuTp = (mchnt_cd: string) => async (dispatch: Dispatch) => {
     ConsoleUtil('getMenuTp');
+
+    const params = { mchnt_cd };
     const result = await MenuService.getMenuTp(params);
 
     if (result.code === '10000') {
-      console.log(result);
+      dispatch({
+        type: RECEIVE_MENU_TP,
+        payload: { menutp: result.biz_content.data }
+      });
     } else {
       console.log(result);
+      Base.toastFail('请求出错', 2);
     }
   }
 
   /**
    * @todo 删除菜单类别
-   * @param menuTpId 菜单ID
-   *
+   * @param menutp_id 菜单ID
+   * 
+   * 1.传入商户号和要删除的菜单号
+   * 2.请求所有菜单类别
+   * 3.如果要删除的菜单号内还有菜品则不允许删除
    * @static
    * @memberof MenuController
    */
-  static deleteMenuTp = (menuTpId: string) => async (dispatch: Dispatch) => {
+  static deleteMenuTp = (menutp_id: string) => async (dispatch: Dispatch, state: () => Stores) => {
     ConsoleUtil('deleteMenuTp');
 
-    const result = await MenuService.deleteMenuTp(menuTpId);
-    if (result.code === '10000') {
-      console.log(result);
+    const { menu: { menutp } } = await state();
+    const params = { menutp_id };
+    const index = menutp.findIndex(menu => menu.menutp_id === menutp_id);
+
+    if (index !== -1) {
+      if (menutp[index].menutp_name === 0) {
+        const result = await MenuService.deleteMenuTp(params);
+        if (result.code === '10000') {
+          console.log(result);
+          Base.toastInfo('删除成功', 2);
+        } else {
+          console.log(result);
+          Base.toastFail('删除失败');
+        }
+      } else {
+        Base.toastFail('该菜单下还有菜品');
+      }
     } else {
-      console.log(result);
+      Base.toastFail('删除失败');
     }
   }
 
@@ -140,7 +172,8 @@ class MenuController {
   static getPromotion = (mchnt_cd: string) => async (dispatch: Dispatch) => {
     ConsoleUtil('getPromotion');
 
-    const result = await MenuService.getPromotion(mchnt_cd);
+    const params = { mchnt_cd };
+    const result = await MenuService.getPromotion(params);
     if (result.code === '10000') {
       console.log(result);
     } else {
@@ -158,7 +191,9 @@ class MenuController {
   static getAllSingleMenuNew = (mchnt_cd: string) => async (dispatch: Dispatch) => {
     ConsoleUtil('getPromotion');
 
-    const result = await MenuService.getAllSingleMenuNew(mchnt_cd);
+    const params = { mchnt_cd };
+
+    const result = await MenuService.getAllSingleMenuNew(params);
     if (result.code === '10000') {
       console.log(result);
     } else {

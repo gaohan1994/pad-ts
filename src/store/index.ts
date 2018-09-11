@@ -11,15 +11,18 @@ import thunk from 'redux-thunk';
 import rootReducer from './index';
 import status, { Status } from './status';
 import sign, { Sign } from './sign';
+import menu, { Menu } from './menu';
 
 export interface Stores {
   status: Status;
   sign: Sign;
+  menu: Menu;
 }
 
 export default combineReducers({
   status,
   sign,
+  menu,
 });
 
 const configureStore = () => {

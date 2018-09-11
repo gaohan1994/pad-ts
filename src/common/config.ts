@@ -34,9 +34,10 @@ const defaultCommonConfig: DefaultCommonConfig = {
   DEFAULT_BALL_SPEED: 220,
 };
 
+// 测试环境 http://202.101.149.132:7680/BKMS1
 const devConfig: InterfaceConfig = {
   ...defaultCommonConfig,
-  FETCH_ENTRY: '//dev/GateWayAction.do',
+  FETCH_ENTRY: 'http://202.101.149.132:7680/BKMS1/GateWayAction.do',
 };
 
 const proConfig: InterfaceConfig = {

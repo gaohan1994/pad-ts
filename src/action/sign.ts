@@ -49,28 +49,32 @@ class Sign {
    * @static
    * @memberof Sign
    */
-  static checkUserIdUnique = (userid: string) => async (dispatch: Dispatch) => {
+  static checkUserIdUnique = (user_id: string) => async (dispatch: Dispatch): Promise<any> => {
     ConsoleUtil('checkUserIdUnique');
 
-    const result = await SignService.checkUserIdUnique(userid);
+    const param = { user_id };
+
+    const result = await SignService.checkUserIdUnique(param);
     if (result.code === '10000') {
-      console.log(result);
+      return { success: true };
     } else {
-      console.log(result);
+      return { ...result };
     }
   }
 
   /**
    * @todo 获取用户信息
-   * @param mchntCd 商户ID
+   * @param mchnt_cd 商户ID
    * 
    * @static
    * @memberof Sign
    */
-  static getUserinfo = (mchntCd: string) => async (dispatch: Dispatch) => {
+  static getUserinfo = (mchnt_cd: string) => async (dispatch: Dispatch): Promise<void> => {
     ConsoleUtil('getUserinfo');
 
-    const result = await SignService.getUserInfo(mchntCd);
+    const param = { mchnt_cd };
+
+    const result = await SignService.getUserInfo(param);
     if (result.code === '10000') {
       console.log(result);
     } else {
