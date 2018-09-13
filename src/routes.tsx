@@ -18,12 +18,14 @@ import { getDocumentTitle } from './store/status';
 /**
  * ------ routes ------
  */
-// import App from './container/App';
+import App from './container/App';
 import Stores from './container/store/Stores';
 import Store from './container/store/Store';
 import Exception from './container/exception/Exception';
 import NotFound from './container/exception/NotFound';
 import InterfaceTest from './container/interfaceTest';
+import OrderList from './container/order/list';
+import Order from './container/order/order';
 /**
  * @param title -- 网页 title
  *
@@ -70,12 +72,14 @@ const RouterConfig = ({ title }: DocumentTitleProps) => {
               };
             }}
           >
-            <Route path="/" exact={true} component={InterfaceTest} />
+            <Route path="/" exact={true} component={App} />
             <Route path="/stores" component={Stores} />
             <Route path="/store/:id" component={Store} />
-            <Route path="/exception/:status" component={Exception} />
+            <Route path="/interfacetest" component={InterfaceTest} />
+            <Route path="/orderlist" component={OrderList} />
+            <Route path="/order/:id" component={Order} />
 
-            <Route path="/interfacetest" component={InterfaceTest}/>
+            <Route path="/exception/:status" component={Exception} />
             <Route component={NotFound}/>
           </AnimatedSwitch>
         </Router>

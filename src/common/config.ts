@@ -26,12 +26,14 @@ export interface DefaultCommonConfig {
   DEFAULT_DOCUMENT_TITLE: string;
   DEFAULT_FETCH_METHOD: 'POST' | 'GET' | 'post' | 'get';
   DEFAULT_BALL_SPEED: number;
+  DEFAULT_PAGE_SIZE: number;
 }
 
 const defaultCommonConfig: DefaultCommonConfig = {
   DEFAULT_DOCUMENT_TITLE: '慧美食点餐',
   DEFAULT_FETCH_METHOD: 'POST',
   DEFAULT_BALL_SPEED: 220,
+  DEFAULT_PAGE_SIZE: 20,
 };
 
 // 测试环境 http://202.101.149.132:7680/BKMS1

@@ -1,4 +1,7 @@
-import { RECEIVE_MENU_TP } from '../action/constants';
+import { 
+  RECEIVE_MENU_TP,
+  RECEIVE_ALL_MENU,
+} from '../action/constants';
 import { MenuActions } from '../action/menu';
 import { Stores } from './index';
 // import config from '../common/config';
@@ -6,10 +9,12 @@ import { Stores } from './index';
 
 export type Menu = {
   menutp: any[];
+  menu:  any[];
 };
 
 export const initState = {
-  menutp: []
+  menutp: [],
+  menu: [],
 };
 
 /**
@@ -35,8 +40,18 @@ export default function menu (
         menutp,
       };
 
+    case RECEIVE_ALL_MENU:
+      const { payload: { menu } } = action;
+      
+      return {
+        ...state,
+        menu,
+      };
+
     default: return state;
   }
 }
 
-export const menutp = (store: Stores) => store.menu.menutp;
+export const GetMenutp = (store: Stores) => store.menu.menutp;
+
+export const GetMenu = (store: Stores) => store.menu.menu;

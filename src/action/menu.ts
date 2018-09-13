@@ -1,6 +1,9 @@
 
 import { Dispatch } from 'redux';
-import { RECEIVE_MENU_TP } from './constants';
+import { 
+  RECEIVE_MENU_TP,
+  RECEIVE_ALL_MENU,
+} from './constants';
 import { ConsoleUtil } from '../common/request';
 import MenuService from '../service/menu';
 import { Stores } from '../store/index';
@@ -29,7 +32,12 @@ export interface ReceiveMenuTp {
   payload: any;
 }
 
-export type MenuActions = ReceiveMenuTp;
+export interface ReceiveAllMenu {
+  type: RECEIVE_ALL_MENU;
+  payload: any;
+}
+
+export type MenuActions = ReceiveMenuTp | ReceiveAllMenu;
 
 class MenuController extends Base {
   /**
@@ -97,10 +105,11 @@ class MenuController extends Base {
    * @static
    * @memberof MenuController
    */
-  static getSingleMenuTp = (mchntCd: string) => async (dispatch: Dispatch) => {
+  static getSingleMenuTp = (mchnt_cd: string) => async (dispatch: Dispatch) => {
     ConsoleUtil('getSingleMenuTp');
 
-    const result = await MenuService.getSingleMenuTp(mchntCd);
+    const parmas = { mchnt_cd };
+    const result = await MenuService.getSingleMenuTp(parmas);
     if (result.code === '10000') {
       console.log(result);
     } else {
@@ -196,8 +205,15 @@ class MenuController extends Base {
     const result = await MenuService.getAllSingleMenuNew(params);
     if (result.code === '10000') {
       console.log(result);
+      dispatch({
+        type: RECEIVE_ALL_MENU,
+        payload: {
+          menu: result.biz_content.data
+        }
+      });
     } else {
       console.log(result);
+      Base.toastFail('请求菜单错误');
     }
   }
   

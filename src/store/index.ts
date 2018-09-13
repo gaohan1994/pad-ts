@@ -12,17 +12,19 @@ import rootReducer from './index';
 import status, { Status } from './status';
 import sign, { Sign } from './sign';
 import menu, { Menu } from './menu';
-
+import order, { Order } from './order';
 export interface Stores {
   status: Status;
   sign: Sign;
   menu: Menu;
+  order: Order;
 }
 
 export default combineReducers({
   status,
   sign,
   menu,
+  order,
 });
 
 const configureStore = () => {

@@ -1,7 +1,7 @@
 import * as React from 'react';
 import history from '../../history';
 import styles from './index.css';
-import Navbar from '../Navbar';
+// import Navbar from '../Navbar';
 
 class Layout extends React.Component {
 
@@ -12,7 +12,7 @@ class Layout extends React.Component {
   public render() {
     return (
       <div className={styles.container}>
-        <Navbar />
+        {/* <Navbar /> */}
         {this.props.children}
       </div>
     );

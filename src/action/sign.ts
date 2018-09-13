@@ -1,8 +1,11 @@
+import Base from './base';
 import { Dispatch } from 'redux';
-import { CHANGE_SIGN_LOADING } from './constants';
+import { 
+  CHANGE_SIGN_LOADING,
+  RECEIVE_USERINFO,
+} from './constants';
 import { ConsoleUtil } from '../common/request';
 import SignService from '../service/sign';
-
 export interface RegisterParams {
   user_id: string;
   passwd: string;
@@ -20,12 +23,26 @@ export interface RegisterParams {
   level_id: string;
 }
 
+export interface UserLoginPosParams {
+  user_id: string;
+  passwd: string;
+  version: string;
+  terminal_sn: string;
+}
+
 export interface ChangeSignLogin {
   type: CHANGE_SIGN_LOADING;
   loading: boolean;
 }
 
-export type SignActions = ChangeSignLogin;
+export interface ReceiveUserinfo {
+  type: RECEIVE_USERINFO;
+  payload: {
+    userinfo: any;
+  };
+}
+
+export type SignActions = ChangeSignLogin | ReceiveUserinfo;
 class Sign {
 
   /**
@@ -76,9 +93,33 @@ class Sign {
 
     const result = await SignService.getUserInfo(param);
     if (result.code === '10000') {
+      dispatch({
+        type: RECEIVE_USERINFO,
+        payload: {
+          userinfo: result.biz_content
+        }
+      });
+    } else {
+      console.log(result);
+      Base.toastFail('请求用户信息失败');
+    }
+  }
+
+  /**
+   * @todo 用户登录
+   * 
+   * @static
+   * @memberof Sign
+   */
+  static userLoginPos = (params: UserLoginPosParams) => async (dispatch: Dispatch): Promise<void> => {
+    ConsoleUtil('userLoginPos');
+
+    const result = await SignService.userLoginPos(params);
+    if (result.code === '10000') {
       console.log(result);
     } else {
       console.log(result);
+      Base.toastFail('登录失败');
     }
   }
 }
