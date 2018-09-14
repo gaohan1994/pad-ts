@@ -8,19 +8,19 @@ import {
   WingBlank,
   Button,
 } from 'antd-mobile';
-import * as CSSModules from 'react-css-modules';
 import styles from './style.less';
 /**
  * react-redux
  */
 import { connect } from 'react-redux';
 import { Dispatch, bindActionCreators } from 'redux';
-import config, { mergeProps } from '../../common/config';
-import OrderController, { OrderQueryParams } from '../../action/order';
+import config, { mergeProps, formatOrderTime } from '../../common/config';
+import OrderController, { OrderQueryParams, CloseOrderParams } from '../../action/order';
 import { Stores } from '../../store/index';
 import numeral from 'numeral';
-import { 
-  GetPaid,
+import Base from '../../action/base';
+import {
+  GetOrders,
   GetUnpaid,
 } from '../../store/order';
 
@@ -28,8 +28,15 @@ let currentPage: number = 1;
 
 interface OrderListProps {
   orderQuery: (parmas: OrderQueryParams) => void;
+  closeOrder: (params: CloseOrderParams) => void;
   paid: any;
   unpaid: any;
+  orders: any;
+}
+
+interface OrderListState {
+  unpaidDataSource: any;
+  ordersDataSource: any;
 }
 
 const MyBody = (props: any) => {
@@ -40,35 +47,72 @@ const MyBody = (props: any) => {
   );
 };
 
-class OrderList extends React.Component<OrderListProps, {}> {
+class OrderList extends React.Component<OrderListProps, OrderListState> {
 
   state = {
-    paidDataSource: new ListView.DataSource({
+    unpaidDataSource: new ListView.DataSource({
       rowHasChanged: (row1: any, row2: any) => row1 !== row2,
     }),
-    unpaidDataSource: new ListView.DataSource({
+    ordersDataSource: new ListView.DataSource({
       rowHasChanged: (row1: any, row2: any) => row1 !== row2,
     }),
   };
 
   componentWillReceiveProps(nextProps: any) {
-    const { paid, unpaid } = nextProps;
-
-    if (paid && paid !== this.props.paid) {
-      this.setState({
-        paidDataSource: this.state.paidDataSource.cloneWithRows(paid)
-      });
-    }
+    const { unpaid, orders } = nextProps;
 
     if (unpaid && unpaid !== this.props.unpaid) {
       this.setState({
         unpaidDataSource: this.state.unpaidDataSource.cloneWithRows(unpaid)
       });
     }
+
+    if (orders && orders !== this.props.orders) {
+      this.setState({
+        ordersDataSource: this.state.ordersDataSource.cloneWithRows(orders)
+      });
+    }
   }
 
   componentDidMount() {
     this.fetchOrderList();
+  }
+
+  /**
+   * @todo 关闭订单
+   *
+   * @memberof OrderList
+   */
+  public onCloseOrder = (order: any) => {
+    console.log('order: ', order);
+
+    const params: CloseOrderParams = {
+      order_no: order.order_no,
+      ispos: '2',
+    };
+
+    Base.alert('确认关闭订单？', [
+      {
+        text: '取消'
+      },
+      {
+        text: '删除',
+        onPress: () => {
+          console.log('delete');
+          this.closeOrder(params);
+        }
+      }
+    ]);
+  }
+
+  /**
+   * @todo 关闭订单
+   *
+   * @memberof OrderList
+   */
+  public closeOrder = (params: CloseOrderParams): void => {
+    const { closeOrder } = this.props;
+    closeOrder(params);
   }
 
   /**
@@ -91,17 +135,14 @@ class OrderList extends React.Component<OrderListProps, {}> {
 
     const tabs = [
       { title: '未付款' },
-      { title: '已付款' },
+      { title: '全部订单' },
     ];
 
     return (
       <div>
         <Tabs
           tabs={tabs}
-          initialPage={1}
-          // page={page}
-          // onChange={this.onChangePageHandle}
-          // onTabClick={this.onChangePageHandle}
+          initialPage={0}
           tabBarUnderlineStyle={{ backgroundColor: '#f7bf41', borderColor: '#f7bf41' }}
           tabBarActiveTextColor="#f7bf41"
           tabBarTextStyle={{ fontSize: '17px' }}
@@ -111,23 +152,19 @@ class OrderList extends React.Component<OrderListProps, {}> {
               dataSource={this.state.unpaidDataSource}
               renderRow={this.renderRow}
               renderBodyComponent={() => <MyBody />}
-              // className="am-list"
               pageSize={8}
               style={{
                 height: `${document.documentElement.clientHeight - 50}px`,
                 overflow: 'auto',
               }}
               scrollRenderAheadDistance={100}
-              // onEndReached={this.onEndReached}
-              // onEndReachedThreshold={10}
             />
           </WingBlank>
           <WingBlank>
             <ListView
-              dataSource={this.state.paidDataSource}
+              dataSource={this.state.ordersDataSource}
               renderRow={this.renderRow}
               renderBodyComponent={() => <MyBody />}
-              // className="am-list"
               pageSize={8}
               style={{
                 height: `${document.documentElement.clientHeight - 50}px`,
@@ -160,23 +197,44 @@ class OrderList extends React.Component<OrderListProps, {}> {
                 : ''}
           </div>
         </div>
-        <div className={styles.rowFooter}>
-          <Button type="primary" size="small">关闭订单</Button>
+        <div className={styles.rowContent}>
+          {
+            item.stdtrnsamt ? (
+              <div>金额：￥{numeral(item.stdtrnsamt).format('0.00')}</div>
+            ) : ''
+          }
+          {
+            item.order_no ? (
+              <div>订单号：{item.order_no}</div>
+            ) : ''
+          }
+          {
+            item.datetime ? (
+              <div>时间：{formatOrderTime(item.datetime)}</div>
+            ) : ''
+          }
         </div>
-        item
+        {
+          trnsflag === 0 ? (
+            <div className={styles.rowFooter}>
+              <Button type="ghost" size="small" style={{marginRight: '10px'}} onClick={() => this.onCloseOrder(item)}>关闭订单</Button>
+              <Button type="primary" size="small">立即支付</Button>
+            </div>
+          ) : ''
+        }
       </div>
     );
   }
 }
-const OrderListHoc = CSSModules(OrderList, styles);
 
 const mapStateToProps = (state: Stores) => ({
-  paid: GetPaid(state),
+  orders: GetOrders(state),
   unpaid: GetUnpaid(state),
 });
 
 const mapDispatchToProps = (dispatch: Dispatch<any>) => ({
   orderQuery: bindActionCreators(OrderController.orderQuery, dispatch),
+  closeOrder: bindActionCreators(OrderController.closeOrder, dispatch),
 });
 
-export default connect(mapStateToProps, mapDispatchToProps, mergeProps)(OrderListHoc);
+export default connect(mapStateToProps, mapDispatchToProps, mergeProps)(OrderList);

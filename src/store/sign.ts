@@ -7,12 +7,14 @@ import { Stores } from './index';
 
 export type Sign = {
   loading: boolean;
-  userinfo: object;
+  userinfo: any;
+  mchntInfo: any;
 };
 
 export const initState = {
   loading: false,
   userinfo: {},
+  mchntInfo: {},
 };
 
 /**
@@ -48,3 +50,5 @@ export default function sign (
 }
 
 export const GetUserinfo = (store: Stores) => store.sign.userinfo;
+
+export const GetMchntInfo = (store: Stores) => store.sign.mchntInfo;

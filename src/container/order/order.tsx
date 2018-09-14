@@ -2,8 +2,7 @@
  * created by Ghan 9.13
  */
 import * as React from 'react';
-import * as CSSModules from 'react-css-modules';
-import styles from './style.less';
+// import styles from './style.less';
 
 interface OrderProps {}
 
@@ -18,6 +17,4 @@ class OrderPage extends React.Component<OrderProps, {}> {
   }
 }
 
-const OrderHoc = CSSModules(OrderPage, styles);
-
-export default OrderHoc;
+export default OrderPage;

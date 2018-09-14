@@ -4,7 +4,6 @@
  * 测试接口页面
  */
 import * as React from 'react';
-import * as CSSModules from 'react-css-modules';
 /**
  * react-redux
  */
@@ -317,8 +316,6 @@ class InterfaceTest extends React.Component<InterfaceProps, {}> {
   }
 }
 
-const InterfaceTestHoc = CSSModules(InterfaceTest, styles);
-
 const mapStateToProps = () => ({
 
 });
@@ -340,4 +337,4 @@ const mapDispatchToProps = (dispatch: Dispatch<any>) => ({
   addTableInfo: bindActionCreators(TableController.addTableInfo, dispatch),
 });
 
-export default connect(mapStateToProps, mapDispatchToProps, mergeProps)(InterfaceTestHoc);
+export default connect(mapStateToProps, mapDispatchToProps, mergeProps)(InterfaceTest);

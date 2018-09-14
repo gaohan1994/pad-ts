@@ -6,6 +6,7 @@ import {
 import { ConsoleUtil } from '../common/request';
 import OrderService from '../service/order';
 import Base from './base';
+import { Stores } from '../store/index';
 
 /**
  * @param terminal_cd 
@@ -79,6 +80,12 @@ export interface UpdateOrderDetailParam {
   table_name: string;
   meal_fee: string;
   account_paid: string;
+}
+
+export interface CloseOrderParams {
+  order_no: string;
+  mchnt_cd?: string;
+  ispos: '1' | '2';
 }
 
 export interface ReceiveOrderList {
@@ -186,10 +193,16 @@ class OrderController extends Base {
    * @static
    * @memberof OrderController
    */
-  static closeOrder = (params: any) => async (dispatch: Dispatch) => {
+  static closeOrder = (params: CloseOrderParams) => async (dispatch: Dispatch, state: () => Stores) => {
     ConsoleUtil('closeOrder');
+    const { sign: { userinfo } } = await state();
 
-    const result = await OrderService.closeOrder(params);
+    const orderParam: CloseOrderParams = {
+      ...params,
+      mchnt_cd: params.mchnt_cd || userinfo.mchnt_cd,
+    };
+    
+    const result = await OrderService.closeOrder(orderParam);
     if (result.code === '10000') {
       console.log(result);
     } else {

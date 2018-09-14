@@ -172,12 +172,12 @@ module.exports = {
                       tsImportPluginFactory({
                         libraryDirectory: 'es',
                         libraryName: 'antd',
-                        style: 'css',
+                        style: true,
                       }),
                       tsImportPluginFactory({
                         libraryDirectory: 'es',
                         libraryName: 'antd-mobile',
-                        style: 'css',
+                        style: true,
                       }),
                     ]
                   }),

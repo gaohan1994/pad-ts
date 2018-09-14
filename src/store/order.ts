@@ -35,7 +35,6 @@ export default function menu (
   action: OrderActions,
 ): Order {
   switch (action.type) {
-
     /**
      * @todo 把数据拆分成已付款和未付款存入redux中
      */
@@ -82,6 +81,8 @@ export default function menu (
     default: return state;
   }
 }
+
+export const GetOrders = (store: Stores) => store.order.orders;
 
 export const GetPaid = (store: Stores) => store.order.paid;
 

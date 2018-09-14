@@ -14,6 +14,7 @@ import history from './history';
 import BasicLayout from './component/basicLayout';
 import { Stores as ReducerStores } from './store/index';
 import { getDocumentTitle } from './store/status';
+// import AuthRoute from './component/AuthRoute/AuthRoute';
 
 /**
  * ------ routes ------
@@ -26,6 +27,7 @@ import NotFound from './container/exception/NotFound';
 import InterfaceTest from './container/interfaceTest';
 import OrderList from './container/order/list';
 import Order from './container/order/order';
+import Login from './container/sign/Login';
 /**
  * @param title -- 网页 title
  *
@@ -72,6 +74,13 @@ const RouterConfig = ({ title }: DocumentTitleProps) => {
               };
             }}
           >
+            {/* <AuthRoute path="/" exact={true} component={App}/>
+            <AuthRoute path="/stores" component={Stores} />
+            <AuthRoute path="/store/:id" component={Store} />
+            <AuthRoute path="/interfacetest" component={InterfaceTest} />
+            <AuthRoute path="/orderlist" component={OrderList} />
+            <AuthRoute path="/order/:id" component={Order} /> */}
+
             <Route path="/" exact={true} component={App} />
             <Route path="/stores" component={Stores} />
             <Route path="/store/:id" component={Store} />
@@ -79,6 +88,7 @@ const RouterConfig = ({ title }: DocumentTitleProps) => {
             <Route path="/orderlist" component={OrderList} />
             <Route path="/order/:id" component={Order} />
 
+            <Route path="/login" Component={Login}/>
             <Route path="/exception/:status" component={Exception} />
             <Route component={NotFound}/>
           </AnimatedSwitch>

@@ -1,0 +1,104 @@
+body {
+  margin: 0;
+  padding: 0;
+  font-family: sans-serif;
+}
+
+@theme-color: #f7bf41; //1f90e6 蓝
+
+@theme-gray: #888888;
+
+@order-header-color: #4f4f4f;
+
+@theme-font-gary: #595757;
+
+@theme-font-gary-detail: #898989;
+
+@theme-font-red: #ec4444;
+
+@card-padding: 15px;
+
+@card-margin: 15px;
+
+@theme-border-radius: 6px;
+
+.display-flex(@align: start, @justify: start) {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  .flex-align(@align);
+  .flex-justify(@justify);
+}
+
+.half-border (@pos: bottom){
+  position: absolute;
+  content: '';
+  display: block;
+  right: auto;
+  left: 0;
+  -webkit-transform: scaleY(0.5);
+          transform: scaleY(0.5);
+  z-index: 1;
+  width: 100%;
+  height: 1px;
+  background-color: #dddddd;
+  .border-pos(@pos)
+}
+
+.border-pos (@pos) when(@pos = bottom) {
+  bottom: 0;
+  top: auto;
+}
+
+.border-pos (@pos) when(@pos = top) {
+  top: 0;
+  bottom: auto;
+}
+
+
+.flex-align (@align) when (@align = start) {
+  -webkit-box-align: start;
+      -ms-flex-align: start;
+          align-items: flex-start;
+}
+
+.flex-align (@align) when (@align = center) {
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+}
+
+.flex-align (@align) when (@align = end) {
+  -webkit-box-align: end;
+      -ms-flex-align: end;
+          align-items: flex-end;
+}
+
+.flex-justify (@justify) when (@justify = start) {
+  -webkit-box-pack: start;
+      -ms-flex-pack: start;
+          justify-content: flex-start;
+}
+
+.flex-justify (@justify) when (@justify = center) {
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
+}
+
+.flex-justify (@justify) when (@justify = end) {
+  -webkit-box-pack: end;
+      -ms-flex-pack: end;
+          justify-content: flex-end;
+}
+
+.flex-justify (@justify) when (@justify = between) {
+  -webkit-box-pack: justify;
+      -ms-flex-pack: justify;
+          justify-content: space-between;
+}
+
+.flex-justify (@justify) when (@justify = around) {
+  -ms-flex-pack: distribute;
+      justify-content: space-around;
+}
