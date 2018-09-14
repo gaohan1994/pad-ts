@@ -14,7 +14,7 @@ import { Stores } from '../../store';
 import { GetMenu } from '../../store/menu';
 import MenuController from '../../action/menu';
 
-import styles from './index.css';
+import styles from './index.less';
 
 const MyBody = (props: any) => {
   return (

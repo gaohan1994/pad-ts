@@ -21,7 +21,7 @@ import ManageController from '../../action/manage';
 import OrderController, { OrderQueryParams } from '../../action/order';
 import TableController from '../../action/table';
 import history from '../../history';
-import styles from './index.css';
+import styles from './index.less';
 
 interface InterfaceProps {
   // doRegisterHandle: (params: RegisterParams) => void;

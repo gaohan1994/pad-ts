@@ -6,7 +6,7 @@
  */
 import * as React from 'react';
 import * as CSSModules from 'react-css-modules';
-import styles from './index.css';
+import styles from './index.less';
 /**
  * react-redux
  */

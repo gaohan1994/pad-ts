@@ -6,9 +6,10 @@ import {
   Tabs,
   ListView,
   WingBlank,
+  Button,
 } from 'antd-mobile';
 import * as CSSModules from 'react-css-modules';
-import styles from './style.css';
+import styles from './style.less';
 /**
  * react-redux
  */
@@ -30,6 +31,14 @@ interface OrderListProps {
   paid: any;
   unpaid: any;
 }
+
+const MyBody = (props: any) => {
+  return (
+    <div className={styles.listBody}>
+      {props.children}
+    </div>
+  );
+};
 
 class OrderList extends React.Component<OrderListProps, {}> {
 
@@ -101,6 +110,7 @@ class OrderList extends React.Component<OrderListProps, {}> {
             <ListView
               dataSource={this.state.unpaidDataSource}
               renderRow={this.renderRow}
+              renderBodyComponent={() => <MyBody />}
               // className="am-list"
               pageSize={8}
               style={{
@@ -116,6 +126,7 @@ class OrderList extends React.Component<OrderListProps, {}> {
             <ListView
               dataSource={this.state.paidDataSource}
               renderRow={this.renderRow}
+              renderBodyComponent={() => <MyBody />}
               // className="am-list"
               pageSize={8}
               style={{
@@ -150,8 +161,7 @@ class OrderList extends React.Component<OrderListProps, {}> {
           </div>
         </div>
         <div className={styles.rowFooter}>
-          <div>关闭订单</div>
-          
+          <Button type="primary" size="small">关闭订单</Button>
         </div>
         item
       </div>

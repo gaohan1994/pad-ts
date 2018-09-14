@@ -3,7 +3,7 @@
  */
 import * as React from 'react';
 import * as CSSModules from 'react-css-modules';
-import styles from './style.css';
+import styles from './style.less';
 
 interface OrderProps {}
 
