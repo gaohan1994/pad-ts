@@ -14,7 +14,8 @@ import history from './history';
 import BasicLayout from './component/basicLayout';
 import { Stores as ReducerStores } from './store/index';
 import { getDocumentTitle } from './store/status';
-// import AuthRoute from './component/AuthRoute/AuthRoute';
+// import AuthRoute from './component/AuthRoute';
+// import { RequireAuthComponent } from './component/AuthRoute/authRoute';
 
 /**
  * ------ routes ------

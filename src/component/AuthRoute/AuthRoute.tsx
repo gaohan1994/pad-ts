@@ -1,57 +1,68 @@
-import React from 'react';
+import history from '../../history';
+import * as React from 'react';
 import { connect } from 'react-redux';
-import { Stores } from '../../store/index';
-import { GetMchntInfo } from '../../store/sign';
+import { Stores } from '../../store';
+import { GetUserinfo } from '../../store/sign';
 import { Dispatch } from 'redux';
-import { mergeProps } from '../../common/config';
-import { Route, Redirect, RouteProps } from 'react-router';
 
-interface AuthRouteProps extends RouteProps {
-  mchntInfo?: any;
+// interface PushState {
+//   (data: any): void;
+// }
+
+interface AuthRouteProps {
+  isAuthenticated: any;
   dispatch?: Dispatch;
-  redirectPath?: string;
 }
 
-/**
- * @todo 
- * -- 1 --
- * 判断 redux 中内是否有商户信息如果有则正常跳转如果没有那么走2
- * -- 2 --
- * 如果没有那么去 localstorage 中查找如果有那么存入 redux 中然后正常跳转 如果没有走 3
- * -- 3 --
- * 如果 localstorage 中也没有那么跳转到登录
- * 
- * @class AuthRoute
- * @extends {React.PureComponent<AuthRouteProps, {}>}
- */
-class AuthRoute extends React.PureComponent<AuthRouteProps, {}> {
+const authHelper = (params: any): boolean => {
+  return false;
+};
 
-  public render () {
-    const {
-      mchntInfo,
-      component,
-      redirectPath = '/exception/404',
-      ...rest
-    } = this.props;
+const RequireAuthComponent = (Component: any) => {
 
-    if (mchntInfo && typeof mchntInfo.mchnt_cd === 'string') {
+  class AuthRoute extends React.Component <AuthRouteProps, {}> {
+
+    componentWillMount() {
+      this.checkAuth();
+    }
+
+    componentWillReceiveProps = () => {
+      this.checkAuth();
+    }
+
+    /**
+     * 这里出错了
+     */
+    public navToLogin = () => {
+      history.push('', '/login');
+    }
+
+    public checkAuth = () => {
+      console.log('!authHelper(this.props.isAuthenticated): ', !authHelper(this.props.isAuthenticated));
+      if (!authHelper(this.props.isAuthenticated)) {
+        this.navToLogin();
+      }
+    }
+
+    public render () {
+      console.log('this.props : ' , this.props);
       return (
-        <Route component={component} {...rest} />
-      );
-    } else {
-      return (
-        <Route {...rest} render={() => (<Redirect to={{ pathname: redirectPath }}/>)}/>
+        <div>
+          {
+            authHelper(this.props.isAuthenticated) ? (
+              <Component {...this.props} />
+            ) : null
+          }
+        </div>
       );
     }
   }
-}
 
-const mapStateToProps = (state: Stores) => ({
-  mchntInfo: GetMchntInfo(state),
-});
+  const mapStateToProps = (state: Stores) => ({
+    isAuthenticated: GetUserinfo(state),
+  });
 
-const mapDispatchToProps = (dispatch: Dispatch) => ({
-  dispatch,
-});
+  return connect(mapStateToProps)(AuthRoute);
+};
 
-export default connect(mapStateToProps, mapDispatchToProps, mergeProps)(AuthRoute);
+export { RequireAuthComponent };
