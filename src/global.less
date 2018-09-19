@@ -5,22 +5,15 @@ body {
 }
 
 @theme-color: #f7bf41; //1f90e6 蓝
-
 @theme-gray: #888888;
-
 @order-header-color: #4f4f4f;
-
 @theme-font-gary: #595757;
-
 @theme-font-gary-detail: #898989;
-
 @theme-font-red: #ec4444;
-
 @card-padding: 15px;
-
 @card-margin: 15px;
-
 @theme-border-radius: 6px;
+@page-footer-zindex: 80;
 
 .display-flex(@align: start, @justify: start) {
   display: -webkit-box;
@@ -101,4 +94,9 @@ body {
 .flex-justify (@justify) when (@justify = around) {
   -ms-flex-pack: distribute;
       justify-content: space-around;
+}
+
+.switch {
+  width: 100%;
+  height: 100%;
 }

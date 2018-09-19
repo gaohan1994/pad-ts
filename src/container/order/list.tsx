@@ -23,6 +23,7 @@ import {
   GetOrders,
   GetUnpaid,
 } from '../../store/order';
+import history from '../../history';
 
 let currentPage: number = 1;
 
@@ -49,14 +50,20 @@ const MyBody = (props: any) => {
 
 class OrderList extends React.Component<OrderListProps, OrderListState> {
 
-  state = {
-    unpaidDataSource: new ListView.DataSource({
-      rowHasChanged: (row1: any, row2: any) => row1 !== row2,
-    }),
-    ordersDataSource: new ListView.DataSource({
-      rowHasChanged: (row1: any, row2: any) => row1 !== row2,
-    }),
-  };
+  constructor (props: OrderListProps) {
+    super(props);
+    this.state = {
+      unpaidDataSource: new ListView.DataSource({
+        rowHasChanged: (row1: any, row2: any) => row1 !== row2,
+      }),
+      ordersDataSource: new ListView.DataSource({
+        rowHasChanged: (row1: any, row2: any) => row1 !== row2,
+      }),
+    };
+
+    this.onPayOrder = this.onPayOrder.bind(this);
+    this.onNavHandle = this.onNavHandle.bind(this);
+  }
 
   componentWillReceiveProps(nextProps: any) {
     const { unpaid, orders } = nextProps;
@@ -79,12 +86,41 @@ class OrderList extends React.Component<OrderListProps, OrderListState> {
   }
 
   /**
+   * @todo 跳转函数
+   * @param { route 要跳转的地址 } string
+   *
+   * @memberof OrderList
+   */
+  public onNavHandle = (route: string) => {
+    history.push(`${route}`);
+  }
+
+  /**
+   * @todo 支付订单
+   *
+   * @memberof OrderList
+   */
+  public onPayOrder = (order: any, e: Event) => {
+    if (e) {
+      e.stopPropagation();
+      e.preventDefault();
+    }
+    
+    Base.alert('支付订单');
+  }
+
+  /**
    * @todo 关闭订单
    *
    * @memberof OrderList
    */
-  public onCloseOrder = (order: any) => {
+  public onCloseOrder = (order: any, e: Event) => {
     console.log('order: ', order);
+
+    if (e) {
+      e.stopPropagation();
+      e.preventDefault();
+    }
 
     const params: CloseOrderParams = {
       order_no: order.order_no,
@@ -92,9 +128,7 @@ class OrderList extends React.Component<OrderListProps, OrderListState> {
     };
 
     Base.alert('确认关闭订单？', [
-      {
-        text: '取消'
-      },
+      { text: '取消' },
       {
         text: '删除',
         onPress: () => {
@@ -124,7 +158,7 @@ class OrderList extends React.Component<OrderListProps, OrderListState> {
     const { orderQuery } = this.props;
 
     const params = {
-      mchnt_cd: '60000000217',
+      mchnt_cd: config.DEFAUL_MCHNT_CD,
       currentPage: `${currentPage++}`,
       pageSize: `${config.DEFAULT_PAGE_SIZE}`,
     };
@@ -184,6 +218,7 @@ class OrderList extends React.Component<OrderListProps, OrderListState> {
       <div 
         key={item.order_no}
         className={styles.row}
+        onClick={this.onNavHandle.bind(this, `/order/${item.order_no}`)}
       >
         <div className={styles.rowHeader}>
           <div>{item.tableName}</div>
@@ -217,8 +252,8 @@ class OrderList extends React.Component<OrderListProps, OrderListState> {
         {
           trnsflag === 0 ? (
             <div className={styles.rowFooter}>
-              <Button type="ghost" size="small" style={{marginRight: '10px'}} onClick={() => this.onCloseOrder(item)}>关闭订单</Button>
-              <Button type="primary" size="small">立即支付</Button>
+              <Button type="ghost" size="small" style={{marginRight: '10px'}} onClick={this.onCloseOrder.bind(this, item)}>关闭订单</Button>
+              <Button type="primary" size="small" onClick={this.onPayOrder.bind(this, item)}>立即支付</Button>
             </div>
           ) : ''
         }

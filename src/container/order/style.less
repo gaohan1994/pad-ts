@@ -1,6 +1,7 @@
 @import "../../global.less";
 
 .container {
+  position: relative;
   width: 100%;
   height: 100%;
 }
@@ -49,4 +50,67 @@
   position: relative;
   width: 100%;
   padding: @card-padding 0;
+}
+
+.footer {
+  position: absolute;
+  z-index: @page-footer-zindex;
+  bottom: 0;
+  left: 0;
+  right: 0;
+}
+
+.box {
+  height: calc(~"100% - 60px");
+  overflow-y: auto;
+  width: 100%;
+}
+
+.content {
+  max-height: 400px;
+  overflow-y: auto;
+  width: 100%;
+}
+
+.modal {
+  width: 84%;
+  max-height: 80%;
+  overflow-y: auto;
+  position: relative;
+}
+
+.close {
+  position: absolute;
+  right: 10px;
+  top: 10px;
+  font-size: 18px;
+  line-height: 18px;
+}
+
+.button {
+  min-width: 74px;
+  border: 1px solid;
+  -webkit-box-sizing: border-box;
+          box-sizing: border-box;
+  // width: 30%;
+  padding: 0 @card-padding;
+  height: 26px;
+  text-align: center;
+  line-height: 25px;
+  border-radius: 13px;
+  margin: 0 14px 9px 0;
+  font-size: 14px;
+}
+
+
+.active {
+  background: #fffcf1;
+  border-color: @theme-color;
+  color: @theme-color;
+}
+
+.normal {
+  background: #ffffff;
+  border-color: #dddddd;
+  color: #999999;
 }

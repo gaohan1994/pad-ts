@@ -16,6 +16,7 @@ import { Stores as ReducerStores } from './store/index';
 import { getDocumentTitle } from './store/status';
 // import AuthRoute from './component/AuthRoute';
 // import { RequireAuthComponent } from './component/AuthRoute/authRoute';
+import styles from './global.less';
 
 /**
  * ------ routes ------
@@ -63,6 +64,7 @@ const RouterConfig = ({ title }: DocumentTitleProps) => {
       <BasicLayout>
         <Router history={history}>
           <AnimatedSwitch
+            className={styles.switch}
             atEnter={{ opacity: 0, foo: 0 }}
             atLeave={{ opacity: 0, foo: 2 }}
             atActive={{ opacity: 1, foo: 1 }}
@@ -87,7 +89,7 @@ const RouterConfig = ({ title }: DocumentTitleProps) => {
             <Route path="/store/:id" component={Store} />
             <Route path="/interfacetest" component={InterfaceTest} />
             <Route path="/orderlist" component={OrderList} />
-            <Route path="/order/:id" component={Order} />
+            <Route path="/order/:orderid" component={Order} />
 
             <Route path="/login" Component={Login}/>
             <Route path="/exception/:status" component={Exception} />

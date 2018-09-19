@@ -1,3 +1,5 @@
+import numeral from 'numeral';
+import { merge } from 'lodash';
 /**
  * created by Ghan 9.3
  * @todo 设置常用的配置信息并根据环境变量导出
@@ -13,11 +15,13 @@ export type InterfaceConfig = {
 /**
  * @todo 配置不会因为环境改变的数据项
  *
- * @param DEFAULT_DOCUMENT_TITLE -- 默认head title
+ * @param { DEFAULT_DOCUMENT_TITLE } string 默认head title
  * 
- * @param DEFAULT_FETCH_METHOD -- 默认请求method defalut post
+ * @param { DEFAULT_FETCH_METHOD } string 默认请求method defalut post
  * 
- * @param DEFAULT_BALL_SPEED -- 购物车小球默认速度 220
+ * @param { DEFAULT_BALL_SPEED } number 购物车小球默认速度 220
+ * 
+ * @param { DEFAUL_MCHNT_CD } string 测试用 mchnt_cd
  * 
  * @export
  * @interface DefaultCommonConfig
@@ -27,6 +31,7 @@ export interface DefaultCommonConfig {
   DEFAULT_FETCH_METHOD: 'POST' | 'GET' | 'post' | 'get';
   DEFAULT_BALL_SPEED: number;
   DEFAULT_PAGE_SIZE: number;
+  DEFAUL_MCHNT_CD: string;
 }
 
 const defaultCommonConfig: DefaultCommonConfig = {
@@ -34,6 +39,7 @@ const defaultCommonConfig: DefaultCommonConfig = {
   DEFAULT_FETCH_METHOD: 'POST',
   DEFAULT_BALL_SPEED: 220,
   DEFAULT_PAGE_SIZE: 20,
+  DEFAUL_MCHNT_CD: '60000000217',
 };
 
 // 测试环境 http://202.101.149.132:7680/BKMS1
@@ -99,12 +105,71 @@ const isArrayFn = (value: any) => {
   }
 };
 
+/**
+ * @todo 返回餐位费
+ * @param { params 获取餐位费类型和餐位费返回计算好的餐位费 }
+ */
+const getMealFee = (params: any): any => {
+
+  const fee = numeral(params.fee).value();
+  const fee_type = numeral(params.fee_type).value();
+  const people_num = numeral(params.people_num).value();
+  let total = 0;
+  params.data.forEach((item: any) => {
+    total += numeral(item.num).value() * numeral(item.price).value();
+  });
+  let meal_fee = 0;
+
+  switch (fee_type) {
+    case 0:
+      // 无餐位费
+      break;
+    case 1:
+      // 定额
+      meal_fee = fee;
+      break;
+    case 2:
+      // 百分比
+      meal_fee = total * fee;
+      break;
+    case 3:
+      // 人头
+      meal_fee = people_num * fee;
+      break;
+    default:
+
+      break;
+  }
+
+  total = total + meal_fee;
+
+  return {
+    meal_fee,
+    total,
+  };
+};
+
+/**
+ * @todo 传入一个订单返回一个计算好金钱的订单
+ * @param { order 传入订单根据订单的餐位费打包费和菜品金额计算出订单的total和stdtrnsamt }
+ */
+const countTotal = (param: any): any => {
+  const order = merge({}, param, {});
+  const { total, meal_fee } = getMealFee(order);
+  order.meal_fee = meal_fee;
+  order.total = total;
+  order.stdtrnsamt = numeral(total).format('0.00');
+  return order;
+};
+
 export { 
   devConfig, 
   proConfig,
   mergeProps,
   formatOrderTime,
   isArrayFn,
+  getMealFee,
+  countTotal,
 };
 
 export default processChoiceFilter(devConfig, proConfig);

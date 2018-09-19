@@ -5,7 +5,6 @@
  * @todo 展示各个模块的入口
  */
 import * as React from 'react';
-import * as CSSModules from 'react-css-modules';
 import styles from './index.less';
 /**
  * react-redux
@@ -22,9 +21,9 @@ import { Stores } from '../store/index';
 import history from '../history';
 
 interface AppProps {
-  dispatch: Dispatch;
-  getUserinfo: (mchnt_cd: string) => void;
-  userinfo: any;
+  dispatch?: Dispatch;
+  getUserinfo?: (mchnt_cd: string) => void;
+  userinfo?: any;
 }
 interface AppState {}
 
@@ -41,12 +40,14 @@ class App extends React.Component<AppProps, AppState> {
    */
   public getUserinfo = () => {
     const { getUserinfo } = this.props;
-    getUserinfo('60000000200');
+    if (getUserinfo) {
+      getUserinfo('60000000200');
+    }
   }
 
   /**
    * @todo 跳转函数
-   * @param index string url
+   * @param { route } string
    *
    * @memberof App
    */
@@ -71,8 +72,6 @@ class App extends React.Component<AppProps, AppState> {
   }
 }
 
-const AppHoc = CSSModules(App, styles);
-
 const mapStateToProps = (state: Stores) => ({
   userinfo: GetUserinfo(state),
 });
@@ -82,4 +81,4 @@ const mapDispatchToProps = (dispatch: Dispatch<SignActions>) => ({
   getUserinfo: bindActionCreators(SignController.getUserinfo, dispatch),
 });
 
-export default connect(mapStateToProps, mapDispatchToProps, mergeProps)(AppHoc);
+export default connect(mapStateToProps, mapDispatchToProps, mergeProps)(App);

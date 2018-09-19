@@ -1,3 +1,4 @@
+import config from '../common/config';
 import { 
   CHANGE_SIGN_LOADING,
   RECEIVE_USERINFO,
@@ -13,7 +14,9 @@ export type Sign = {
 
 export const initState = {
   loading: false,
-  userinfo: {},
+  userinfo: {
+    mchnt_cd: config.DEFAUL_MCHNT_CD
+  },
   mchntInfo: {},
 };
 

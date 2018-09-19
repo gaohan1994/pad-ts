@@ -2,6 +2,11 @@ import { Dispatch } from 'redux';
 import { 
   RECEIVE_ORDER_LIST,
   RECEIVE_ORDER_DETAIL,
+  CHANGE_ORDER_TOKEN,
+  CHANGE_ORDER_DETAIL,
+  CHANGE_ORDER_DISHES,
+  CHANGE_ORDER_PEOPLE_NUMBER,
+  CHANGE_ORDER_TABLE_NUMBER,
 } from './constants';
 import { ConsoleUtil } from '../common/request';
 import OrderService from '../service/order';
@@ -88,6 +93,16 @@ export interface CloseOrderParams {
   ispos: '1' | '2';
 }
 
+export interface OrderDetailSearchParams {
+  mchnt_cd: string;
+  order_no: string;
+}
+
+export interface ChangeOrderDetailParams { 
+  changeType: CHANGE_ORDER_DISHES | CHANGE_ORDER_PEOPLE_NUMBER | CHANGE_ORDER_TABLE_NUMBER; 
+  changeDetail: any;
+}
+
 export interface ReceiveOrderList {
   type: RECEIVE_ORDER_LIST;
   payload: any;
@@ -98,7 +113,21 @@ export interface ReceiveOrderDetail {
   payload: any;
 }
 
-export type OrderActions = ReceiveOrderList | ReceiveOrderDetail;
+export interface ChangeOrderToken {
+  type: CHANGE_ORDER_TOKEN;
+  payload: any;
+}
+
+export interface ChangeOrderDetail {
+  type: CHANGE_ORDER_DETAIL;
+  payload: any;
+}
+
+export type OrderActions = 
+  ReceiveOrderList 
+  | ReceiveOrderDetail 
+  | ChangeOrderToken
+  | ChangeOrderDetail;
 
 class OrderController extends Base {
 
@@ -256,7 +285,7 @@ class OrderController extends Base {
    * @static
    * @memberof OrderController
    */
-  static orderDetailSearch = (params: any) => async (dispatch: Dispatch) => {
+  static orderDetailSearch = (params: OrderDetailSearchParams) => async (dispatch: Dispatch) => {
     ConsoleUtil('orderDetailSearch');
 
     const result = await OrderService.orderDetailSearch(params);
@@ -271,6 +300,40 @@ class OrderController extends Base {
       console.log(result);
       Base.toastFail('查询订单详情失败');
     }
+  }
+
+  /**
+   * @todo 显示订单修改状态
+   * @param { token } 要修改成的状态
+   *
+   * @static
+   * @memberof OrderController
+   */
+  static changeOrderToken = (token: boolean) => async (dispatch: Dispatch) => {
+    ConsoleUtil('changeOrderToken');
+
+    dispatch({
+      type: CHANGE_ORDER_TOKEN,
+      payload: {
+        token: token
+      }
+    });
+  }
+
+  /**
+   * @todo 修改订单详情
+   * @param { ChangeOrderDetailParams: { chagneType: string; changeDetail: any } } 
+   *
+   * @static
+   * @memberof OrderController
+   */
+  static changeOrderDetail = (params: ChangeOrderDetailParams) => async (dispatch: Dispatch) => {
+    ConsoleUtil('changeOrderDetail');
+
+    dispatch({
+      type: CHANGE_ORDER_DETAIL,
+      payload: { params },
+    });
   }
 }
 

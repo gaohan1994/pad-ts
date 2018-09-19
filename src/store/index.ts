@@ -13,11 +13,13 @@ import status, { Status } from './status';
 import sign, { Sign } from './sign';
 import menu, { Menu } from './menu';
 import order, { Order } from './order';
+import table, { Table } from './table';
 export interface Stores {
   status: Status;
   sign: Sign;
   menu: Menu;
   order: Order;
+  table: Table;
 }
 
 export default combineReducers({
@@ -25,6 +27,7 @@ export default combineReducers({
   sign,
   menu,
   order,
+  table,
 });
 
 const configureStore = () => {

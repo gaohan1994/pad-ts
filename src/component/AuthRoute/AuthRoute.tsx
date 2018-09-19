@@ -34,7 +34,7 @@ const RequireAuthComponent = (Component: any) => {
      * 这里出错了
      */
     public navToLogin = () => {
-      history.push('', '/login');
+      history.replace('/login');
     }
 
     public checkAuth = () => {
