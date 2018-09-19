@@ -102,7 +102,7 @@ export default function menu (
       
     /**
      * @todo 显示订单的状态
-     * 当 token 等于 false 的时候表示放弃修改复原 orderChange
+     * @param { 当 token 等于 false 的时候表示放弃修改复原 orderChange } 
      */
     case CHANGE_ORDER_TOKEN:
     const { order: recoveryOrder } = state;
@@ -134,9 +134,27 @@ export default function menu (
     switch (changeType) {
       /**
        * @todo 修改菜品 退菜
-       * @param { }
+       * @param { product_id 索引菜品 }
+       * @param { is_weight 判断是否称斤 }
+       * @param { first_attr second_attr 校验是否相同菜品的条件 }
        */
       case CHANGE_ORDER_DISHES:
+        const { product_id, product_name, first_attr, second_attr } = changeDetail;
+        const index: number = state.orderChange.data.findIndex((item: any) => {
+          if (
+            item.product_id === product_id
+            && item.product_name === product_name
+            && item.first_attr === first_attr
+            && item.second_attr === second_attr
+          ) {
+            return true;
+          } else {
+            return false;
+          }
+        });
+        if (index !== -1) {
+          state.orderChange.data[index].num -= 1;
+        }
 
         break;
       /**
@@ -157,7 +175,6 @@ export default function menu (
           fee, 
           feeType,
           num,
-          // status,
           table_name,
           table_no,
         } = changeDetail;

@@ -136,12 +136,19 @@ class OrderPage extends React.Component<OrderProps, OrderPageState> {
    */
   public changeOrderDishes = (dish: any) => {
     console.log('dish: ', dish);
+
     const params: ChangeOrderDetailParams = {
       changeType: CHANGE_ORDER_DISHES,
       changeDetail: dish
     };
-
-    this.changeOrderDetail(params);
+    /** 
+     * @param { is_weight === 1 是称斤， 判断减去之后是非为空 } 
+     */
+    if (numeral(dish.is_weight).value() === 1) {
+      //
+    } else {
+      this.changeOrderDetail(params); 
+    }
   }
 
   /**
@@ -242,6 +249,8 @@ class OrderPage extends React.Component<OrderProps, OrderPageState> {
                         canChangeToken = false;
                       }
                     }
+                  } else if (item.num === 0) {
+                    canChangeToken = false;
                   }
 
                   return (
