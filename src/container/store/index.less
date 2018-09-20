@@ -1,3 +1,4 @@
+@import '../../global.less';
 .container {
   width: 100%;
   height: 100%;
@@ -12,6 +13,89 @@
 }
 
 .item {
-  padding: 15px 7px;
+  padding: @card-padding 0 @card-padding 10px;
   font-size: 16px;
+
+  &::after {
+    .clear-float;
+  }
+
+  & > div {
+    position: relative;
+  }
+
+  & > .img {
+    float: left;
+    width: 62px;
+    height: 62px;
+    text-align: center;
+    line-height: 62px;
+    overflow: hidden;
+
+    & > div {
+      width: 100%;
+      height: 100%;
+      .bg-img;
+    }
+  }
+
+  & > .wrap {
+    margin-left: 72px;
+
+    & > .wrapDiv {
+      position: relative;
+    }
+  }
+}
+
+.menutp, .menu {
+  position: relative;
+  float: left;
+}
+
+.menutp {
+  width: 90px;
+  background: @normal-bg;
+  &::after {
+    .clear-float
+  }
+}
+
+.menu {
+  width: calc(~"100% - 90px");
+
+  &::after {
+    .clear-float
+  }
+}
+
+.listBody::after {
+  .no-antd-border;
+}
+
+.listBody::before {
+  .no-antd-border;
+}
+
+.menuTpItem {
+  -webkit-box-sizing: border-box;
+          box-sizing: border-box;
+  padding: @card-padding / 2;
+  font-size: 15px;
+}
+
+.menuTpNormal {
+  background: @normal-bg;
+}
+
+.menuTpActive {
+  background: @active-bg;
+}
+
+.productName {
+  font-size: 16px;
+  line-height: 20px;
+  height: 40px;
+  margin-right: 10px;
+  .content-overflow;
 }

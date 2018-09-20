@@ -30,7 +30,7 @@ interface AppState {}
 class App extends React.Component<AppProps, AppState> {
 
   componentDidMount() {
-    this.getUserinfo();
+    // this.getUserinfo();
   }
 
   /**
@@ -61,7 +61,7 @@ class App extends React.Component<AppProps, AppState> {
       <div className={styles.container}>
         <div className={styles.item}>{userinfo.mchnt_name || '加载中'}</div>
 
-        <div className={styles.item}>点餐</div>
+        <div className={styles.item} onClick={() => this.onNavHandle('/table')}>点餐</div>
         <div className={styles.item} onClick={() => this.onNavHandle('/orderlist')}>订单</div>
         <div className={styles.item}>加菜</div>
         <div className={styles.item}>收银</div>

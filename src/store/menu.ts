@@ -1,20 +1,25 @@
+
 import { 
   RECEIVE_MENU_TP,
   RECEIVE_ALL_MENU,
+  RECEIVE_STORE_LISTVIEW_DATASOURCE,
 } from '../action/constants';
 import { MenuActions } from '../action/menu';
+import { BusinessActions } from '../action/business';
 import { Stores } from './index';
 // import config from '../common/config';
 // import { merge } from 'lodash';
 
 export type Menu = {
   menutp: any[];
-  menu:  any[];
+  menu: any[];
+  menuList: any;
 };
 
 export const initState = {
   menutp: [],
   menu: [],
+  menuList: {},
 };
 
 /**
@@ -27,7 +32,7 @@ export const initState = {
  */
 export default function menu ( 
   state: Menu = initState,
-  action: MenuActions,
+  action: MenuActions | BusinessActions,
 ): Menu {
   switch (action.type) {
 
@@ -47,6 +52,14 @@ export default function menu (
         ...state,
         menu,
       };
+    
+    case RECEIVE_STORE_LISTVIEW_DATASOURCE:
+      const { payload: { menuList } } = action;
+
+      return {
+        ...state,
+        menuList,
+      };
 
     default: return state;
   }
@@ -55,3 +68,5 @@ export default function menu (
 export const GetMenutp = (store: Stores) => store.menu.menutp;
 
 export const GetMenu = (store: Stores) => store.menu.menu;
+
+export const GetMenuList = (store: Stores) => store.menu.menuList;

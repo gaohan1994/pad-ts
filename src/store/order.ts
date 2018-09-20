@@ -58,13 +58,7 @@ export default function menu (
     if (orders && orders.length > 0) {
       orders.forEach((item: any) => {
         /**
-         * order_status
-         * trnsflag
-         * -1 交易失败
-         * 0 交易初始化
-         * 1 交易成功
-         * 2 交易撤销
-         * 3 交易退单
+         * @param { trnsflag | -1: 交易失败, 0: 交易初始化, 1: 交易成功, 2: 交易撤销, 3: 交易退单, }
          */
         if (numeral(item.trnsflag).value() === 0) {
           unpaid.push(item);
@@ -86,9 +80,9 @@ export default function menu (
      * 2.把token初始化
      * 2.1刚进入页面的情况
      * 2.2更新订单之后的情况 应该都没有问题
-     * @param { order } 第一份原数据
-     * @param { orderChange } 第二份可以改变的数据源
-     * @param { changeToken } 显示的是原数据还是改变的订单数据
+     * @param { order 第一份原数据 } 
+     * @param { orderChange 第二份可以改变的数据源 } 
+     * @param { changeToken 显示的是原数据还是改变的订单数据 } 
      */
     case RECEIVE_ORDER_DETAIL:
     const { payload: { order } } = action;
@@ -188,7 +182,7 @@ export default function menu (
     }
 
     /**
-     * @param { 修改金钱, 最后一步 不管之前触发什么修改行为最后都触发修改总价和餐位费的行为 }
+     * @param { countTotal 修改金钱, 最后一步 不管之前触发什么修改行为最后都触发修改总价和餐位费的行为 }
      */
     const newOrderChange: any = countTotal(state.orderChange);
     console.log('order: ', state.order.table_name);

@@ -5,6 +5,20 @@ export const CHANGE_DOCUMENT_TITLE = 'CHANGE_DOCUMENT_TITLE';
 export type CHANGE_DOCUMENT_TITLE = typeof CHANGE_DOCUMENT_TITLE;
 
 /**
+ * @param { business 不与数据库交互的业务逻辑 }
+ * @param { SAVE_CHOICE_TABLEINFO 保存用户选择的桌号 }
+ * @param { RECEIVE_STORE_LISTVIEW_DATASOURCE 保存listview需要的数据存到menu redux 中 }
+ */
+export const SAVE_CHOICE_TABLEINFO = 'SAVE_CHOICE_TABLEINFO';
+export type SAVE_CHOICE_TABLEINFO = typeof SAVE_CHOICE_TABLEINFO;
+
+export const SAVE_CHOICE_PEOPLE = 'SAVE_CHOICE_PEOPLE';
+export type SAVE_CHOICE_PEOPLE = typeof SAVE_CHOICE_PEOPLE;
+
+export const RECEIVE_STORE_LISTVIEW_DATASOURCE = 'RECEIVE_STORE_LISTVIEW_DATASOURCE';
+export type RECEIVE_STORE_LISTVIEW_DATASOURCE = typeof RECEIVE_STORE_LISTVIEW_DATASOURCE;
+
+/**
  * @todo sign module
  */
 

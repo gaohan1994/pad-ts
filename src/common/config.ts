@@ -32,6 +32,7 @@ export interface DefaultCommonConfig {
   DEFAULT_BALL_SPEED: number;
   DEFAULT_PAGE_SIZE: number;
   DEFAUL_MCHNT_CD: string;
+  DEFAULT_PICTURE_LING: string;
 }
 
 const defaultCommonConfig: DefaultCommonConfig = {
@@ -40,6 +41,7 @@ const defaultCommonConfig: DefaultCommonConfig = {
   DEFAULT_BALL_SPEED: 220,
   DEFAULT_PAGE_SIZE: 20,
   DEFAUL_MCHNT_CD: '60000000217',
+  DEFAULT_PICTURE_LING: '//net.huanmusic.com/qg/pic_default.png',
 };
 
 // 测试环境 http://202.101.149.132:7680/BKMS1

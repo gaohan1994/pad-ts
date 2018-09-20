@@ -30,6 +30,8 @@ import InterfaceTest from './container/interfaceTest';
 import OrderList from './container/order/list';
 import Order from './container/order/order';
 import Login from './container/sign/Login';
+import Table from './container/table/table';
+import People from './container/table/people';
 /**
  * @param title -- 网页 title
  *
@@ -90,6 +92,8 @@ const RouterConfig = ({ title }: DocumentTitleProps) => {
             <Route path="/interfacetest" component={InterfaceTest} />
             <Route path="/orderlist" component={OrderList} />
             <Route path="/order/:orderid" component={Order} />
+            <Route path="/table" component={Table} />
+            <Route path="/people" component={People} />
 
             <Route path="/login" Component={Login}/>
             <Route path="/exception/:status" component={Exception} />

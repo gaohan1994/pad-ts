@@ -42,6 +42,7 @@ export type MenuActions = ReceiveMenuTp | ReceiveAllMenu;
 class MenuController extends Base {
   /**
    * @todo 获取所有menuTp
+   * @param { mchnt_cd 商户id }
    *
    * @static
    * @memberof MenuController
@@ -51,11 +52,24 @@ class MenuController extends Base {
 
     const params = { mchnt_cd };
     const result = await MenuService.getMenuTp(params);
+    console.log('result: ', result);
 
+    /**
+     * @param { result 把 result 中 menutp_num = 0 的项删除 }
+     */
     if (result.code === '10000') {
+
+      const filterMenutp: any[] = [];
+
+      result.biz_content.data.forEach((tp: any) => {
+        if (tp.menutp_num > 0) {
+          filterMenutp.push(tp);
+        }
+      });
+
       dispatch({
         type: RECEIVE_MENU_TP,
-        payload: { menutp: result.biz_content.data }
+        payload: { menutp: filterMenutp }
       });
     } else {
       console.log(result);

@@ -14,12 +14,14 @@ import sign, { Sign } from './sign';
 import menu, { Menu } from './menu';
 import order, { Order } from './order';
 import table, { Table } from './table';
+import business, { Business } from './business';
 export interface Stores {
   status: Status;
   sign: Sign;
   menu: Menu;
   order: Order;
   table: Table;
+  business: Business;
 }
 
 export default combineReducers({
@@ -28,6 +30,7 @@ export default combineReducers({
   menu,
   order,
   table,
+  business,
 });
 
 const configureStore = () => {
