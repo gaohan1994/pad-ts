@@ -1,4 +1,5 @@
 import * as React from 'react';
+import numeral from 'numeral';
 import { ListView } from 'antd-mobile';
 /**
  * react-redux
@@ -7,10 +8,11 @@ import { connect } from 'react-redux';
 import { Dispatch, bindActionCreators } from 'redux';
 import config, { mergeProps } from '../../common/config';
 import { Stores } from '../../store';
-import { GetMenuList, GetMenutp } from '../../store/menu';
+import { GetMenuList, GetMenutp, GetSelectedMenu } from '../../store/menu';
 import MenuController, { MenuActions } from '../../action/menu';
 import BusinessController, { BusinessActions } from '../../action/business';
 import styles from './index.less';
+import Helper from '../../component/Helper';
 
 const SECTIONHEADERHEIGHT: number = 44;
 const MENUITEMHEIGHT: number = 92;
@@ -33,8 +35,10 @@ interface StoreProps {
   menuTp: any;
   dispatch: Dispatch;
   match: { params: { id: string } };
+  selectedMenu: any;
   getMenuTp: (mchnt_cd: string) => void;
   fetchStoreData: (mchnt_cd: string) => void;
+  setSelectedMenutp: (menuid: string) => void;
 }
 interface StoreState {
   menuDataSource: any;
@@ -81,7 +85,6 @@ class Store extends React.Component<StoreProps, StoreState> {
    * @memberof Welcome
    */
   componentDidMount() {
-
     this.fetchData();
   }
 
@@ -100,16 +103,26 @@ class Store extends React.Component<StoreProps, StoreState> {
 
   /**
    * @todo 挂载onscroll
-   *
+   * @param { scrollTop 距离顶部的距离先计算 然后左侧菜单对应 }
    * @memberof Store
    */
   public onScroll = (event: any) => {
+    const { menuTp, setSelectedMenutp } = this.props;
     const { target: { scrollTop } } = event;
 
-    if (scrollTop) {
-      console.log('scrollTop: ', scrollTop);
+    if (scrollTop === 0) {
+      setSelectedMenutp(menuTp[0].menutp_id);
+    } else if (scrollTop > 0) {
+      let height = 0;
+      for (let index = 0; index < menuTp.length; index++) {
+        height += SECTIONHEADERHEIGHT;
+        height += menuTp[index].menutp_num * MENUITEMHEIGHT;
+        if (scrollTop < height) {
+          setSelectedMenutp(menuTp[index].menutp_id);
+          return;
+        }
+      }
     }
-    console.log('e.event: ', event);
   }
 
   /**
@@ -118,22 +131,21 @@ class Store extends React.Component<StoreProps, StoreState> {
    * @memberof Store
    */
   public changeMenuTp = (tp: any) => {
-      const { menuTp } = this.props;
+    const { menuTp, setSelectedMenutp } = this.props;
+    
+    const index = menuTp.findIndex((item: any) => item.menutp_id === tp.menutp_id);
 
-      const index = menuTp.findIndex((item: any) => item.menutp_id === tp.menutp_id);
+    if (index !== -1) {
+      let beforeHeight = 0;
 
-      if (index !== -1) {
-        let beforeHeight = 0;
-
-        for (let i = 0; i < index; i++) {
-          beforeHeight += SECTIONHEADERHEIGHT;
-          beforeHeight += MENUITEMHEIGHT * menuTp[i].menutp_num;
-        }
-
-        console.log('beforeHeight: ', beforeHeight);
-
-        this.menuRef.scrollTo(0, beforeHeight);
+      for (let i = 0; i < index; i++) {
+        beforeHeight += SECTIONHEADERHEIGHT;
+        beforeHeight += MENUITEMHEIGHT * menuTp[i].menutp_num;
       }
+
+      setSelectedMenutp(tp.menutp_id);
+      this.menuRef.scrollTo(0, beforeHeight);
+    }
   }
 
   public render() {
@@ -144,7 +156,7 @@ class Store extends React.Component<StoreProps, StoreState> {
           renderRow={this.renderMenuTpRow}
           renderBodyComponent={() => <MyBody />}
           className={styles.menutp}
-          pageSize={8}
+          pageSize={20}
           style={{
             height: `${document.documentElement.clientHeight}px`,
             overflow: 'auto',
@@ -157,12 +169,14 @@ class Store extends React.Component<StoreProps, StoreState> {
           renderRow={this.renderMenuRow}
           renderBodyComponent={() => <MyBody />}
           className={styles.menu}
-          pageSize={8}
+          initialListSize={100}
+          pageSize={20}
+          scrollEventThrottle={100}
+          onScroll={this.onScroll}
           style={{
             height: `${document.documentElement.clientHeight}px`,
             overflow: 'auto',
           }}
-          onScroll={this.onScroll}
         />
       </div>
     );
@@ -170,7 +184,7 @@ class Store extends React.Component<StoreProps, StoreState> {
 
   private renderMenuRow = (item: any): React.ReactElement<any> => {
     return (
-      <div 
+      <div
         key={item.product_id}
         className={styles.item}
       >
@@ -180,6 +194,8 @@ class Store extends React.Component<StoreProps, StoreState> {
         <div className={styles.wrap}>
           <div className={styles.wrapDiv}>
             <div className={styles.productName}>{item.product_name}</div>
+            <div>{numeral(item.price).format('0.00')}</div>
+            <Helper data={item} />
           </div>
         </div>
       </div>
@@ -187,10 +203,14 @@ class Store extends React.Component<StoreProps, StoreState> {
   }
 
   private renderMenuTpRow = (item: any) => {
+    const { selectedMenu } = this.props;
     return (
       <div
         key={item.menutp_id}
-        className={`${styles.menuTpItem} ${styles.menuTpNormal}`}
+        className={`
+          ${styles.menuTpItem} 
+          ${item.menutp_id === selectedMenu.menutp_id ? styles.menuTpActive : styles.menuTpNormal}
+        `}
         onClick={() => this.changeMenuTp(item)}
       >
         {item.menutp_name}
@@ -201,7 +221,6 @@ class Store extends React.Component<StoreProps, StoreState> {
   private renderMenuSectionHeader = (data: any, key: string) => {
     const { menuTp } = this.props;
     const tp = menuTp.find((item: any) => item.menutp_id === key);
-    console.log('tp: ', tp);
     return (
       <div>{tp && tp.menutp_name}</div>
     );
@@ -211,12 +230,14 @@ class Store extends React.Component<StoreProps, StoreState> {
 const mapStateToProps = (state: Stores) => ({
   menu: GetMenuList(state),
   menuTp: GetMenutp(state),
+  selectedMenu: GetSelectedMenu(state),
 });
 
 const mapDispatchToProps = (dispatch: Dispatch<MenuActions | BusinessActions>) => ({
   dispatch,
   getMenuTp: bindActionCreators(MenuController.getMenuTp, dispatch),
   fetchStoreData: bindActionCreators(BusinessController.fetchStoreData, dispatch),
+  setSelectedMenutp: bindActionCreators(BusinessController.setSelectedMenutp, dispatch),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps, mergeProps)(Store);

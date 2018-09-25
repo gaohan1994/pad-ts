@@ -18,6 +18,9 @@ export type SAVE_CHOICE_PEOPLE = typeof SAVE_CHOICE_PEOPLE;
 export const RECEIVE_STORE_LISTVIEW_DATASOURCE = 'RECEIVE_STORE_LISTVIEW_DATASOURCE';
 export type RECEIVE_STORE_LISTVIEW_DATASOURCE = typeof RECEIVE_STORE_LISTVIEW_DATASOURCE;
 
+export const SET_SELECTED_MENUTPID = 'SET_SELECTED_MENUTPID';
+export type SET_SELECTED_MENUTPID = typeof SET_SELECTED_MENUTPID;
+
 /**
  * @todo sign module
  */
@@ -74,3 +77,22 @@ export type CHANGE_ORDER_TABLE_NUMBER = typeof CHANGE_ORDER_TABLE_NUMBER;
  */
 export const RECEIVE_TABLE_INFO = 'RECEIVE_TABLE_INFO';
 export type RECEIVE_TABLE_INFO = typeof RECEIVE_TABLE_INFO;
+
+/**
+ * @todo cart modules
+ */
+
+export const UPDATE_CART = 'UPDATE_CART';
+export type UPDATE_CART = typeof UPDATE_CART;
+
+export const ADD_NEW_ITEM = 'ADD_NEW_ITEM';
+export type ADD_NEW_ITEM = typeof ADD_NEW_ITEM;
+
+export const ADD_ITEM = 'ADD_ITEM';
+export type ADD_ITEM = typeof ADD_ITEM;
+
+export const REDUCE_ITEM = 'REDUCE_ITEM';
+export type REDUCE_ITEM = typeof REDUCE_ITEM;
+
+export const DELETE_ITEM = 'DELETE_ITEM';
+export type DELETE_ITEM = typeof DELETE_ITEM;

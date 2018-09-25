@@ -305,7 +305,7 @@ class OrderPage extends React.Component<OrderProps, OrderPageState> {
   
   /**
    * @todo 渲染桌号
-   * @param { 如果 orderChange 中的 table_no 和 order 中的 table_no 不同说明修改过桌号显示 orderChange 的}
+   * @param { 如果 orderChange 中的 table_no 和 order 中的 table_no 不同说明修改过桌号显示 orderChange 的 }
    * @private
    * @memberof OrderPage
    */

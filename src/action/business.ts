@@ -4,6 +4,7 @@ import {
   SAVE_CHOICE_TABLEINFO, 
   SAVE_CHOICE_PEOPLE,
   RECEIVE_STORE_LISTVIEW_DATASOURCE,
+  SET_SELECTED_MENUTPID,
 } from './constants';
 import { Dispatch } from 'redux';
 import { Stores } from '../store';
@@ -24,7 +25,16 @@ export interface ReceiveStoreListViewDataSource {
   payload: any;
 }
 
-export type BusinessActions = SaveChoiceTableinfo | SaveChoicePeople | ReceiveStoreListViewDataSource;
+export interface SetSelectedMenu {
+  type: SET_SELECTED_MENUTPID;
+  payload: any;
+}
+
+export type BusinessActions = 
+  SaveChoiceTableinfo 
+  | SaveChoicePeople 
+  | ReceiveStoreListViewDataSource
+  | SetSelectedMenu;
 
 class Business {
 
@@ -52,8 +62,6 @@ class Business {
    * @memberof Business
    */
   public saveChoicePeople = (people: any) => async (dispatch: Dispatch, state: () => Stores) => {
-    
-    console.log('people: ', people);
     await dispatch({
       type: SAVE_CHOICE_PEOPLE,
       payload: {
@@ -95,9 +103,13 @@ class Business {
       menu.forEach((item: any) => {
         menuList[item.menutp_id].push(item);
       });
-
-      console.log('menuList: ', menuList);
-
+      
+      const selectedMenu = { menutp_id: menutp[0].menutp_id };
+      dispatch({
+        type: SET_SELECTED_MENUTPID,
+        payload: { selectedMenu },
+      });
+      
       dispatch({
         type: RECEIVE_STORE_LISTVIEW_DATASOURCE,
         payload: { menuList }
@@ -106,6 +118,20 @@ class Business {
     } else {
       Base.toastFail('请求数据出错');
     }
+  }
+
+  /**
+   * @todo 设置选中菜单
+   * @param { menutpId string 选中的 menutpid }
+   *
+   * @memberof Business
+   */
+  public setSelectedMenutp = (menutp_id: any) => async (dispatch: Dispatch) => {
+    const selectedMenu = { menutp_id };
+    dispatch({
+      type: SET_SELECTED_MENUTPID,
+      payload: { selectedMenu }
+    });
   }
 }
 
