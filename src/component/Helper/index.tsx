@@ -5,9 +5,20 @@ import { Dispatch, bindActionCreators } from 'redux';
 import { Stores } from '../../store/index';
 import { merge } from 'lodash';
 import { mergeProps } from '../../common/config';
-import CartController from '../../action/cart';
+import CartController, { AddItemPayload } from '../../action/cart';
 import numeral from 'numeral';
 import orderStyles from '../../container/order/style.less';
+import { GetProductInCart, GetProductInCartReturn } from '../../store/cart';
+
+/**
+ * @tood 校验传入的 attrs 和 item 的 attr 是否一致（是否选中）
+ * @param { item 商品 }
+ * @param { attrs 属性值 }
+ * @export
+ */
+export const AttrsChecked = (item: any, attrs: any[]): boolean => {
+  return true;
+};
 
 /**
  * @param { data 菜品 }
@@ -16,8 +27,8 @@ import orderStyles from '../../container/order/style.less';
  */
 interface HelperPrps {
   data: any;
+  cartItem?: GetProductInCartReturn;
   dispatch?: Dispatch;
-  putItemToCart?: (data: any) => void;
   addItem?: (data: any) => void;
   reducItem?: (data: any) => void;
   deleteItem?: (data: any) => void;
@@ -79,8 +90,6 @@ class Helper extends Component <HelperPrps, HeplerState> {
   }
 
   public onShowConfigModal = () => {
-    console.log(this.props.data);
-    console.log(this.state.selectedAttrs);
     this.setState({
       visible: true,
     });
@@ -94,28 +103,27 @@ class Helper extends Component <HelperPrps, HeplerState> {
   
   /**
    * @todo 添加条目
+   * @param { 根据 attrType 判断是否是规格商品 }
+   * @param { 根据 is_weight 判断是否是称斤商品 }
    * @param { data 商品 }
    * @memberof Helper
    */
-  public putItemToCart = () => {
-    const { selectedAttrs } = this.state;
-    const { data, putItemToCart } = this.props;
-    console.log('selectedAttrs: ', selectedAttrs);
-    console.log('data: ', data);
-
-    const payload = {
-      data,
-      attrs: selectedAttrs,
-    };
-
-    if (putItemToCart) {
-      putItemToCart(payload);
-    }
-  }
-
   public addItem = () => {
-    const { data } = this.props;
-    console.log('addItem data: ', data);
+    const { selectedAttrs } = this.state;
+    const { data, addItem } = this.props;
+
+    let payload: AddItemPayload = { data };
+
+    if (data.attrType) {
+      payload = {
+        ...payload,
+        attrs: selectedAttrs,
+      };
+    }
+
+    if (addItem) {
+      addItem(payload);
+    }
   }
 
   public reducItem = () => {
@@ -138,10 +146,27 @@ class Helper extends Component <HelperPrps, HeplerState> {
    */
   render() {
     const { visible } = this.state;
-    const { data } = this.props;
+    const { data, cartItem } = this.props;
+
+    /**
+     * @param { token: 是否存在 cart 中 } 
+     * @param { index: 在 cart 中的位置 } 
+     * @param { cartData: 在 cart 中的数据 }
+     */
+    let
+      token: boolean = false,
+      // index: number,
+      cartData: any;
+
+    if (cartItem && typeof cartItem.index === 'number') {
+      token = true;
+      // index = cartItem.index;
+      cartData = cartItem.data;
+    }
+
     if (data.attrType) {
       return (
-        <div>
+        <div onClick={() => { console.log('cartItem: ', cartItem); }}>
           <Modal
             transparent={true}
             visible={visible}
@@ -184,7 +209,7 @@ class Helper extends Component <HelperPrps, HeplerState> {
                 );
               })}
             </div>
-            <div className={orderStyles.footer} onClick={() => this.putItemToCart()}>+1</div>
+            <div className={orderStyles.footer} onClick={() => this.addItem()}>+1</div>
           </Modal>
           <Button size="small" type="primary" onClick={() => this.onShowConfigModal()}>选规格</Button>
         </div>
@@ -195,21 +220,33 @@ class Helper extends Component <HelperPrps, HeplerState> {
       );
     } else {
       return (
-        <div onClick={this.putItemToCart}>
-          default
+        <div>
+          {
+            token === true ? (
+              <div>
+                <div onClick={this.reducItem}>-</div>
+                <div>{cartData.number}</div>
+                <div onClick={this.addItem}>+</div>
+              </div>
+            ) : (
+              <div onClick={this.addItem}>没有</div>
+            )
+          }
         </div>
       );
     }
   }
 }
 
-const mapStateToProps = (state: Stores) => ({
-
-});
+const mapStateToProps = (state: Stores, ownProps: any) => {
+  const { data } = ownProps;
+  return {
+    cartItem: GetProductInCart(state, data),
+  };
+};
 
 const mapDispatchToProps = (dispatch: Dispatch) => ({
   dispatch,
-  putItemToCart: bindActionCreators(CartController.putItemToCart, dispatch),
   addItem: bindActionCreators(CartController.addItem, dispatch),
   reducItem: bindActionCreators(CartController.reducItem, dispatch),
   deleteItem: bindActionCreators(CartController.deleteItem, dispatch),

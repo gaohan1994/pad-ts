@@ -14,15 +14,10 @@ export type InterfaceConfig = {
 
 /**
  * @todo 配置不会因为环境改变的数据项
- *
  * @param { DEFAULT_DOCUMENT_TITLE } string 默认head title
- * 
  * @param { DEFAULT_FETCH_METHOD } string 默认请求method defalut post
- * 
  * @param { DEFAULT_BALL_SPEED } number 购物车小球默认速度 220
- * 
  * @param { DEFAUL_MCHNT_CD } string 测试用 mchnt_cd
- * 
  * @export
  * @interface DefaultCommonConfig
  */
@@ -44,10 +39,10 @@ const defaultCommonConfig: DefaultCommonConfig = {
   DEFAULT_PICTURE_LING: '//net.huanmusic.com/qg/pic_default.png',
 };
 
-// 测试环境 http://202.101.149.132:7680/BKMS1
+// 测试环境 http://202.101.149.132:7680/BKMS_HMS/GateWayAction.do
 const devConfig: InterfaceConfig = {
   ...defaultCommonConfig,
-  FETCH_ENTRY: 'http://202.101.149.132:7680/BKMS1/GateWayAction.do',
+  FETCH_ENTRY: 'http://202.101.149.132:7680/BKMS_HMS/GateWayAction.do',
 };
 
 const proConfig: InterfaceConfig = {
@@ -99,7 +94,7 @@ const formatOrderTime = (time: string): string => {
   return formatDate;
 };
 
-const isArrayFn = (value: any) => {
+const isArrayFn = (value: any): boolean => {
   if (typeof Array.isArray === 'function') {
     return Array.isArray(value);
   } else {

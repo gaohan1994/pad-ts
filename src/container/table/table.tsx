@@ -73,7 +73,7 @@ class Table extends React.Component<TableProps, {}> {
                 peopelNum: tableinfo[index].peopelNum,
                 ...table,
                 icon: '',
-                text: table.table_name
+                text: `${table.table_name} ${table.status === 1 ? `占用` : `未占用`}`
               };
             });
 

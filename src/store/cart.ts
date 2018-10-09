@@ -28,3 +28,28 @@ export default function cart (state: Cart = initState, action: any): Cart {
 }
 
 export const GetList = (state: Stores) => state.cart.list;
+
+/**
+ * @todo 寻找在 cart 中 product_id 相同的数据
+ * @param { state: store }
+ * @param { item: 数据 } 
+ * @return { index: 在cart中的位置, data: 在cart中的数据 }
+ */
+export interface GetProductInCartReturn {
+  index?: number;
+  data?: any;
+}
+
+export const GetProductInCart = (state: Stores, item: any): GetProductInCartReturn => {
+  const { list } = state.cart;
+  const index = list.findIndex(i => i.product_id === item.product_id);
+
+  if (index === -1) {
+    return {};
+  } else {
+    return {
+      index,
+      data: list[index]
+    };
+  }
+};

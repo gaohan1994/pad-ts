@@ -187,6 +187,7 @@ class Store extends React.Component<StoreProps, StoreState> {
       <div
         key={item.product_id}
         className={styles.item}
+        onClick={() => { console.log('item: ', item); }}
       >
         <div className={styles.img}>
           <div style={{backgroundImage: `url(${config.DEFAULT_PICTURE_LING})`}} />
@@ -195,7 +196,7 @@ class Store extends React.Component<StoreProps, StoreState> {
           <div className={styles.wrapDiv}>
             <div className={styles.productName}>{item.product_name}</div>
             <div>{numeral(item.price).format('0.00')}</div>
-            <Helper data={item} />
+            <Helper  data={item} />
           </div>
         </div>
       </div>
