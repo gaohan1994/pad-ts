@@ -5,10 +5,14 @@ import { Dispatch, bindActionCreators } from 'redux';
 import { Stores } from '../../store/index';
 import { merge } from 'lodash';
 import { mergeProps } from '../../common/config';
-import CartController, { AddItemPayload } from '../../action/cart';
+import CartController, { 
+  CartItemPayload, 
+  CheckItemAlreadyInCart, 
+  CheckItemAlreadyInCartReturn,
+} from '../../action/cart';
 import numeral from 'numeral';
 import orderStyles from '../../container/order/style.less';
-import { GetProductInCart, GetProductInCartReturn } from '../../store/cart';
+import { GetProductInCart, GetProductInCartReturn, GetList } from '../../store/cart';
 
 /**
  * @tood 校验传入的 attrs 和 item 的 attr 是否一致（是否选中）
@@ -29,9 +33,9 @@ interface HelperPrps {
   data: any;
   cartItem?: GetProductInCartReturn;
   dispatch?: Dispatch;
-  addItem?: (data: any) => void;
-  reducItem?: (data: any) => void;
-  deleteItem?: (data: any) => void;
+  list?: any;
+  addItem?: (payload: CartItemPayload) => void;
+  reduceItem?: (payload: CartItemPayload) => void;
 }
 
 interface HeplerState {
@@ -112,7 +116,7 @@ class Helper extends Component <HelperPrps, HeplerState> {
     const { selectedAttrs } = this.state;
     const { data, addItem } = this.props;
 
-    let payload: AddItemPayload = { data };
+    let payload: CartItemPayload = { data };
 
     if (data.attrType) {
       payload = {
@@ -120,20 +124,26 @@ class Helper extends Component <HelperPrps, HeplerState> {
         attrs: selectedAttrs,
       };
     }
-
     if (addItem) {
       addItem(payload);
     }
   }
 
-  public reducItem = () => {
-    const { data } = this.props;
-    console.log('reducItem data: ', data);
-  }
+  public reduceItem = () => {
+    const { selectedAttrs } = this.state;
+    const { data, reduceItem } = this.props;
 
-  public deleteItem = () => {
-    const { data } = this.props;
-    console.log('deleteItem data: ', data);
+    let payload: CartItemPayload = { data };
+
+    if (data.attrType) {
+      payload = {
+        ...payload,
+        attrs: selectedAttrs,
+      };
+    }
+    if (reduceItem) {
+      reduceItem(payload);
+    }
   }
 
   /**
@@ -145,8 +155,8 @@ class Helper extends Component <HelperPrps, HeplerState> {
    * @memberof Helper
    */
   render() {
-    const { visible } = this.state;
-    const { data, cartItem } = this.props;
+    const { visible, selectedAttrs } = this.state;
+    const { data, cartItem, list } = this.props;
 
     /**
      * @param { token: 是否存在 cart 中 } 
@@ -155,18 +165,33 @@ class Helper extends Component <HelperPrps, HeplerState> {
      */
     let
       token: boolean = false,
-      // index: number,
       cartData: any;
 
     if (cartItem && typeof cartItem.index === 'number') {
       token = true;
-      // index = cartItem.index;
       cartData = cartItem.data;
     }
-
     if (data.attrType) {
+      /**
+       * @todo 规格商品先把 token 置否在进行特殊处理
+       * @param { attrIndex 购物车中该规格商品 }
+       * @param { attrId 规格组合的 id }
+       */
+      token = false;
+
+      let
+        attrIndex: number = -1,
+        attrId: string = '';
+
+      const { inCart, index, attrToken }: CheckItemAlreadyInCartReturn = CheckItemAlreadyInCart(data, list, selectedAttrs);
+      if (inCart === true && typeof index === 'number' && attrToken) {
+        token = true;
+        attrIndex = attrToken.attrIndex;
+        attrId = attrToken.attrId;
+      }
+
       return (
-        <div onClick={() => { console.log('cartItem: ', cartItem); }}>
+        <div>
           <Modal
             transparent={true}
             visible={visible}
@@ -194,9 +219,7 @@ class Helper extends Component <HelperPrps, HeplerState> {
                         return (
                           <div 
                             key={info.attrId} 
-                            className={`
-                              ${orderStyles.button}
-                            `}
+                            className={`${orderStyles.button}`}
                             onClick={() => this.onInfoClickHandle(attr, info)}
                           > 
                             {info.attrName}
@@ -209,7 +232,23 @@ class Helper extends Component <HelperPrps, HeplerState> {
                 );
               })}
             </div>
-            <div className={orderStyles.footer} onClick={() => this.addItem()}>+1</div>
+            <div className={orderStyles.footer}>
+              {
+                token === true 
+                && attrIndex !== -1
+                && attrId ? (
+                  <div>
+                    <div onClick={() => this.reduceItem()}> - </div>
+                    <div>
+                      {cartData.number[attrIndex].number}
+                    </div>
+                    <div onClick={() => this.addItem()}> + </div>
+                  </div>
+                ) : (
+                  <div onClick={() => this.addItem()}>没有</div>
+                )
+              }
+            </div>
           </Modal>
           <Button size="small" type="primary" onClick={() => this.onShowConfigModal()}>选规格</Button>
         </div>
@@ -224,12 +263,12 @@ class Helper extends Component <HelperPrps, HeplerState> {
           {
             token === true ? (
               <div>
-                <div onClick={this.reducItem}>-</div>
+                <div onClick={() => this.reduceItem()}>-</div>
                 <div>{cartData.number}</div>
-                <div onClick={this.addItem}>+</div>
+                <div onClick={() => this.addItem()}>+</div>
               </div>
             ) : (
-              <div onClick={this.addItem}>没有</div>
+              <div onClick={() => this.addItem()}>没有</div>
             )
           }
         </div>
@@ -242,14 +281,14 @@ const mapStateToProps = (state: Stores, ownProps: any) => {
   const { data } = ownProps;
   return {
     cartItem: GetProductInCart(state, data),
+    list: GetList(state),
   };
 };
 
 const mapDispatchToProps = (dispatch: Dispatch) => ({
   dispatch,
   addItem: bindActionCreators(CartController.addItem, dispatch),
-  reducItem: bindActionCreators(CartController.reducItem, dispatch),
-  deleteItem: bindActionCreators(CartController.deleteItem, dispatch),
+  reduceItem: bindActionCreators(CartController.reducItem, dispatch)
 });
 
 export default connect(mapStateToProps, mapDispatchToProps, mergeProps)(Helper);

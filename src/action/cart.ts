@@ -6,28 +6,51 @@ import { UPDATE_CART } from './constants';
 import Base from './base';
 
 /**
+ * @return { id 结合之后的 id } id
+ * @return { attrs 传入的 attrs } attrs
+ *
+ * @export
+ * @interface AttrParamHeplerReturn
+ */
+export interface AttrParamHeplerReturn {
+  id: string;
+  attrs: any[];
+}
+
+/**
  * @param { data 菜品数据 }
  * @param { attrs 如果是规格商品上传规格 }
  *
  * @export
- * @interface AddItemPayload
+ * @interface CartItemPayload
  */
-export interface AddItemPayload {
+export interface CartItemPayload {
   data: any;
   attrs?: any;
 }
 
+/**
+ * @param { inCart: boolean 是否存在 cart 中 } inCart
+ * @param { index: number 在 cart 中的位置 } index
+ * @param { attrToken: any 如果是规格商品那么 返回 attrToken } attrToken
+ *
+ * @export
+ * @interface CheckItemAlreadyInCartReturn
+ */
 export interface CheckItemAlreadyInCartReturn {
   inCart: boolean;
   index?: number;
-  attrToken?: any;
+  attrToken?: {
+    attrIndex: number;
+    attrId: string;
+  };
 }
 
 /**
  * 返回 属性的 id 组合 和属性本身
  * @param { attrs 属性数组 }
  */
-const AttrParamHepler = (attrs: any[]): any => {
+export const AttrParamHepler = (attrs: any[]): AttrParamHeplerReturn => {
   const ids = attrs.map((attr: any) => {
     return numeral(attr.attrId).value();
   });
@@ -49,7 +72,7 @@ const AttrParamHepler = (attrs: any[]): any => {
 export const CheckItemAlreadyInCart = (item: any, list: any[], attrs?: any[]): CheckItemAlreadyInCartReturn => {
   const productIdToken = list.findIndex(l => l.product_id === item.product_id);
   if (productIdToken === -1) {
-    return { inCart: false };
+    return { inCart: false, index: productIdToken };
   } else if (!!attrs) {
     /**
      * @param { 判断如果传上来的属性都能在该条数据中找到那么才是存在于cart中 }
@@ -60,7 +83,7 @@ export const CheckItemAlreadyInCart = (item: any, list: any[], attrs?: any[]): C
 
     if (attrToken === -1) {
       // 不存在
-      return { inCart: false };
+      return { inCart: false, index: productIdToken };
     } else {
       // 存在
       return { inCart: true, index: productIdToken, attrToken: { attrIndex: attrToken, attrId: id } };
@@ -74,12 +97,12 @@ export const CheckItemAlreadyInCart = (item: any, list: any[], attrs?: any[]): C
 class CartController {
 
   /**
-   * @todo 加入新条目到购物车
+   * @todo 加入条目到购物车
    * @param { param: { data: data, attrs: [] } }
    *
    * @memberof CartController
    */
-  public addItem = (param: AddItemPayload) => async (dispatch: Dispatch, state: () => Stores) => {
+  public addItem = (param: CartItemPayload) => async (dispatch: Dispatch, state: () => Stores) => {
     /**
      * @param { data 数据条目 }
      * @param { attrs 如果有attrs 说明是规格商品如果没有那么是默认或者称斤 }
@@ -104,7 +127,7 @@ class CartController {
        */
       const { inCart, index, attrToken }: CheckItemAlreadyInCartReturn = CheckItemAlreadyInCart(data, list, attrs);
 
-      if (inCart === false) {
+      if (inCart === false && index === -1) {
         const attrParam = {
           ...AttrParamHepler(attrs),
           number: 1,
@@ -112,6 +135,14 @@ class CartController {
 
         data.number = [attrParam];
         list.push(data);
+      } else if (inCart === false && typeof index === 'number' && index !== -1) {
+        // 商品存在于购物车但是没有这个规格
+        const attrParam = {
+          ...AttrParamHepler(attrs),
+          number: 1,
+        };
+
+        list[index].number.push(attrParam);
       } else if (inCart === true) {
         if (typeof index === 'number' && attrToken) {
           const { attrIndex } = attrToken;
@@ -119,6 +150,8 @@ class CartController {
         } else {
           Base.toastFail('点餐失败~');
         }
+      } else {
+        Base.toastFail('点餐失败~');
       }
 
       dispatch({
@@ -148,21 +181,52 @@ class CartController {
   }
 
   /**
-   * @todo 减少数量
+   * @todo 减少条目数量 当数量为1的时候删除条目
+   * @param { data 要修改的数据 } 
+   * @param { list 购物车 }
    *
    * @memberof CartController
    */
-  public reducItem = (param: any) => async (dispatch: Dispatch, state: () => Stores) => {
-    const { } = await state();
-  }
+  public reducItem = (param: CartItemPayload) => async (dispatch: Dispatch, state: () => Stores) => {
+    const { data, attrs } = param;
+    const { cart: { list } } = await state();
+    
+    if (attrs) {
+      const { inCart, index, attrToken }: CheckItemAlreadyInCartReturn = CheckItemAlreadyInCart(data, list, attrs);
 
-  /**
-   * @todo 从购物车删除 
-   *
-   * @memberof CartController
-   */
-  public deleteItem = (param: any) => async (dispatch: Dispatch, state: () => Stores) => {
-    const { } = await state();
+      if (inCart === true && typeof index === 'number' && attrToken) {
+        // console.log('list[index]', list[index]);
+        const { attrIndex } = attrToken;
+
+        if (list[index].number[attrIndex].number === 1) {
+          list[index].number.splice(attrIndex, 1);
+        } else {
+          list[index].number[attrIndex].number -= 1;
+        }
+      } else {
+        Base.toastFail('点餐出错了~');
+      }
+    } else if (data.weight === true) {
+      //
+    } else {
+      const { inCart, index }: CheckItemAlreadyInCartReturn = CheckItemAlreadyInCart(data, list);
+
+      if (inCart === true && typeof index === 'number') {
+        // console.log('list[index]', list[index]);
+        if (list[index].number === 1) {
+          list.splice(index, 1);
+        } else {
+          list[index].number -= 1;
+        }
+      } else {
+        Base.toastFail('点餐出错了~');
+      }
+    }
+
+    dispatch({
+      type: UPDATE_CART,
+      payload: { list: merge([], list) }
+    });
   }
 }
 

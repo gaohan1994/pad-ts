@@ -40,7 +40,7 @@ export interface GetProductInCartReturn {
   data?: any;
 }
 
-export const GetProductInCart = (state: Stores, item: any): GetProductInCartReturn => {
+export const GetProductInCart = (state: Stores, item: any, attrs?: any[]): GetProductInCartReturn => {
   const { list } = state.cart;
   const index = list.findIndex(i => i.product_id === item.product_id);
 
