@@ -38,6 +38,7 @@ interface InterfaceProps {
   orderDetailSearch: (params: { mchnt_cd: string; order_no: string; }) => void;
   getTableInfo: (mchnt_cd: string) => void;
   addTableInfo: (params: {mchnt_cd: string; num: string}) => void;
+  inventoryClean: (param: any) => void;
 }
 
 const DEFAULT_MCHNT_CD = '60000000200';
@@ -199,6 +200,17 @@ class InterfaceTest extends React.Component<InterfaceProps, {}> {
     });
   }
 
+  /**
+   * @todo 估清
+   * @param { product_id 菜品id }
+   *
+   * @memberof InterfaceTest
+   */
+  public inventoryClean = () => {
+    const { inventoryClean } = this.props;
+    inventoryClean('S00001635');
+  }
+
   public render() {
     const testInterfaces = [
       {
@@ -249,7 +261,11 @@ class InterfaceTest extends React.Component<InterfaceProps, {}> {
           {
             name: 'getSingleMenuTp',
             handle: this.getSingleMenuTp,
-          }
+          },
+          {
+            name: 'inventoryClean',
+            handle: this.inventoryClean,
+          },
         ]
       },
       {
@@ -335,6 +351,7 @@ const mapDispatchToProps = (dispatch: Dispatch<any>) => ({
   orderDetailSearch: bindActionCreators(OrderController.orderDetailSearch, dispatch),
   getTableInfo: bindActionCreators(TableController.getTableInfo, dispatch),
   addTableInfo: bindActionCreators(TableController.addTableInfo, dispatch),
+  inventoryClean: bindActionCreators(MenuController.InventoryClean, dispatch),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps, mergeProps)(InterfaceTest);

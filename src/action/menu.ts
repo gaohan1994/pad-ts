@@ -231,6 +231,32 @@ class MenuController extends Base {
     }
   }
   
+  /**
+   * @todo 估清
+   * @param { param: { product_id } || product_id }
+   * 
+   * @static
+   * @memberof MenuController
+   */
+  static InventoryClean = (param: any) => async () => {
+    ConsoleUtil('InventoryClean');
+
+    let payload: {product_id: string} = { product_id: '' }; 
+    
+    if (typeof param === 'string') {
+      payload.product_id = param;
+    } else {
+      payload.product_id = param.payload;
+    }
+    
+    const result = await MenuService.InventoryClean(payload);
+    if (result.code === '10000') {
+      console.log('result: ', result);
+      Base.toastInfo('成功估清~');
+    } else {
+      Base.toastFail('估清失败了~');
+    }
+  }
 }
 
 export default MenuController;

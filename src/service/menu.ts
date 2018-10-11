@@ -273,6 +273,25 @@ class MenuService {
       }
     );
   }
+
+  /**
+   * @todo 估清
+   *
+   * @static
+   * @memberof MenuService
+   */
+  static InventoryClean = async (params: any): Promise<any> => {
+    return request(
+      '',
+      'post',
+      {
+        method: 'menu.inventory_clean',
+        biz_content: {
+          ...params,
+        }
+      }
+    );
+  }
 }
 
 export default MenuService;
