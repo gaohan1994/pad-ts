@@ -41,12 +41,14 @@ interface HelperPrps {
 interface HeplerState {
   visible: boolean;
   selectedAttrs: any[];
+  inputWeight: string;
 }
 
 class Helper extends Component <HelperPrps, HeplerState> {
   state = {
     visible: false,
     selectedAttrs: [],
+    inputWeight: '',
   };
 
   /**

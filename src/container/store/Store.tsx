@@ -13,6 +13,7 @@ import MenuController, { MenuActions } from '../../action/menu';
 import BusinessController, { BusinessActions } from '../../action/business';
 import styles from './index.less';
 import Helper from '../../component/Helper';
+import OrderController from '../../action/order';
 
 const SECTIONHEADERHEIGHT: number = 44;
 const MENUITEMHEIGHT: number = 92;
@@ -39,6 +40,7 @@ interface StoreProps {
   getMenuTp: (mchnt_cd: string) => void;
   fetchStoreData: (mchnt_cd: string) => void;
   setSelectedMenutp: (menuid: string) => void;
+  sendOrder: () => void;
 }
 interface StoreState {
   menuDataSource: any;
@@ -148,6 +150,16 @@ class Store extends React.Component<StoreProps, StoreState> {
     }
   }
 
+  /**
+   * @todo 下单
+   *
+   * @memberof Store
+   */
+  public sendOrder = () => {
+    const { sendOrder } = this.props;
+    sendOrder();
+  }
+
   public render() {
     return (
       <div className={`${styles.container} ${styles.store}`}>
@@ -178,6 +190,8 @@ class Store extends React.Component<StoreProps, StoreState> {
             overflow: 'auto',
           }}
         />
+
+        <div onClick={() => this.sendOrder()}>下单</div>
       </div>
     );
   }
@@ -238,6 +252,7 @@ const mapDispatchToProps = (dispatch: Dispatch<MenuActions | BusinessActions>) =
   getMenuTp: bindActionCreators(MenuController.getMenuTp, dispatch),
   fetchStoreData: bindActionCreators(BusinessController.fetchStoreData, dispatch),
   setSelectedMenutp: bindActionCreators(BusinessController.setSelectedMenutp, dispatch),
+  sendOrder: bindActionCreators(OrderController.sendOrder, dispatch),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps, mergeProps)(Store);

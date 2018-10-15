@@ -152,6 +152,28 @@ const countTotal = (param: any): any => {
   return order;
 };
 
+/**
+ * len: 需要字符串的长度
+ *
+ * @export
+ * @param {*} len
+ * @returns
+ */
+export function randomString(len: number): string {
+  const length = len || 32;
+  /**
+   * @param { $chars 默认去掉了容易混淆的字符oOLl,9gq,Vv,Uu,I1 }
+   * @param { $chars = 'ABCDEFGHJKMNPQRSTWXYZabcdefhijkmnprstwxyz2345678' }
+   */
+  const $chars = '0123456789';
+  const maxPos = $chars.length;
+  let pwd = '';
+  for (let i = 0; i < length; i++) {
+    pwd += $chars.charAt(Math.floor(Math.random() * maxPos));
+  }
+  return pwd;
+}
+
 export { 
   devConfig, 
   proConfig,

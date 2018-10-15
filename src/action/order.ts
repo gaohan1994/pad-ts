@@ -1,3 +1,5 @@
+import moment from 'moment';
+import numeral from 'numeral';
 import { Dispatch } from 'redux';
 import { 
   RECEIVE_ORDER_LIST,
@@ -12,6 +14,23 @@ import { ConsoleUtil } from '../common/request';
 import OrderService from '../service/order';
 import Base from './base';
 import { Stores } from '../store/index';
+import { GetUserinfo } from '../store/sign';
+import { randomString, isArrayFn } from '../common/config';
+
+export interface Product {
+  product_id: string;
+  product_name: string;
+  price: string;
+  first_attr: string;
+  second_attr: string;
+  num: number;
+  is_add_dish?: string;
+  ori_price?: number;
+  subtotal?: number;
+}
+export interface SendOrderParams {
+
+}
 
 /**
  * @param terminal_cd 
@@ -34,9 +53,9 @@ import { Stores } from '../store/index';
  * @param account_paid 已支付费用
  *
  * @export
- * @interface SendOrderParams
+ * @interface SendOrderPayload
  */
-export interface SendOrderParams {
+export interface SendOrderPayload {
   terminal_cd: string;
   is_pos: string;
   mchnt_cd: string;
@@ -46,10 +65,10 @@ export interface SendOrderParams {
   stdtrnsamt: string;
   discount: string;
   packing_price: string;
-  pay_no: string;
-  pay_ty: string;
+  pay_no?: string;
+  pay_ty?: '0' | '1' | '2' | '3' | '4' | '5' | '6';
   totalnum: string;
-  order_detail: string;
+  order_detail: any[];
   table_no?: string;
   people_num?: string;
   table_name?: string;
@@ -129,22 +148,143 @@ export type OrderActions =
   | ChangeOrderToken
   | ChangeOrderDetail;
 
-class OrderController extends Base {
+/**
+ * @return { product: Product | products: Product[] }
+ * @param { item: product }
+ */
+export const ReturnStandardProduct = (item: any): any => {
+  
+  if (isArrayFn(item.number) === false) {
+    return {
+      product_id: item.product_id,
+      product_name: item.product_name,
+      price: numeral(item.price).format('0.00'),
+      first_attr: '',
+      second_attr: '',
+      num: item.number,
+    };
+  } else {
+    const products = item.number.map((productAttr: any) => {
+      return {
+        product_id: item.product_id,
+        product_name: item.product_name,
+        price: numeral(item.price).format('0.00'),
+        first_attr: productAttr.attrs[0] && productAttr.attrs[0].attrName,
+        second_attr: productAttr.attrs[1] && productAttr.attrs[1].attrName,
+        num: productAttr.number,
+      };
+    });
 
+    return products;
+  }
+};
+
+/**
+ * @param 
+ *
+ * @export
+ * @interface GetTotalParamsReturn
+ */
+export interface GetTotalParamsReturn {
+  formatTotalNumber: number | string;
+  formatTotalPrice: number | string;
+}
+
+export interface GetTotalParamsConfig {
+  priceFormat: 'number' | 'string';
+  numberFormat: 'number' | 'string';
+}
+
+/**
+ * @todo 传入所有标准 products 返回对应数据
+ * @param { products 所有标准化的数据 }
+ * @param { config: GetTotalParamsConfig 配置选项 }
+ * @return { totalNubmer: number, totalPrice: number }
+ */
+export const GetTotalParams = (
+  products: Product[],
+  config: GetTotalParamsConfig = {
+    priceFormat: 'string',
+    numberFormat: 'string',
+  }
+): GetTotalParamsReturn => {
+  let totalNumber: number = 0;
+  let totalPrice: number = 0;
+
+  products.forEach((product: Product, index: number) => {
+    const productNumber = numeral(product.num).value();
+    const productPrice = numeral(product.price).value();
+    totalNumber += productNumber;
+    totalPrice += productNumber * productPrice;
+  });
+
+  const { priceFormat, numberFormat } = config;
+  let formatTotalNumber: number | string = totalNumber;
+  let formatTotalPrice: number | string = totalPrice;
+
+  if (priceFormat === 'string') {
+    formatTotalPrice = numeral(totalPrice).format('0.00');
+  } else if (priceFormat === 'number') {
+    formatTotalPrice = numeral(totalNumber).value();
+  }
+
+  if (numberFormat === 'string') {
+    formatTotalNumber = String(totalNumber);
+  } else if (numberFormat === 'number') {
+    formatTotalNumber = numeral(totalNumber).value();
+  }
+
+  return { formatTotalNumber, formatTotalPrice };
+};
+
+class OrderController extends Base {
   /**
    * @todo 上报订单信息
    *
    * @static
    * @memberof OrderController
    */
-  static sendOrder = (params: SendOrderParams) => async (dispatch: Dispatch) => {
+  static sendOrder = (params: SendOrderParams) => async (dispatch: Dispatch, state: () => Stores) => {
     ConsoleUtil('sendOrder');
+    const Store = await state();
+    const { cart: { list } } = Store;
+    const { mchnt_cd } = GetUserinfo(Store);
 
-    const result = await OrderService.sendOrder(params);
-    if (result.code === '10000') {
-      console.log(result);
-    } else {
-      console.log(result);
+    let products: Product[] = [];
+    
+    list.forEach((item: any) => {
+      const StandardProduct = ReturnStandardProduct(item);
+      if (isArrayFn(StandardProduct) === false) {
+        products.push(StandardProduct);
+      } else if (isArrayFn(StandardProduct) === true) {
+        products = products.concat(StandardProduct);
+      }
+    });
+
+    const { formatTotalNumber, formatTotalPrice } = GetTotalParams(products);
+
+    if (typeof formatTotalNumber === 'string' && typeof formatTotalPrice === 'string') {
+      const payload: SendOrderPayload = {
+        terminal_cd: 'TEST1',
+        is_pos: '2',
+        mchnt_cd,
+        term_trans_trc: randomString(6),
+        oper_id: '',
+        term_datetime: moment().format('YYYYMMDDHHmmss'),
+        stdtrnsamt: formatTotalPrice,
+        discount: numeral(0).format('0.00'),
+        packing_price: numeral(0).format('0.00'),
+        totalnum: formatTotalNumber,
+        order_detail: products,
+      };
+      console.log('payload: ', payload);
+      const result = await OrderService.sendOrder(payload);
+      if (result.code === '10000') {
+        console.log(result);
+      } else {
+        console.log(result);
+        Base.toastFail('下单失败!');
+      }
     }
   }
 
