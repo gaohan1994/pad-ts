@@ -146,8 +146,8 @@ export default class Parabola {
           return that;
         }
 
-        const scrollLeft = document.documentElement.scrollLeft || document.body.scrollLeft;
-        const scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
+        const scrollLeft = document && document.documentElement && document.documentElement.scrollLeft || document.body.scrollLeft;
+        const scrollTop = document && document.documentElement && document.documentElement.scrollTop || document.body.scrollTop;
 
         // 初始位置
         if (moveStyle === 'margin') {

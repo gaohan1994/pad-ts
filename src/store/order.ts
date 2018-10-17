@@ -121,8 +121,6 @@ export default function menu (
      */
     case CHANGE_ORDER_DETAIL:
     const { payload: { params } } = action;
-    console.log('params: ', params);
-
     const { changeType, changeDetail } = params;
 
     switch (changeType) {
@@ -151,6 +149,7 @@ export default function menu (
         }
 
         break;
+        
       /**
        * @todo 修改用餐人数
        * @param { people_num 要修改成的用餐人数，修改完成之后餐位费和总价随着变化 }

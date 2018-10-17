@@ -23,11 +23,13 @@ import styles from './global.less';
  */
 import App from './container/App';
 import Stores from './container/store/Stores';
-import Store from './container/store/Store';
+// import Store from './container/store/Store';
+import Store from './container/store/Store_V1';
 import Exception from './container/exception/Exception';
 import NotFound from './container/exception/NotFound';
 import InterfaceTest from './container/interfaceTest';
-import OrderList from './container/order/list';
+// import OrderList from './container/order/list';
+import OrderList from './container/order/orders';
 import Order from './container/order/order';
 import Login from './container/sign/Login';
 import Table from './container/table/table';

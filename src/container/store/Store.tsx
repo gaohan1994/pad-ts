@@ -170,7 +170,7 @@ class Store extends React.Component<StoreProps, StoreState> {
           className={styles.menutp}
           pageSize={20}
           style={{
-            height: `${document.documentElement.clientHeight}px`,
+            height: `${document && document.documentElement && document.documentElement.clientHeight}px`,
             overflow: 'auto',
           }}
         />
@@ -186,7 +186,7 @@ class Store extends React.Component<StoreProps, StoreState> {
           scrollEventThrottle={100}
           onScroll={this.onScroll}
           style={{
-            height: `${document.documentElement.clientHeight}px`,
+            height: `${document && document.documentElement && document.documentElement.clientHeight}px`,
             overflow: 'auto',
           }}
         />

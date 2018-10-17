@@ -188,7 +188,7 @@ class OrderList extends React.Component<OrderListProps, OrderListState> {
               renderBodyComponent={() => <MyBody />}
               pageSize={8}
               style={{
-                height: `${document.documentElement.clientHeight - 50}px`,
+                height: `${document && document.documentElement && document.documentElement.clientHeight - 50}px`,
                 overflow: 'auto',
               }}
               scrollRenderAheadDistance={100}
@@ -201,7 +201,7 @@ class OrderList extends React.Component<OrderListProps, OrderListState> {
               renderBodyComponent={() => <MyBody />}
               pageSize={8}
               style={{
-                height: `${document.documentElement.clientHeight - 50}px`,
+                height: `${document && document.documentElement && document.documentElement.clientHeight - 50}px`,
                 overflow: 'auto',
               }}
               scrollRenderAheadDistance={100}
