@@ -21,7 +21,7 @@ import numeral from 'numeral';
 import Base from '../../action/base';
 import {
   GetOrders,
-  GetUnpaid,
+  // GetUnpaid,
 } from '../../store/order';
 import history from '../../history';
 
@@ -264,7 +264,7 @@ class OrderList extends React.Component<OrderListProps, OrderListState> {
 
 const mapStateToProps = (state: Stores) => ({
   orders: GetOrders(state),
-  unpaid: GetUnpaid(state),
+  // unpaid: GetUnpaid(state),
 });
 
 const mapDispatchToProps = (dispatch: Dispatch<any>) => ({

@@ -60,8 +60,8 @@ class App extends React.Component<AppProps, AppState> {
     return (
       <div className={styles.container}>
         <div className={styles.item}>{userinfo.mchnt_name || '加载中'}</div>
-
-        <div className={styles.item} onClick={() => this.onNavHandle('/table')}>点餐</div>
+        <div className={styles.item} onClick={() => this.onNavHandle(`/meal/${userinfo.mchnt_cd}`)}>点餐</div>
+        <div className={styles.item} onClick={() => this.onNavHandle(`/store/${userinfo.mchnt_cd}`)}>外卖</div>
         <div className={styles.item} onClick={() => this.onNavHandle('/orderlist')}>订单</div>
         <div className={styles.item}>加菜</div>
         <div className={styles.item}>收银</div>

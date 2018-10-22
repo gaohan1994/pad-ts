@@ -4,6 +4,9 @@ export type CHANGE_STATUS_SHOW = typeof CHANGE_STATUS_SHOW;
 export const CHANGE_DOCUMENT_TITLE = 'CHANGE_DOCUMENT_TITLE';
 export type CHANGE_DOCUMENT_TITLE = typeof CHANGE_DOCUMENT_TITLE;
 
+export const CHANGE_LOADING = 'CHANGE_LOADING';
+export type CHANGE_LOADING = typeof CHANGE_LOADING;
+
 /**
  * @param { business 不与数据库交互的业务逻辑 }
  * @param { SAVE_CHOICE_TABLEINFO 保存用户选择的桌号 }
@@ -24,7 +27,6 @@ export type SET_SELECTED_MENUTPID = typeof SET_SELECTED_MENUTPID;
 /**
  * @todo sign module
  */
-
 export const CHANGE_SIGN_LOADING = 'CHANGE_SIGN_LOADING';
 export type CHANGE_SIGN_LOADING = typeof CHANGE_SIGN_LOADING;
 
@@ -72,11 +74,17 @@ export type CHANGE_ORDER_PEOPLE_NUMBER = typeof CHANGE_ORDER_PEOPLE_NUMBER;
 export const CHANGE_ORDER_TABLE_NUMBER = 'CHANGE_ORDER_TABLE_NUMBER';
 export type CHANGE_ORDER_TABLE_NUMBER = typeof CHANGE_ORDER_TABLE_NUMBER;
 
+export const CHAGNE_ORDER_LOADING = 'CHAGNE_ORDER_LOADING';
+export type CHAGNE_ORDER_LOADING = typeof CHAGNE_ORDER_LOADING;
+
 /**
  * @todo table modules
  */
 export const RECEIVE_TABLE_INFO = 'RECEIVE_TABLE_INFO';
 export type RECEIVE_TABLE_INFO = typeof RECEIVE_TABLE_INFO;
+
+export const CHANGE_TABLE_AREA = 'CHANGE_TABLE_AREA';
+export type CHANGE_TABLE_AREA = typeof CHANGE_TABLE_AREA;
 
 /**
  * @todo cart modules

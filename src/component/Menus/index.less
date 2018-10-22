@@ -1,4 +1,32 @@
+@import "../../global.less";
 .container {
   width: 100px;
   height: 100%;
+}
+
+.menus {
+  width: 80px;
+}
+
+.menu {
+  height: 120px !important;
+  color: #ffffff;
+  margin: 0px !important;
+  padding: 0px !important;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: column;
+          flex-direction: column;
+  .display-flex(center, center);
+
+  & > span {
+    line-height: 1.4;
+  }
+}
+
+.icon {
+  display: block;
+  .bg-img;
+  width: 50px;
+  height: 50px;
 }

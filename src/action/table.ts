@@ -2,6 +2,7 @@ import Base from './base';
 import { RECEIVE_TABLE_INFO } from './constants';
 import TableService from '../service/table';
 import { Dispatch } from 'redux';
+import Status from './status';
 
 export interface ReceiveTableInfo {
   type: RECEIVE_TABLE_INFO;
@@ -18,17 +19,16 @@ class TableController extends Base {
    * @memberof TableController
    */
   static getTableInfo = (mchnt_cd: string) => async (dispatch: Dispatch) => {
-
+    Status.showLoading(dispatch);
     const params = { mchnt_cd };
     const result = await TableService.getTableInfo(params);
     if (result.code === '10000') {
-      console.log('result: ', result);
+      Status.hideLoading(dispatch);
       dispatch({
         type: RECEIVE_TABLE_INFO,
         payload: { tableinfo: result.biz_content.data }
       });
     } else {
-      console.log('result: ', result);
       Base.toastFail('请求桌号信息失败');
     }
   }

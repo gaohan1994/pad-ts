@@ -1,0 +1,106 @@
+@import "../../global.less";
+
+@radius-width: 8px;
+
+.tables {
+  -ms-flex-wrap: wrap;
+      flex-wrap: wrap;
+  .display-flex(start, start);
+  overflow: auto;
+  padding-bottom: 10px;
+}
+
+.table {
+  border-radius: @radius-width;
+  margin: 10px 10px 0 0;
+  width: 100px;
+  height: 100px;
+  position: relative;
+}
+
+.occupy {
+  color: #ffffff;
+  background: @theme-color;
+}
+
+.unoccupy {
+  color: #808080;
+  background: #f3f3f3;
+}
+
+.right {
+  width: 100%;
+  height: 100%;
+  background: #ffffff;
+  overflow: hidden;
+  .display-flex(center, start);
+  .direction
+}
+
+.search {
+  margin: 15px 0;
+  .count-px(150px, 100px, 128px);
+  width: @count;
+  background: #f3f3f3;
+  color: #b5b5b5;
+  border-radius: 5px;
+  .display-flex(center, start);
+  font-size: 10px;
+
+  & > .searchIcon {
+    width: 14px;
+    height: 14px;
+    display: block;
+    .bg-img;
+    background-image: url('//net.huanmusic.com/llq/icon_sousuo.png');
+  }
+
+  & > span {
+    margin-left: 10px;
+  }
+}
+
+.activeArea, .normalArea {
+  .count-px(150px, 100px, 70px);
+  position: relative;
+  width: 100%;
+  height: @count;
+  line-height: @count;
+  font-size: 12px;
+  color: #808080;
+  padding-left: 30px;
+}
+
+.active {
+  .count-px(150px, 100px, 70px);
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 10px;
+  height: @count;
+  background: @theme-color;
+}
+
+.activeArea {
+  background: #f3f3f3;
+}
+
+.activeTip, .normalTip {
+  position: absolute;
+  color: #ffffff;
+  text-align: center;
+  height: 30px;
+  line-height: 30px;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  border-radius: 0 0 @radius-width @radius-width;
+}
+
+.normalTip {
+  background: @theme-color;
+}
+
+.activeTip {
+  background: @theme-active-color;
+}

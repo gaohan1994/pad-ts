@@ -1,5 +1,6 @@
 import numeral from 'numeral';
 import { merge } from 'lodash';
+import history from '../history';
 /**
  * created by Ghan 9.3
  * @todo 设置常用的配置信息并根据环境变量导出
@@ -34,7 +35,7 @@ const defaultCommonConfig: DefaultCommonConfig = {
   DEFAULT_DOCUMENT_TITLE: '慧美食点餐',
   DEFAULT_FETCH_METHOD: 'POST',
   DEFAULT_BALL_SPEED: 220,
-  DEFAULT_PAGE_SIZE: 20,
+  DEFAULT_PAGE_SIZE: 10,
   DEFAUL_MCHNT_CD: '60000000217',
   DEFAULT_PICTURE_LING: '//net.huanmusic.com/qg/pic_default.png',
 };
@@ -174,6 +175,19 @@ export function randomString(len: number): string {
   return pwd;
 }
 
+/**
+ * @todo 跳转函数
+ * @param { url: string 要跳转的路由 }
+ * @param { rest: 其他参数待补充 } 
+ */
+
+class Navigate {
+
+  static navto = (url: string, ...rest: any[]) => {
+    history.push(url);
+  } 
+}
+
 export { 
   devConfig, 
   proConfig,
@@ -182,6 +196,7 @@ export {
   isArrayFn,
   getMealFee,
   countTotal,
+  Navigate,
 };
 
 export default processChoiceFilter(devConfig, proConfig);

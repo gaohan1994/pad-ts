@@ -23,8 +23,8 @@ import styles from './global.less';
  */
 import App from './container/App';
 import Stores from './container/store/Stores';
-// import Store from './container/store/Store';
-import Store from './container/store/Store_V1';
+import Meal from './container/store/Meal';
+import Store from './container/store/Store';
 import Exception from './container/exception/Exception';
 import NotFound from './container/exception/NotFound';
 import InterfaceTest from './container/interfaceTest';
@@ -32,7 +32,7 @@ import InterfaceTest from './container/interfaceTest';
 import OrderList from './container/order/orders';
 import Order from './container/order/order';
 import Login from './container/sign/Login';
-import Table from './container/table/table';
+import Table from './container/table/Table';
 import People from './container/table/people';
 /**
  * @param title -- 网页 title
@@ -90,11 +90,12 @@ const RouterConfig = ({ title }: DocumentTitleProps) => {
 
             <Route path="/" exact={true} component={App} />
             <Route path="/stores" component={Stores} />
+            <Route path="/meal/:id" component={Meal} />
             <Route path="/store/:id" component={Store} />
             <Route path="/interfacetest" component={InterfaceTest} />
             <Route path="/orderlist" component={OrderList} />
             <Route path="/order/:orderid" component={Order} />
-            <Route path="/table" component={Table} />
+            <Route path="/table/:id" component={Table} />
             <Route path="/people" component={People} />
 
             <Route path="/login" Component={Login}/>

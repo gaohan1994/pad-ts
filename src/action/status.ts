@@ -2,6 +2,7 @@ import { Dispatch } from 'redux';
 import {
   CHANGE_STATUS_SHOW,
   CHANGE_DOCUMENT_TITLE,
+  CHANGE_LOADING,
 } from './constants';
 
 export interface ChangeStatus {
@@ -14,7 +15,12 @@ export interface ChangeDocumentTitle {
   title: string;
 }
 
-export type StatusAtions = ChangeStatus | ChangeDocumentTitle;
+export interface ChangeLoading {
+  type: CHANGE_LOADING;
+  loading: boolean;
+}
+
+export type StatusAtions = ChangeStatus | ChangeDocumentTitle | ChangeLoading;
 
 export const changeStatus = () => (dispatch: Dispatch) => {
   dispatch({
@@ -29,3 +35,32 @@ export const changeDocumentTitle = (title: string) => (dispatch: Dispatch) => {
     title: title
   });
 };
+
+class Status {
+
+  /**
+   * @todo show global loading
+   *
+   * @memberof Status
+   */
+  public showLoading = async (dispatch: Dispatch) => {
+    dispatch({
+      type: CHANGE_LOADING,
+      loading: true,
+    });
+  }
+
+  /**
+   * @todo hide global loading
+   *
+   * @memberof Status
+   */
+  public hideLoading = async (dispatch: Dispatch) => {
+    dispatch({
+      type: CHANGE_LOADING,
+      loading: false,
+    });
+  }
+}
+
+export default new Status();

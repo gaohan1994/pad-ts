@@ -6,29 +6,28 @@ import {
   CHANGE_ORDER_DISHES,
   CHANGE_ORDER_PEOPLE_NUMBER,
   CHANGE_ORDER_TABLE_NUMBER,
+  CHAGNE_ORDER_LOADING,
 } from '../action/constants';
 import { OrderActions } from '../action/order';
 import { Stores } from './index';
 import { merge } from 'lodash';
-import numeral from 'numeral';
+// import numeral from 'numeral';
 import { countTotal } from '../common/config';
 
 export type Order = {
   orders: any[];
-  paid: any[];
-  unpaid: any[];
   order: any;
   orderChange: any;
   changeToken: boolean;
+  loading: boolean;
 };
 
 export const initState = {
   orders: [],
-  paid: [],
-  unpaid: [],
   order: {},
   orderChange: {},
   changeToken: false,
+  loading: false,
 };
 
 /**
@@ -39,7 +38,7 @@ export const initState = {
  * @param {OrderActions} action
  * @returns {Order}
  */
-export default function menu ( 
+export default function order ( 
   state: Order = initState,
   action: OrderActions,
 ): Order {
@@ -52,25 +51,10 @@ export default function menu (
     const { payload } = action;
     const { orders } = payload;
 
-    const paid: any[] = [];
-    const unpaid: any[] = [];
-
-    if (orders && orders.length > 0) {
-      orders.forEach((item: any) => {
-        /**
-         * @param { trnsflag | -1: 交易失败, 0: 交易初始化, 1: 交易成功, 2: 交易撤销, 3: 交易退单, }
-         */
-        if (numeral(item.trnsflag).value() === 0) {
-          unpaid.push(item);
-        } else {
-          paid.push(item);
-        }
-      });
-    }
-
+    /**
+     * @param { trnsflag | -1: 交易失败, 0: 交易初始化, 1: 交易成功, 2: 交易撤销, 3: 交易退单, }
+     */
     state.orders = state.orders.concat(orders);
-    state.paid = state.paid.concat(paid);
-    state.unpaid = state.unpaid.concat(unpaid);
 
     return merge({}, state, {});
 
@@ -188,18 +172,23 @@ export default function menu (
     state.orderChange = newOrderChange;
     return merge({}, state, {});
 
+    case CHAGNE_ORDER_LOADING:
+    const { payload: { loading } } = action;
+    return {
+      ...state,
+      loading: loading
+    };
+
     default: return state;
   }
 }
 
 export const GetOrders = (store: Stores) => store.order.orders;
 
-export const GetPaid = (store: Stores) => store.order.paid;
-
-export const GetUnpaid = (store: Stores) => store.order.unpaid;
-
 export const GetOrder = (store: Stores) => store.order.order;
 
 export const GetOrderChange = (store: Stores) => store.order.orderChange;
 
 export const GetChangeToken = (store: Stores) => store.order.changeToken;
+
+export const GetOrderLoading = (store: Stores) => store.order.loading;

@@ -1,0 +1,86 @@
+@import "../../global.less";
+
+@box-space: 5px;
+
+@bar-font-color: #4f4f4f;
+
+.container { 
+  width: 100%;
+  height: 100%;
+  position: relative;
+  background: @theme-gray;
+}
+
+.box {
+  -webkit-box-sizing: border-box;
+          box-sizing: border-box;
+  padding: @box-space;
+  background: #ffffff;
+  margin-bottom: @box-space;
+  font-size: 10px;
+  color: @bar-font-color;
+}
+
+.header {
+  background: #fff7e2;
+}
+
+.footer {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  margin: 0px !important;
+  width: 100%;
+}
+
+.item {
+  .display-flex(center, between);
+}
+
+.footerBox {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  width: 100%;
+}
+
+.detail {
+  background: #ffffff;
+  padding: @box-space;
+  -webkit-box-sizing: border-box;
+          box-sizing: border-box;
+}
+
+.remarks {
+  position: relative;
+  margin: 0px !important;
+  -webkit-box-sizing: border-box;
+          box-sizing: border-box;
+  padding: @box-space;
+
+  &::after {
+    .half-border;
+  }
+}
+
+.dish {
+  position: relative;
+
+  &::after {
+    .half-border;
+  }
+}
+
+.button {
+  .count-px(400px, 250px, 64px);
+  .display-flex(center, center);
+  .direction;
+  -webkit-box-flex: 1;
+      -ms-flex: 1;
+          flex: 1;
+  height: @count;
+  font-size: 12px;
+  line-height: 12px;
+  color: #ffffff;
+  background: @theme-color;
+}

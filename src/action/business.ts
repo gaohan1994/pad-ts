@@ -5,6 +5,7 @@ import {
   SAVE_CHOICE_PEOPLE,
   RECEIVE_STORE_LISTVIEW_DATASOURCE,
   SET_SELECTED_MENUTPID,
+  CHANGE_TABLE_AREA,
 } from './constants';
 import { Dispatch } from 'redux';
 import { Stores } from '../store';
@@ -30,11 +31,17 @@ export interface SetSelectedMenu {
   payload: any;
 }
 
+export interface ChangeTableArea {
+  type: CHANGE_TABLE_AREA;
+  payload: any;
+}
+
 export type BusinessActions = 
-  SaveChoiceTableinfo 
-  | SaveChoicePeople 
-  | ReceiveStoreListViewDataSource
-  | SetSelectedMenu;
+  SaveChoiceTableinfo |
+  SaveChoicePeople |
+  ReceiveStoreListViewDataSource |
+  SetSelectedMenu |
+  ChangeTableArea;
 
 class Business {
 
@@ -132,6 +139,39 @@ class Business {
       type: SET_SELECTED_MENUTPID,
       payload: { selectedMenu }
     });
+  }
+
+  /**
+   * @todo 切换桌子区域
+   * @param { 1.切换区域 }
+   * @param { 2.请求对应区域所有桌子的订单状态 | 必查因为订单状态可能改变 }
+   *
+   * @memberof Business
+   */
+  public changeTableArea = (area: any) => async (dispatch: Dispatch) => {
+    const { area_id } = area;
+
+    dispatch({
+      type: CHANGE_TABLE_AREA,
+      payload: { selectedAreaId: area_id },
+    });
+  }
+
+  /**
+   * @todo 点击桌子触发 action
+   * @param { table 根据 table status 进行不同的处理 }
+   *
+   * @memberof Business
+   */
+  public tableClickHandle = (table: any) => async (dispatch: Dispatch) => {
+    const { status } = table;
+
+    // 如果是1 说明有订单
+    if (numeral(status).value() === 1) {
+      console.log('table: ', table);
+    } else {
+      console.log('table: ', table);
+    }
   }
 }
 

@@ -9,6 +9,7 @@ import {
   CHANGE_ORDER_DISHES,
   CHANGE_ORDER_PEOPLE_NUMBER,
   CHANGE_ORDER_TABLE_NUMBER,
+  CHAGNE_ORDER_LOADING,
 } from './constants';
 import { ConsoleUtil } from '../common/request';
 import OrderService from '../service/order';
@@ -142,11 +143,17 @@ export interface ChangeOrderDetail {
   payload: any;
 }
 
+export interface ChangeOrderLoading {
+  type: CHAGNE_ORDER_LOADING;
+  payload: any;
+}
+
 export type OrderActions = 
   ReceiveOrderList 
   | ReceiveOrderDetail 
   | ChangeOrderToken
-  | ChangeOrderDetail;
+  | ChangeOrderDetail
+  | ChangeOrderLoading;
 
 /**
  * @return { product: Product | products: Product[] }
@@ -405,13 +412,23 @@ class OrderController extends Base {
   static orderQuery = (params: OrderQueryParams) => async (dispatch: Dispatch) => {
     ConsoleUtil('orderQuery');
 
+    dispatch({
+      type: CHAGNE_ORDER_LOADING,
+      payload: { loading: true },
+    });
+
     const result = await OrderService.orderQuery(params);
     if (result.code === '10000') {
-      dispatch({
+      await dispatch({
         type: RECEIVE_ORDER_LIST,
         payload: {
           orders: result.biz_content.data
         }
+      });
+
+      dispatch({
+        type: CHAGNE_ORDER_LOADING,
+        payload: { loading: false },
       });
     } else {
       console.log(result);

@@ -238,6 +238,7 @@ module.exports = {
                     'primary-color': '#f8c030',
                     'card-actions-background': '#f5f8fa',
                     'brand-primary': '#f8c030',
+                    'layout-header-background': '#f8c030',
                   },
                   javascriptEnabled: true,
                 },

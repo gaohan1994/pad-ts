@@ -2,7 +2,6 @@ import {
   Toast,
   Modal,
 } from 'antd-mobile';
-
 import { isArrayFn } from '../common/config';
 
 const { alert } = Modal;
