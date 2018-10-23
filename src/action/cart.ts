@@ -2,7 +2,8 @@ import numeral from 'numeral';
 import { merge } from 'lodash';
 import { Dispatch } from 'redux';
 import { Stores } from '../store/index';
-import { UPDATE_CART } from './constants';
+import { GetCurrentCartList, GetCurrentCartListReturn } from '../store/cart';
+import { UPDATE_CART, RECEIVE_CURRENT_CART_ID } from './constants';
 import Base from './base';
 
 /**
@@ -70,6 +71,7 @@ export const AttrParamHepler = (attrs: any[]): AttrParamHeplerReturn => {
  *  如果有传 attrs 判断 attrs 是否都存在该 product_id 中
  */
 export const CheckItemAlreadyInCart = (item: any, list: any[], attrs?: any[]): CheckItemAlreadyInCartReturn => {
+  console.log('list: ', list);
   const productIdToken = list.findIndex(l => l.product_id === item.product_id);
   if (productIdToken === -1) {
     return { inCart: false, index: productIdToken };
@@ -97,6 +99,22 @@ export const CheckItemAlreadyInCart = (item: any, list: any[], attrs?: any[]): C
 class CartController {
 
   /**
+   * @todo set current Cart id
+   * 
+   * @param { param: { dispatch: Dispatch, currentCartId: string } }
+   *
+   * @memberof CartController
+   */
+  public setCurrentCart = async (param: any) => {
+    const { dispatch, currentCartId } = param;
+
+    dispatch({
+      type: RECEIVE_CURRENT_CART_ID,
+      payload: { currentCartId }
+    });
+  }
+
+  /**
    * @todo 加入条目到购物车
    * @param { param: { data: data, attrs: [] } }
    *
@@ -118,8 +136,9 @@ class CartController {
      * @param { 除了 data 啥也没 }
      */
     const { data, attrs } = param;
-    const { cart: { list } } = await state();
-
+    // const { cart: { list } } = await state();
+    const { list, currentCartId }: GetCurrentCartListReturn = GetCurrentCartList(await state());
+    console.log('GetCurrentCartList list: ', list);
     if (attrs) {
       /**
        * @param { inCart === false 购物车中不存在该商品 }
@@ -154,10 +173,6 @@ class CartController {
         Base.toastFail('点餐失败~');
       }
 
-      dispatch({
-        type: UPDATE_CART,
-        payload: { list: merge([], list) }
-      });
     } else if (numeral(data.is_weight).value() === 1) {
       // 称斤
     } else {
@@ -172,12 +187,12 @@ class CartController {
           list[token.index].number += 1;
         } 
       }
-
-      dispatch({
-        type: UPDATE_CART,
-        payload: { list: merge([], list) }
-      });
     }
+
+    dispatch({
+      type: UPDATE_CART,
+      payload: { id: currentCartId, list: merge([], list) }
+    });
   }
 
   /**
@@ -189,7 +204,7 @@ class CartController {
    */
   public reducItem = (param: CartItemPayload) => async (dispatch: Dispatch, state: () => Stores) => {
     const { data, attrs } = param;
-    const { cart: { list } } = await state();
+    const { list, currentCartId }: GetCurrentCartListReturn = GetCurrentCartList(await state());
     
     if (attrs) {
       const { inCart, index, attrToken }: CheckItemAlreadyInCartReturn = CheckItemAlreadyInCart(data, list, attrs);
@@ -225,7 +240,7 @@ class CartController {
 
     dispatch({
       type: UPDATE_CART,
-      payload: { list: merge([], list) }
+      payload: { id: currentCartId, list: merge([], list) }
     });
   }
 }

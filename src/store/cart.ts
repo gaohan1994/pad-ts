@@ -3,24 +3,57 @@
  */
 import {
   UPDATE_CART,
+  RECEIVE_CURRENT_CART_ID,
 } from '../action/constants';
 import { Stores } from './index';
 
+export type List = {
+  [key: string]: any[]; 
+};
+
+/**
+ * @param { list: { [key]: {} } }
+ * 
+ */
 export type Cart = {
-  list: any[];
+  currentCartId: string;
+  list: {
+    [key: string]: any[];
+  }
 };
 
 export const initState = {
-  list: [],
+  currentCartId: '123',
+  list: {
+    '123': []
+  },
 };
-
+/**
+ * @todo cart reducer 
+ * 
+ * @method UPDATE_CART 
+ * payload { id: 唯一标示（如果是堂食则是 table_no 如果不是堂食那么就是外带 默认一个 cart_id） }
+ *
+ * @export
+ * @param {Cart} [state=initState]
+ * @param {*} action
+ * @returns {Cart}
+ */
 export default function cart (state: Cart = initState, action: any): Cart {
   switch (action.type) {
+
     case UPDATE_CART:
-      const { payload: { list } } = action;
+      const {  payload: { id, list } } = action;
       return {
         ...state,
-        list,
+        list: { [id]: list },
+      };
+
+    case RECEIVE_CURRENT_CART_ID:
+      const { payload: { currentCartId } } = action;
+      return {
+        ...state,
+        currentCartId,
       };
 
     default: return state;
@@ -28,6 +61,22 @@ export default function cart (state: Cart = initState, action: any): Cart {
 }
 
 export const GetList = (state: Stores) => state.cart.list;
+
+export interface GetCurrentCartListReturn {
+  currentCartId: string;
+  list: any[];
+}
+
+/**
+ * @todo 从所有 cart list 中找到当前的 cart list
+ */
+export const GetCurrentCartList = (state: Stores): GetCurrentCartListReturn => {
+  const { cart: { currentCartId } } = state;
+  return {
+    currentCartId,
+    list: state.cart.list[currentCartId],
+  } || {};
+};
 
 /**
  * @todo 寻找在 cart 中 product_id 相同的数据
@@ -41,15 +90,19 @@ export interface GetProductInCartReturn {
 }
 
 export const GetProductInCart = (state: Stores, item: any, attrs?: any[]): GetProductInCartReturn => {
-  const { list } = state.cart;
-  const index = list.findIndex(i => i.product_id === item.product_id);
+  const { list } = GetCurrentCartList(state);
+  if (list && list.length > 0) {
+    const index = list.findIndex(i => i.product_id === item.product_id);
 
-  if (index === -1) {
-    return {};
+    if (index === -1) {
+      return {};
+    } else {
+      return {
+        index,
+        data: list[index]
+      };
+    }
   } else {
-    return {
-      index,
-      data: list[index]
-    };
+    return {};
   }
 };

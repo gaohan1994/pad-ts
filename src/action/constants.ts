@@ -86,6 +86,9 @@ export type RECEIVE_TABLE_INFO = typeof RECEIVE_TABLE_INFO;
 export const CHANGE_TABLE_AREA = 'CHANGE_TABLE_AREA';
 export type CHANGE_TABLE_AREA = typeof CHANGE_TABLE_AREA;
 
+export const RECEIVE_SELECTED_TABLE = 'RECEIVE_SELECTED_TABLE';
+export type RECEIVE_SELECTED_TABLE = typeof RECEIVE_SELECTED_TABLE;
+
 /**
  * @todo cart modules
  */
@@ -93,14 +96,11 @@ export type CHANGE_TABLE_AREA = typeof CHANGE_TABLE_AREA;
 export const UPDATE_CART = 'UPDATE_CART';
 export type UPDATE_CART = typeof UPDATE_CART;
 
-export const ADD_NEW_ITEM = 'ADD_NEW_ITEM';
-export type ADD_NEW_ITEM = typeof ADD_NEW_ITEM;
+export const RECEIVE_CURRENT_CART_ID = 'RECEIVE_CURRENT_CART_ID';
+export type RECEIVE_CURRENT_CART_ID = typeof RECEIVE_CURRENT_CART_ID;
 
 export const ADD_ITEM = 'ADD_ITEM';
 export type ADD_ITEM = typeof ADD_ITEM;
 
 export const REDUCE_ITEM = 'REDUCE_ITEM';
 export type REDUCE_ITEM = typeof REDUCE_ITEM;
-
-export const DELETE_ITEM = 'DELETE_ITEM';
-export type DELETE_ITEM = typeof DELETE_ITEM;

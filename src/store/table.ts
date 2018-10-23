@@ -5,17 +5,20 @@
 import { 
   RECEIVE_TABLE_INFO,
   CHANGE_TABLE_AREA,
+  RECEIVE_SELECTED_TABLE,
 } from '../action/constants';
 import { TableActions } from '../action/table';
 import { BusinessActions } from '../action/business';
 import { Stores } from './index';
 
 export type Table = {
+  selectedTable: any;
   selectedAreaId: string;
   tableinfo: any[];
 };
 
 export const initState = {
+  selectedTable: {},
   selectedAreaId: '',
   tableinfo: []
 };
@@ -57,6 +60,13 @@ export default function table (
         selectedAreaId,
       };
 
+    case RECEIVE_SELECTED_TABLE: 
+      const { payload: { selectedTable } } = action;
+      return {
+        ...state,
+        selectedTable,
+      };
+
     default: return state;
   }
 }
@@ -71,10 +81,12 @@ export const GetTableInfo = (state: Stores) => state.table.tableinfo;
  * @todo find selected table in redux
  * @param { state: Store }
  */
-export const GetSelectedTable = (state: Stores) => {
+export const GetSelectedArea = (state: Stores) => {
   const { table: { selectedAreaId, tableinfo } } = state;
-  const selectedTable = tableinfo.find(t => t.area_id === selectedAreaId);
+  const selectedTable = tableinfo.find(a => a.area_id === selectedAreaId);
   return selectedTable;
 };
 
 export const GetSelectedAreaId = (state: Stores) => state.table.selectedAreaId;
+
+export const GetSelecetedTable = (state: Stores) => state.table.selectedTable;

@@ -104,3 +104,26 @@
 .activeTip {
   background: @theme-active-color;
 }
+
+.people {
+  .display-flex(center, around);
+  -ms-flex-wrap: wrap;
+      flex-wrap: wrap;
+}
+
+.number {
+  .count-px(150px, 100px, 100px);
+  width: @count;
+  height: @count * 0.9;
+  line-height: @count * 0.9;
+  text-align: center;
+  background: @theme-gray;
+  color: #999999;
+  -webkit-transition: all .3s ease-out;
+  transition: all .3s ease-out;
+
+  &:hover {
+    background: @theme-color;
+    color: #ffffff;
+  }
+}

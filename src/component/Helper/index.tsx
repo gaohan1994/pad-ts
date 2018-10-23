@@ -12,7 +12,7 @@ import CartController, {
 } from '../../action/cart';
 import numeral from 'numeral';
 import orderStyles from '../../container/order/style.less';
-import { GetProductInCart, GetProductInCartReturn, GetList } from '../../store/cart';
+import { GetProductInCart, GetProductInCartReturn, GetCurrentCartList, GetCurrentCartListReturn } from '../../store/cart';
 
 /**
  * @tood 校验传入的 attrs 和 item 的 attr 是否一致（是否选中）
@@ -159,7 +159,6 @@ class Helper extends Component <HelperPrps, HeplerState> {
   render() {
     const { visible, selectedAttrs } = this.state;
     const { data, cartItem, list } = this.props;
-
     /**
      * @param { token: 是否存在 cart 中 } 
      * @param { index: 在 cart 中的位置 } 
@@ -281,9 +280,10 @@ class Helper extends Component <HelperPrps, HeplerState> {
 
 const mapStateToProps = (state: Stores, ownProps: any) => {
   const { data } = ownProps;
+  const { list }: GetCurrentCartListReturn = GetCurrentCartList(state);
   return {
     cartItem: GetProductInCart(state, data),
-    list: GetList(state),
+    list,
   };
 };
 

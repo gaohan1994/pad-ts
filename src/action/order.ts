@@ -17,6 +17,7 @@ import Base from './base';
 import { Stores } from '../store/index';
 import { GetUserinfo } from '../store/sign';
 import { randomString, isArrayFn } from '../common/config';
+import { GetCurrentCartList } from '../store/cart';
 
 export interface Product {
   product_id: string;
@@ -254,7 +255,7 @@ class OrderController extends Base {
   static sendOrder = (params: SendOrderParams) => async (dispatch: Dispatch, state: () => Stores) => {
     ConsoleUtil('sendOrder');
     const Store = await state();
-    const { cart: { list } } = Store;
+    const { list } = GetCurrentCartList(await state());
     const { mchnt_cd } = GetUserinfo(Store);
 
     let products: Product[] = [];

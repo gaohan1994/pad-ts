@@ -3,6 +3,7 @@
  */
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
+import { Pagination } from 'antd';
 import { Stores } from '../../store';
 import { Dispatch } from 'redux';
 import { mergeProps } from '../../common/config';
@@ -106,6 +107,12 @@ class LeftBar extends Component<LeftBarProps, {}> {
                   </div>
                 ) : ''
               }
+              <Pagination 
+                total={10} 
+                pageSize={7} 
+                size="small"
+                onChange={(...rest) => { console.log(rest); }}
+              />
             </div>
           )
         }

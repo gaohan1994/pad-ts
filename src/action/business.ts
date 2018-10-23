@@ -6,8 +6,10 @@ import {
   RECEIVE_STORE_LISTVIEW_DATASOURCE,
   SET_SELECTED_MENUTPID,
   CHANGE_TABLE_AREA,
+  RECEIVE_SELECTED_TABLE,
 } from './constants';
 import { Dispatch } from 'redux';
+import numeral from 'numeral';
 import { Stores } from '../store';
 import Base from './base';
 
@@ -36,12 +38,18 @@ export interface ChangeTableArea {
   payload: any;
 }
 
+export interface ReceiveSelectedTable {
+  type: RECEIVE_SELECTED_TABLE;
+  payload: any;
+}
+
 export type BusinessActions = 
   SaveChoiceTableinfo |
   SaveChoicePeople |
   ReceiveStoreListViewDataSource |
   SetSelectedMenu |
-  ChangeTableArea;
+  ChangeTableArea | 
+  ReceiveSelectedTable;
 
 class Business {
 
@@ -69,16 +77,17 @@ class Business {
    * @memberof Business
    */
   public saveChoicePeople = (people: any) => async (dispatch: Dispatch, state: () => Stores) => {
-    await dispatch({
-      type: SAVE_CHOICE_PEOPLE,
-      payload: {
-        people,
-      }
-    });
-
-    const { sign: { userinfo: { mchnt_cd } } } = await state();
-
-    history.push(`/store/${mchnt_cd}`);
+    const { table: { selectedTable } } = await state();
+    if (typeof selectedTable.table_no === 'number') {
+      await dispatch({
+        type: SAVE_CHOICE_PEOPLE,
+        payload: {
+          people,
+        }
+      });
+    } else {
+      Base.toastFail('请先选择桌子');
+    }
   }
 
   /**
@@ -142,14 +151,23 @@ class Business {
   }
 
   /**
+   * 
+   * ----- Table Module -----
+   * 
    * @todo 切换桌子区域
    * @param { 1.切换区域 }
-   * @param { 2.请求对应区域所有桌子的订单状态 | 必查因为订单状态可能改变 }
+   * @param { 2.this.setSelectedTable 切换区域重置 selected Table }
+   * @param { 3.请求对应区域所有桌子的订单状态 | 必查因为订单状态可能改变 }
    *
    * @memberof Business
    */
   public changeTableArea = (area: any) => async (dispatch: Dispatch) => {
     const { area_id } = area;
+
+    await this.setSelectedTable({
+      dispatch,
+      table: {},
+    });
 
     dispatch({
       type: CHANGE_TABLE_AREA,
@@ -166,6 +184,9 @@ class Business {
   public tableClickHandle = (table: any) => async (dispatch: Dispatch) => {
     const { status } = table;
 
+    const param = { dispatch, table };
+    await this.setSelectedTable(param);
+
     // 如果是1 说明有订单
     if (numeral(status).value() === 1) {
       console.log('table: ', table);
@@ -173,6 +194,25 @@ class Business {
       console.log('table: ', table);
     }
   }
+
+  /**
+   * @todo 设置选中 table 
+   * @param { param: { dispatch, table: any } }
+   *
+   * @memberof Business
+   */
+  public setSelectedTable = async (param: any) => {
+    const { dispatch, table } = param;
+
+    dispatch({
+      type: RECEIVE_SELECTED_TABLE,
+      payload: { selectedTable: table },
+    });
+  }
+
+  /**
+   * ----- Table Module Over -----
+   */
 }
 
 export default new Business();
