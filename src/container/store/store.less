@@ -1,0 +1,90 @@
+@import "../../global.less";
+@import "../table/table.less";
+
+.dishes {
+  padding-left: 10px;
+  position: relative;
+  -webkit-box-sizing: border-box;
+          box-sizing: border-box;
+  overflow: hidden;
+  padding-bottom: 50px;
+  .display-flex(start, start);
+  -ms-flex-wrap: wrap;
+      flex-wrap: wrap;
+}
+
+.pagination {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  z-index: 100;
+}
+
+.dish {
+  font-size: 10px;
+  position: relative;
+  -webkit-box-sizing: border-box;
+          box-sizing: border-box;
+  padding-left: 10px;
+  margin: 10px 10px 0 0;
+  background: @theme-color;
+  color: #ffffff;
+  .count-px(150px, 100px, 150px);
+  width: @count;
+  height: @count * 0.66;
+  border-radius: 14px;
+  .direction;
+  .display-flex(start, center);
+}
+
+.coustomCard {
+  margin-top: 10px;
+  width: 70px;
+  height: 70px;
+  border-radius: 4px;
+  background: #ffffff;
+  color: #ffffff;
+  font-size: 10px;
+  -webkit-transition: all .3s ease-out;
+  transition: all .3s ease-out;
+  .display-flex();
+  .direction;
+  & > span {
+    .count-px(80px, 70px, 30px);
+    display: block;
+    width: @count;
+    height: @count;
+    .bg-img;
+    margin-bottom: 5px;
+  }
+
+  & > div {
+    width: 100%;
+    -webkit-box-flex: 1;
+        -ms-flex: 1;
+            flex: 1;
+  }
+
+  & > .controllNumber {
+    border-radius: 4px 4px 0 0;
+    background: #cccccc;
+    &:hover {
+      background: @theme-color;
+    }
+  }
+
+  & > .controllBar {
+    margin-top: 2px;
+    .display-flex();
+    & > div {
+      &:hover {
+        background: @theme-color;
+      }
+      background: #cccccc;
+      height: 100%;
+      -webkit-box-flex: 1;
+          -ms-flex: 1;
+              flex: 1;
+    }
+  }
+}

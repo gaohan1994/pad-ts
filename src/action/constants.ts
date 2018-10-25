@@ -92,7 +92,6 @@ export type RECEIVE_SELECTED_TABLE = typeof RECEIVE_SELECTED_TABLE;
 /**
  * @todo cart modules
  */
-
 export const UPDATE_CART = 'UPDATE_CART';
 export type UPDATE_CART = typeof UPDATE_CART;
 
@@ -104,3 +103,6 @@ export type ADD_ITEM = typeof ADD_ITEM;
 
 export const REDUCE_ITEM = 'REDUCE_ITEM';
 export type REDUCE_ITEM = typeof REDUCE_ITEM;
+
+export const RECEIVE_CURRENT_DISH = 'RECEIVE_CURRENT_DISH';
+export type RECEIVE_CURRENT_DISH = typeof RECEIVE_CURRENT_DISH;

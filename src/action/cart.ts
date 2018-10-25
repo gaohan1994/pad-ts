@@ -3,8 +3,47 @@ import { merge } from 'lodash';
 import { Dispatch } from 'redux';
 import { Stores } from '../store/index';
 import { GetCurrentCartList, GetCurrentCartListReturn } from '../store/cart';
-import { UPDATE_CART, RECEIVE_CURRENT_CART_ID } from './constants';
+import { UPDATE_CART, RECEIVE_CURRENT_CART_ID, RECEIVE_CURRENT_DISH } from './constants';
 import Base from './base';
+
+export interface UpdateCart {
+  type: UPDATE_CART;
+  payload: any;
+}
+export interface SetCurrentDish {
+  type: RECEIVE_CURRENT_DISH;
+  payload: any;
+}
+
+export interface SetCurrentCart {
+  type: RECEIVE_CURRENT_CART_ID;
+  payload: any;
+}
+
+export type CartActions = UpdateCart | SetCurrentCart | SetCurrentDish;
+
+export interface CallbackParam {
+  type: 'add' | 'reduce';
+  param: {
+    currentCartId?: string;
+    list?: any[];
+    currentCartItem?: any;
+    attrToken?: any;
+    attrs?: any;
+  };
+}
+
+/**
+ * @param {Dispatch}
+ * @param {currentCartId}
+ *
+ * @export
+ * @interface SetCurrentCartParam
+ */
+export interface SetCurrentCartParam {
+  dispatch: Dispatch;
+  currentCartId: string;
+}
 
 /**
  * @return { id 结合之后的 id } id
@@ -28,6 +67,7 @@ export interface AttrParamHeplerReturn {
 export interface CartItemPayload {
   data: any;
   attrs?: any;
+  callback?: (param?: CallbackParam) => void;
 }
 
 /**
@@ -71,7 +111,6 @@ export const AttrParamHepler = (attrs: any[]): AttrParamHeplerReturn => {
  *  如果有传 attrs 判断 attrs 是否都存在该 product_id 中
  */
 export const CheckItemAlreadyInCart = (item: any, list: any[], attrs?: any[]): CheckItemAlreadyInCartReturn => {
-  console.log('list: ', list);
   const productIdToken = list.findIndex(l => l.product_id === item.product_id);
   if (productIdToken === -1) {
     return { inCart: false, index: productIdToken };
@@ -105,7 +144,7 @@ class CartController {
    *
    * @memberof CartController
    */
-  public setCurrentCart = async (param: any) => {
+  public setCurrentCart = async (param: SetCurrentCartParam) => {
     const { dispatch, currentCartId } = param;
 
     dispatch({
@@ -135,10 +174,10 @@ class CartController {
      * -- 3.默认商品 --
      * @param { 除了 data 啥也没 }
      */
-    const { data, attrs } = param;
+    const { data, attrs, callback } = param;
     // const { cart: { list } } = await state();
     const { list, currentCartId }: GetCurrentCartListReturn = GetCurrentCartList(await state());
-    console.log('GetCurrentCartList list: ', list);
+    // console.log('GetCurrentCartList list: ', list);
     if (attrs) {
       /**
        * @param { inCart === false 购物车中不存在该商品 }
@@ -154,6 +193,10 @@ class CartController {
 
         data.number = [attrParam];
         list.push(data);
+
+        if (callback) {
+          callback({ type: 'add', param: {list, currentCartId, currentCartItem: data, attrs, attrToken} });
+        }
       } else if (inCart === false && typeof index === 'number' && index !== -1) {
         // 商品存在于购物车但是没有这个规格
         const attrParam = {
@@ -162,10 +205,18 @@ class CartController {
         };
 
         list[index].number.push(attrParam);
+
+        if (callback) {
+          callback({ type: 'add', param: {list, currentCartId, currentCartItem: data, attrs, attrToken} });
+        }
       } else if (inCart === true) {
         if (typeof index === 'number' && attrToken) {
           const { attrIndex } = attrToken;
           list[index].number[attrIndex].number += 1;
+
+          if (callback) {
+            callback({ type: 'add', param: {list, currentCartId, currentCartItem: data, attrs, attrToken} });
+          }
         } else {
           Base.toastFail('点餐失败~');
         }
@@ -187,6 +238,10 @@ class CartController {
           list[token.index].number += 1;
         } 
       }
+
+      if (callback) {
+        callback({ type: 'add', param: {list, currentCartId, currentCartItem: data} });
+      }
     }
 
     dispatch({
@@ -203,20 +258,23 @@ class CartController {
    * @memberof CartController
    */
   public reducItem = (param: CartItemPayload) => async (dispatch: Dispatch, state: () => Stores) => {
-    const { data, attrs } = param;
+    const { data, attrs, callback } = param;
     const { list, currentCartId }: GetCurrentCartListReturn = GetCurrentCartList(await state());
     
     if (attrs) {
       const { inCart, index, attrToken }: CheckItemAlreadyInCartReturn = CheckItemAlreadyInCart(data, list, attrs);
 
       if (inCart === true && typeof index === 'number' && attrToken) {
-        // console.log('list[index]', list[index]);
         const { attrIndex } = attrToken;
 
         if (list[index].number[attrIndex].number === 1) {
           list[index].number.splice(attrIndex, 1);
         } else {
           list[index].number[attrIndex].number -= 1;
+        }
+
+        if (callback) {
+          callback({ type: 'reduce', param: {list, currentCartId, currentCartItem: list[index], attrs, attrToken} });
         }
       } else {
         Base.toastFail('点餐出错了~');
@@ -233,6 +291,10 @@ class CartController {
         } else {
           list[index].number -= 1;
         }
+
+        if (callback) {
+          callback({ type: 'reduce', param: {list, currentCartId, currentCartItem: list[index]} });
+        }
       } else {
         Base.toastFail('点餐出错了~');
       }
@@ -241,6 +303,35 @@ class CartController {
     dispatch({
       type: UPDATE_CART,
       payload: { id: currentCartId, list: merge([], list) }
+    });
+  }
+
+  /**
+   * @todo 清空购物车
+   *
+   * @memberof CartController
+   */
+  public emptyCart = () => async (dispatch: Dispatch, state: () => Stores) => {
+    const { currentCartId }: GetCurrentCartListReturn = GetCurrentCartList(await state());
+    dispatch({
+      type: UPDATE_CART,
+      payload: { id: currentCartId, list: [] }
+    });
+  }
+
+  /**
+   * @todo 设置当前选中菜品
+   * @param {1.切换功能的时候置空 }
+   * @param {2.切换 }
+   *
+   * @memberof CartController
+   */
+  public setCurrentDish = async (param: any) => {
+    const { dispatch, currentDish = {} } = param;
+
+    dispatch({
+      type: RECEIVE_CURRENT_DISH,
+      payload: { currentDish },
     });
   }
 }

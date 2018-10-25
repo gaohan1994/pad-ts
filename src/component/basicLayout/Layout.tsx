@@ -13,10 +13,11 @@ import React, { Component } from 'react';
 import styles from './index.less';
 
 export interface SmallCardProps { 
-  img: string;
-  value: string;
-  onClick: (param?: any) => any;
+  img?: string;
+  value?: string;
+  onClick?: (param?: any) => any;
   className?: string;
+  render?: () => JSX.Element;
 } 
 
 export class SmallCard extends Component <SmallCardProps, {}> {
@@ -26,18 +27,27 @@ export class SmallCard extends Component <SmallCardProps, {}> {
       img,
       value,
       onClick,
+      render,
     } = this.props;
-    return (
-      <div
-        className={`
-          ${className || ''}
-        `}
-        onClick={onClick}
-      >
-        <span style={{backgroundImage: `url(${img})`}} />
-        <div>{value}</div>
-      </div>
-    );
+
+    if (render) {
+      return (
+        render()
+      );
+    } else {
+      return (
+        <div
+          className={`
+            ${styles.smallCard}
+            ${className || ''}
+          `}
+          onClick={onClick}
+        >
+          <span style={{backgroundImage: `url(${img})`}} />
+          <div>{value}</div>
+        </div>
+      );
+    }
   }
 }
 
@@ -49,7 +59,7 @@ class ItemBar extends Component <ItemBarProps, {}> {
   render () {
     return (
       <div className={styles.bar}>
-        item bar
+        {this.props.children}
       </div>
     );
   }

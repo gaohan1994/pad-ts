@@ -4,12 +4,11 @@
 import {
   UPDATE_CART,
   RECEIVE_CURRENT_CART_ID,
+  RECEIVE_CURRENT_DISH,
 } from '../action/constants';
 import { Stores } from './index';
-
-export type List = {
-  [key: string]: any[]; 
-};
+import config from '../common/config';
+import { CartActions } from '../action/cart';
 
 /**
  * @param { list: { [key]: {} } }
@@ -19,14 +18,16 @@ export type Cart = {
   currentCartId: string;
   list: {
     [key: string]: any[];
-  }
+  },
+  currentDish: any;
 };
 
 export const initState = {
-  currentCartId: '123',
+  currentCartId: config.TAKEAWAYCARTID,
   list: {
-    '123': []
+    [config.TAKEAWAYCARTID]: []
   },
+  currentDish: {},
 };
 /**
  * @todo cart reducer 
@@ -39,11 +40,11 @@ export const initState = {
  * @param {*} action
  * @returns {Cart}
  */
-export default function cart (state: Cart = initState, action: any): Cart {
+export default function cart (state: Cart = initState, action: CartActions): Cart {
   switch (action.type) {
 
     case UPDATE_CART:
-      const {  payload: { id, list } } = action;
+      const { payload: { id, list } } = action;
       return {
         ...state,
         list: { [id]: list },
@@ -54,6 +55,13 @@ export default function cart (state: Cart = initState, action: any): Cart {
       return {
         ...state,
         currentCartId,
+      };
+    
+    case RECEIVE_CURRENT_DISH:
+      const { payload: { currentDish } } = action;
+      return {
+        ...state,
+        currentDish,
       };
 
     default: return state;
@@ -106,3 +114,9 @@ export const GetProductInCart = (state: Stores, item: any, attrs?: any[]): GetPr
     return {};
   }
 };
+
+/**
+ * @todo 获取当前选中菜品
+ * @param {Stores} state
+ */
+export const GetCurrentDish = (state: Stores) => state.cart.currentDish;

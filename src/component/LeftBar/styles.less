@@ -2,6 +2,8 @@
 
 @box-space: 5px;
 
+@active-color: #fff7e2;
+
 @bar-font-color: #4f4f4f;
 
 .container { 
@@ -22,7 +24,7 @@
 }
 
 .header {
-  background: #fff7e2;
+  background: @active-color;
 }
 
 .footer {
@@ -83,4 +85,50 @@
   line-height: 12px;
   color: #ffffff;
   background: @theme-color;
+}
+
+.listItem {
+  position: relative;
+  -webkit-box-sizing: border-box;
+          box-sizing: border-box;
+  padding: 10px 0;
+  font-size: 10px;
+  .display-flex(center, between);
+  background: #ffffff;
+  -webkit-transition: all .3s ease-out;
+  transition: all .3s ease-out;
+
+  &:hover {
+    background: @active-color
+  }
+
+  &::after {
+    .half-border;
+  }
+}
+
+.itemIcon {
+  display: block;
+  width: 10px;
+  height: 10px;
+  .bg-img;
+}
+
+.listBox {
+  .display-flex(center, start);
+}
+
+.listItemTexts {
+  margin-left: 10px;
+  .display-flex(start, start);
+  .direction;
+  max-width: 60%;
+
+  & > .mainText {
+    color: @item-name-color;
+  }
+
+  & > .subText {
+    color: @item-attr-color;
+  }
 }

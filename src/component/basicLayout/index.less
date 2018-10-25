@@ -42,12 +42,12 @@ html, body {
 }
 
 .main {
-  padding-left: 10px;
   width: 100%;
   z-index: @layout-main-index;
 }
 
 .content {
+  position: relative;
   min-width: 400px;
   margin: 0 @layout-right-item-width 0 @layout-left-item-width;
   height: 100%;
@@ -70,8 +70,8 @@ html, body {
 }
 
 .icon {
-  width: 43px;
-  height: 43px;
+  width: 33px;
+  height: 33px;
   .bg-img;
   margin-left: 15px;
 }
@@ -80,13 +80,15 @@ html, body {
   margin-left: 15px;
 }
 
+@sider-width: 68px;
+
 .sider {
-  width: 100px !important;
-  min-width: 100px !important;
-  max-width: 100px !important;
+  width: @sider-width !important;
+  min-width: @sider-width !important;
+  max-width: @sider-width !important;
   -webkit-box-flex: 0 !important;
-      -ms-flex: 0 0 100px !important;
-          flex: 0 0 100px !important;
+      -ms-flex: 0 0 @sider-width !important;
+          flex: 0 0 @sider-width !important;
 }
 
 .bar {
@@ -100,4 +102,33 @@ html, body {
           box-sizing: border-box;
   border-left: @content-border;
   border-right: @content-border;
+  .display-flex(center, start);
+  .direction;
+}
+
+.smallCard {
+  margin-top: 10px;
+  width: 70px;
+  height: 70px;
+  border-radius: 4px;
+  background: #cccccc;
+  color: #ffffff;
+  font-size: 10px;
+  .display-flex(center, center);
+  .direction;
+  -webkit-transition: all .3s ease-out;
+  transition: all .3s ease-out;
+
+  & > span {
+    .count-px(80px, 70px, 30px);
+    display: block;
+    width: @count;
+    height: @count;
+    .bg-img;
+    margin-bottom: 5px;
+  }
+}
+
+.smallCard:hover {
+  background: @theme-color;
 }

@@ -17,6 +17,7 @@ import { Stores } from '../../store';
 import Layout from '../../component/basicLayout/Layout';
 import styles from './table.less';
 import LeftBar, { HeadersData, FootersData } from 'src/component/LeftBar/LeftBar';
+import { ContentsData } from '../../component/LeftBar/LeftBar';
 
 const { Item } = Layout;
 
@@ -143,8 +144,6 @@ class Table extends Component<TableProps, TableState> {
       })
       : [];
 
-    console.log('modalData: ', modalData);
-
     const headers: HeadersData = {
       data: [
         [{ key: '1', title: '订单号', value: '123123' }],
@@ -152,8 +151,8 @@ class Table extends Component<TableProps, TableState> {
       ]
     };
 
-    const contents = {
-      data: 1,
+    const contents: ContentsData = {
+      data: [],
     };
     const footers: FootersData = {
       remarks: '整单备注：123123123',

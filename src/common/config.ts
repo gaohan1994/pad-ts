@@ -29,6 +29,7 @@ export interface DefaultCommonConfig {
   DEFAULT_PAGE_SIZE: number;
   DEFAUL_MCHNT_CD: string;
   DEFAULT_PICTURE_LING: string;
+  TAKEAWAYCARTID: string;
 }
 
 const defaultCommonConfig: DefaultCommonConfig = {
@@ -38,6 +39,7 @@ const defaultCommonConfig: DefaultCommonConfig = {
   DEFAULT_PAGE_SIZE: 10,
   DEFAUL_MCHNT_CD: '60000000217',
   DEFAULT_PICTURE_LING: '//net.huanmusic.com/qg/pic_default.png',
+  TAKEAWAYCARTID: 'TAKEAWAYCARTID',
 };
 
 // 测试环境 http://202.101.149.132:7680/BKMS_HMS/GateWayAction.do

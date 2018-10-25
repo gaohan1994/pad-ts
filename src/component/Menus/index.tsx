@@ -1,15 +1,18 @@
 import * as React from 'react';
 import { Menu } from 'antd';
-import { connect } from 'react-redux';
-import { Navigate, mergeProps } from 'src/common/config';
+import { connect, Dispatch } from 'react-redux';
+import { mergeProps } from 'src/common/config';
+import BusinessController, { BusinessActions } from '../../action/business';
 import { Stores } from '../../store/index';
 import { GetUserinfo } from '../../store/sign';
 import { ClickParam } from 'antd/lib/menu';
 import styles from './index.less';
+import { bindActionCreators } from 'redux';
 
 const { Item: MenuItem } = Menu;
 
 interface MenusProps { 
+  changeModuleHandle?: (param: any) => void;
   userinfo?: any;
 }
 
@@ -65,24 +68,11 @@ class Menus extends React.Component<MenusProps, {}> {
    * @memberof Menus
    */
   public onNavHandle = (type?: string) => {
-    const { userinfo: { mchnt_cd } } = this.props;
+    const { changeModuleHandle } = this.props;
     
-    let route: string = '';
-
-    switch (type) {
-      case 'meal':
-        route = `/table/${mchnt_cd}`;
-        break;
-      case 'store':
-        route = `/store/${mchnt_cd}`;
-        break;
-      case 'order':
-        route = `/orderlist`;
-        break;
-      default:
-        break;
+    if (changeModuleHandle) {
+      changeModuleHandle(type);
     }
-    Navigate.navto(route);
   }
 
   /**
@@ -112,7 +102,7 @@ class Menus extends React.Component<MenusProps, {}> {
             >
               <span style={{backgroundImage: `url(${menu.img})`}} className={styles.icon}/>
               <span>{menu.value}</span>
-              <span style={{fontSize: '12px'}}>{menu.value_us}</span>
+              <span style={{fontSize: '10px'}}>{menu.value_us}</span>
             </MenuItem>
           ))
         }
@@ -125,4 +115,8 @@ const mapStateToProps = (state: Stores) => ({
   userinfo: GetUserinfo(state),
 });
 
-export default connect(mapStateToProps, () => ({}), mergeProps)(Menus);
+const mapDispatchToProps = (dispatch: Dispatch<BusinessActions>) => ({
+  changeModuleHandle: bindActionCreators(BusinessController.changeModuleHandle, dispatch),
+});
+
+export default connect(mapStateToProps, mapDispatchToProps, mergeProps)(Menus);

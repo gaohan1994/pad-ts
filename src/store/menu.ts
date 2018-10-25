@@ -81,4 +81,41 @@ export const GetMenu = (store: Stores) => store.menu.menu;
 
 export const GetMenuList = (store: Stores) => store.menu.menuList;
 
-export const GetSelectedMenu = (store: Stores) => store.menu.selectedMenu;
+/**
+ * @todo 获取选中的 menuList
+ * @param store reducer
+ */
+export const GetSelectedMenuList = (store: Stores) => {
+  const { 
+    menu: {
+      selectedMenu: { menutp_id },
+      menuList,
+    }
+  } = store;
+
+  if (menutp_id && menuList) {
+    return menuList[menutp_id] || [];
+  } else {
+    return [];
+  }
+};
+
+/**
+ * @todo 获取选中的菜单
+ * @param store reducer
+ */
+export const GetSelectedMenu = (store: Stores) => {
+  const { 
+    menu: { 
+      selectedMenu: { menutp_id },
+      menutp,
+    },
+  } = store;
+
+  if (menutp_id && menutp) {
+    const selectedMenu = menutp.find(m => m.menutp_id === menutp_id);
+    return selectedMenu;
+  } else {
+    return {};
+  }
+};

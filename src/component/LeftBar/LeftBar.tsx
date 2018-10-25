@@ -2,6 +2,8 @@
  * @todo created by Ghan 左侧功能栏组件
  */
 import React, { Component } from 'react';
+import numeral from 'numeral';
+import { merge } from 'lodash';
 import { connect } from 'react-redux';
 import { Pagination } from 'antd';
 import { Stores } from '../../store';
@@ -9,11 +11,70 @@ import { Dispatch } from 'redux';
 import { mergeProps } from '../../common/config';
 import styles from './styles.less';
 
+export const ListItem = (props: any) => {
+  const { data, onClick } = props;
+  if (data.attrType) {
+    // 规格
+    return data.number.map((attrItem: any, index: number) => {
+      const { attrs } = attrItem;
+      
+      return (
+        <div key={index} className={styles.listItem} onClick={onClick ? () => onClick({ data, currentAttr: attrItem }) : () => { console.log('noempty'); }}>
+          <div className={styles.listBox}>
+            {
+              data.itemIcon ? (
+                <span className={styles.itemIcon} style={{backgroundImage: `url(${data.itemIcon})`}} />
+              ) : ''
+            }
+            <div className={styles.listItemTexts}>
+              <div className={styles.mainText}>{data.product_name}</div>
+              {
+                attrs && attrs.length > 0 ? (
+                  <div className={styles.subText}>
+                  {
+                    attrs.map((attr: any, attrIndex: number) => {
+                      return `${attr.attrName} ${attrIndex === 0 ? '/' : ''}`;
+                    })
+                  }
+                  </div>
+                ) : ''
+              }
+            </div>
+          </div>
+          <div className={styles.listItemTexts}>
+            <div className={styles.mainText}>{attrItem.number}</div>
+            <div className={styles.subText}>{data.price}</div>
+          </div>
+        </div>
+      );
+    });
+  } else if (numeral(data.is_weight).value() === 1) {
+    // 称斤
+    return (
+      <div className={styles.listItem} onClick={onClick ? () => onClick({data}) : () => { console.log('noempty'); }}>
+        <div>{data.product_name}</div>
+      </div>
+    );
+  } else {
+    // 默认
+    return (
+      <div className={styles.listItem} onClick={onClick ? () => onClick({data}) : () => { console.log('noempty'); }}>
+        <div>{data.product_name}</div>
+      </div>
+    );
+  }
+};
 export interface TextItem {
   key: string;
   title: string;
   value: string;
   style?: React.CSSProperties;
+}
+
+export interface ContentData {
+  id?: string;
+  itemIcon?: string;
+  list: any[];
 }
 
 export interface FooterButton {
@@ -29,7 +90,8 @@ export interface HeadersData {
 
 export interface ContentsData {
   title?: string;
-  data?: any;
+  data?: ContentData[];
+  onClick?: (param?: any) => void;
 }
 
 export interface FootersData {
@@ -37,6 +99,46 @@ export interface FootersData {
   detail?: TextItem[][];
   remarks?: string;
 }
+
+export interface AnalysisContentsDataReturn {
+  onClick?: (param: any) => void;
+  list: any[];
+}
+
+/**
+ * @todo 拆包 contents data
+ * @return {AnalysisContentsDataReturn} 返回一个标准化的list
+ */
+export const analysisContentsData = (contents?: ContentsData): AnalysisContentsDataReturn => {
+  if (contents) {
+    const { data } = merge({}, contents, {});
+  
+    if (data && data.length > 0) {
+      let total: any[] = [];
+      
+      data.forEach((contentData: ContentData) => {
+        const { itemIcon, list } = contentData;
+        if (itemIcon) {
+          const addIconList: any[] = list.map((item: any) => {
+            return {...item, itemIcon };
+          });
+          total = total.concat(addIconList);
+        } else {  
+          total = total.concat(list);
+        }
+      });
+      
+      return {
+        onClick: contents.onClick,
+        list: total
+      };
+    } else {
+      return { list: [], onClick: contents.onClick, };
+    }
+  } else {
+    return { list: [] };
+  }
+};
 
 interface LeftBarProps {
   headers?: HeadersData;
@@ -65,6 +167,8 @@ class LeftBar extends Component<LeftBarProps, {}> {
       renderContent,
       renderFooter,
     } = this.props;
+
+    const { list, onClick: onItemClick } = analysisContentsData(contents);
     return (
       <div className={styles.container}>
       
@@ -98,21 +202,35 @@ class LeftBar extends Component<LeftBarProps, {}> {
           renderContent
           ? renderContent()
           : (
-            <div className={styles.box}>
+            <div 
+              className={styles.box}
+              style={{
+                maxHeight: document && document.documentElement && document.documentElement.clientHeight
+                  ? document && document.documentElement && document.documentElement.clientHeight - 180
+                  : '',
+                overflow: 'auto',
+                paddingBottom: '40px',
+              }}
+            >
               {contents && contents.title ? <div>{contents.title}</div> : ''}
               {
-                contents && contents.data ? (
-                  <div className={styles.dishes}>
-                    <div className={styles.dish}>dish</div>
-                  </div>
+                list ? (
+                  list.map((listItem: any, index: number) => {
+                    return (
+                      <ListItem key={index} data={listItem} onClick={onItemClick ? onItemClick : () => { console.log('console'); }}/>
+                    );
+                  })
                 ) : ''
               }
-              <Pagination 
-                total={10} 
-                pageSize={7} 
-                size="small"
-                onChange={(...rest) => { console.log(rest); }}
-              />
+              <div className={styles.pagination}>
+                <Pagination
+                  style={{marginTop: '10px'}}
+                  total={list.length || 0} 
+                  pageSize={7} 
+                  size="small"
+                  onChange={(...rest) => { console.log(rest); }}
+                />
+              </div>
             </div>
           )
         }

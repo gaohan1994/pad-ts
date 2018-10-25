@@ -8,10 +8,13 @@ import {
   CHANGE_TABLE_AREA,
   RECEIVE_SELECTED_TABLE,
 } from './constants';
+import config, { Navigate } from '../common/config';
+import CartController, { SetCurrentCartParam } from './cart';
 import { Dispatch } from 'redux';
 import numeral from 'numeral';
 import { Stores } from '../store';
 import Base from './base';
+import { GetUserinfo } from '../store/sign';
 
 export interface SaveChoiceTableinfo {
   type: SAVE_CHOICE_TABLEINFO;
@@ -52,6 +55,37 @@ export type BusinessActions =
   ReceiveSelectedTable;
 
 class Business {
+
+  /**
+   * ----- Menus Business -----
+   * 
+   * 切换堂食 外卖 订单
+   */
+  public changeModuleHandle = (type: string) => async (dispatch: Dispatch, state: () => Stores) => {
+    const { mchnt_cd } = GetUserinfo(await state());
+    let route: string = '';
+
+    switch (type) {
+      case 'meal':
+        route = `/table/${mchnt_cd}`;
+        break;
+      
+      /**
+       * @param { store 是外卖 1.先重置 currentCartId 2.跳转到 外卖页面 }
+       */
+      case 'store':
+        const param: SetCurrentCartParam = { dispatch, currentCartId: config.TAKEAWAYCARTID };
+        await CartController.setCurrentCart(param);
+        route = `/store/${mchnt_cd}`;
+        break;
+      case 'order':
+        route = `/orderlist`;
+        break;
+      default:
+        break;
+    }
+    Navigate.navto(route);
+  }
 
   /**
    * @todo 保存用户选择的桌号到 redux 
