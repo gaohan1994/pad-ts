@@ -3,18 +3,21 @@ import numeral from 'numeral';
 import { connect } from 'react-redux';
 import { Dispatch, bindActionCreators } from 'redux';
 import { Pagination } from 'antd';
-import /** config, */ { mergeProps } from '../../common/config';
+import config, { mergeProps } from '../../common/config';
 import { Stores } from '../../store';
 import { GetMenuList, GetMenutp, GetSelectedMenu, GetSelectedMenuList } from '../../store/menu';
 import MenuController, { MenuActions } from '../../action/menu';
 import BusinessController, { BusinessActions } from '../../action/business';
-import CartController, { CallbackParam } from '../../action/cart';
+import CartController from '../../action/cart';
 import Layout, { SmallCardProps } from '../../component/basicLayout/Layout';
 import styles from './store.less';
 import Helper from '../../component/Helper/Helper_V1';
 import OrderController from '../../action/order';
 import LeftBar, { HeadersData, FootersData, ContentsData } from '../../component/LeftBar/LeftBar';
-import { GetCurrentCartList, GetCurrentDish } from '../../store/cart';
+import { GetCurrentCartList, GetCurrentDish, GetCurrentCartListReturn } from '../../store/cart';
+import { GetSelecetedTable } from '../../store/table';
+import StatusController from '../../action/status';
+import TableModal from '../../component/TableModal/TableModal';
 
 const { Item } = Layout;
 const { ItemBar } = Item;
@@ -29,26 +32,23 @@ interface StoreProps {
   selectedMenuList: any;
   list: any[];
   currentDish: any;
+  currentCartId: string;
+  selectedTable: any;
   getMenuTp: (mchnt_cd: string) => void;
   fetchStoreData: (mchnt_cd: string) => void;
   setSelectedMenutp: (menuid: string) => void;
   sendOrder: () => void;
   emptyCart: () => void;
+  changeModalHandle: (params: any) => void;
 }
 
 /**
- * @param {currentDish} 点击左边的菜品设置成当前菜品 { product_id: string, currentAttr?: any }
- *
+ * @param {changeTableModal} string 显示换桌modal
  * @interface StoreState
  */
-interface StoreState {
-
-}
+interface StoreState { }
 class Store extends React.Component<StoreProps, StoreState> {
-  constructor(props: StoreProps) {
-    super(props);
-    this.state = { };
-  }
+
   /**
    * 请求扫描出来的餐厅的数据保存到redux中去
    * 在接下来会使用到数据的地方都从redux中取
@@ -109,18 +109,17 @@ class Store extends React.Component<StoreProps, StoreState> {
    */
   public renderHelper = (): JSX.Element => {
     const { list, currentDish } = this.props;
-
-    const { currentAttr } = currentDish;
+    const { currentAttr, product_id } = currentDish;
 
     let selectedDish: any = {};
 
-    if (list && list.length > 0 && currentDish.product_id) {
-      selectedDish = list.find((d: any) => d.product_id === currentDish.product_id);
+    if (list && list.length > 0 && product_id) {
+      selectedDish = list.find((d: any) => d.product_id === product_id);
     } else {
       selectedDish = {};
     }
 
-    if (selectedDish.product_id) {
+    if (selectedDish && selectedDish.product_id) {
       return (
         <div className={styles.coustomCard}>
           <div className={styles.controllNumber}>
@@ -145,13 +144,18 @@ class Store extends React.Component<StoreProps, StoreState> {
 
   /**
    * @todo set current Dish 
+   * @param {1.整理好数据 2.触发dispatch存到redux}
    *
    * @memberof Store
    */
   public setCurrentDish = (data: any) => {
-    this.setState({
+    const { dispatch } = this.props;
+
+    const param = {
+      dispatch,
       currentDish: data,
-    });
+    };
+    CartController.setCurrentDish(param);
   }
 
   /**
@@ -168,31 +172,64 @@ class Store extends React.Component<StoreProps, StoreState> {
     this.setCurrentDish(currentDataParam);
   }
 
+  /**
+   * @todo 显示换桌modal
+   *
+   * @memberof Store
+   */
+  public showChangeTableModal = () => {
+    console.log('showChangeTableModal: ');
+    const { changeModalHandle } = this.props;
+
+    const param = { changeTableModalStatus: true };
+
+    changeModalHandle(param);
+  }
+
   public render() {
     const {
       list,
       menuTp,
       selectedMenu,
       selectedMenuList,
+      currentCartId,
+      selectedTable,
     } = this.props;
 
-    const headers: HeadersData = {
+    const { tableOrder } = selectedTable;
+
+    const headers: HeadersData = currentCartId === config.TAKEAWAYCARTID ? {
       data: [
-        [{ key: '1', title: '订单号', value: '123123' }],
-        [{ key: '2', title: '桌号', value: '1' }, { key: '3', title: '用餐人数', value: '3人' }]
+        [{ key: '1', title: '订单号：', value: tableOrder && tableOrder.order_no || '' }],
+      ]
+    } : {
+      data: [
+        [{ key: '1', title: '订单号：', value: tableOrder && tableOrder.order_no || '' }],
+        [
+          { key: '2', title: '桌号：', value: selectedTable.table_no || '' }, 
+          { key: '3', title: '用餐人数：', value: tableOrder && tableOrder.people_num ? `${tableOrder.people_num}人` : '' },
+        ]
       ]
     };
 
     const contents: ContentsData = {
-      data: [{ itemIcon: '//net.huanmusic.com/llq/icon_mima.png', list, }],
-      // onClick: this.onLeftBarClickHandle
+      data: [
+        { itemIcon: '//net.huanmusic.com/llq/icon_mima.png', list, onClick: this.onLeftBarClickHandle },
+        { itemIcon: '//net.huanmusic.com/llq/icon_mima.png', list: tableOrder && tableOrder.data || [], onClick: this.onLeftBarClickHandle },
+      ],
     };
 
     const footers: FootersData = {
-      remarks: '整单备注：123123123',
+      // remarks: '整单备注：123123123',
       detail: [
-        [{ key: '1', title: '餐位费：', value: '' }, { key: '1-2', title: '', value: '￥8.99'}],
-        [{ key: '2', title: '合计：', value: '' }, { key: '3', title: '', value: '￥160.99' }]
+        [
+          { key: '1', title: '餐位费：', value: '' }, 
+          { key: '1-2', title: '', value: '￥8.99'},
+        ],
+        [
+          { key: '2', title: '合计：', value: '' }, 
+          { key: '3', title: '', value: '￥160.99' },
+        ]
       ],
       buttons: [
         {
@@ -208,6 +245,15 @@ class Store extends React.Component<StoreProps, StoreState> {
     };
 
     const ItemBarData: SmallCardProps[] = [
+      tableOrder && tableOrder.table_no ? {
+        img: '//net.huanmusic.com/llq/icon_huanzhuo.png',
+        value: '换桌',
+        onClick: () => this.showChangeTableModal(),
+      } : {},
+      tableOrder && tableOrder.people_num ? {
+        img: '//net.huanmusic.com/llq/icon_renshu.png',
+        value: '修改人数'
+      } : {},
       {
         img: '//net.huanmusic.com/llq/icon_houchu.png',
         value: '重打后厨'
@@ -220,15 +266,15 @@ class Store extends React.Component<StoreProps, StoreState> {
         render: this.renderHelper,
       },
       {
-        img: '//net.huanmusic.com/llq/icon_houchu.png',
+        img: '//net.huanmusic.com/llq/icon_lajitong.png',
         value: '删除'
       },
+      // {
+      //   img: '//net.huanmusic.com/llq/icon_houchu.png',
+      //   value: '整单备注'
+      // },
       {
-        img: '//net.huanmusic.com/llq/icon_houchu.png',
-        value: '整单备注'
-      },
-      {
-        img: '//net.huanmusic.com/llq/icon_houchu.png',
+        img: '//net.huanmusic.com/llq/icon_gouwuche.png',
         value: '清空购物车',
         onClick: () => this.emptyCart(),
       },
@@ -236,6 +282,7 @@ class Store extends React.Component<StoreProps, StoreState> {
 
     return (
       <Layout>
+        <TableModal />
         <Item position="main" style={{marginLeft: '340px'}}>
           <div className={styles.dishes}>
             {
@@ -262,7 +309,11 @@ class Store extends React.Component<StoreProps, StoreState> {
           <ItemBar>
             {
               ItemBarData.map((item: SmallCardProps, index: number) => {
-                return (<SmallCard key={index} {...item}/>);
+                if (item.img || item.render) {
+                  return (<SmallCard key={index} {...item}/>);
+                } else {
+                  return '';
+                }
               })
             }
           </ItemBar>
@@ -295,14 +346,16 @@ class Store extends React.Component<StoreProps, StoreState> {
 }
 
 const mapStateToProps = (state: Stores) => {
-  const { list } = GetCurrentCartList(state);
+  const { list, currentCartId }: GetCurrentCartListReturn = GetCurrentCartList(state);
   return {
     menu: GetMenuList(state),
     menuTp: GetMenutp(state),
     selectedMenuList: GetSelectedMenuList(state),
     selectedMenu: GetSelectedMenu(state),
     list,
+    currentCartId,
     currentDish: GetCurrentDish(state),
+    selectedTable: GetSelecetedTable(state),
   };
 };
 
@@ -313,6 +366,7 @@ const mapDispatchToProps = (dispatch: Dispatch<MenuActions | BusinessActions>) =
   setSelectedMenutp: bindActionCreators(BusinessController.setSelectedMenutp, dispatch),
   sendOrder: bindActionCreators(OrderController.sendOrder, dispatch),
   emptyCart: bindActionCreators(CartController.emptyCart, dispatch),
+  changeModalHandle: bindActionCreators(StatusController.changeTableModalStatus, dispatch),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps, mergeProps)(Store);

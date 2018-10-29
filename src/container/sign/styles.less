@@ -1,0 +1,102 @@
+@import '../../global.less';
+
+@login-padding: 40px;
+@login-title-color: #666666;
+@login-icon: 20px;
+@login-input-width: 200px;
+@login-radius: 6px;
+
+.bg {
+  .count-px(480px, 320px, 854px);
+  background-image: url('http://net.huanmusic.com/llq/img_canting.png');
+  width: @count;
+  height: @count * (525 / 854);
+  .bg-img;
+  margin-right: -(@login-padding * 1.5);
+}
+
+.container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+
+  .display-flex(center, center);
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center center;
+  background-image: url(//net.huanmusic.com/llq/bg.png);
+
+  & > .box {
+    .display-flex(center, center);
+    .direction;
+    background: #ffffff;
+    padding: @login-padding;
+    border-radius: @login-radius;
+    -webkit-box-shadow: 10px 10px 5px #f6c865;
+            box-shadow: 10px 10px 5px #f6c865;
+
+    & > div {
+      width: 100%;
+      margin-bottom: @login-padding / 2;
+      -webkit-box-sizing: border-box;
+              box-sizing: border-box;
+    }
+    
+    & > .title {
+      padding-left: @login-padding / 10;
+      font-size: 18px;
+      text-align: left;
+      color: @login-title-color;
+    }
+
+    & > .inputBox {
+      padding: 10px 0;
+      position: relative;
+      .display-flex(center, between);
+
+      & > .inputIcon {
+        display: block;
+        width: @login-icon;
+        height: @login-icon;
+        .bg-img;
+      }
+
+      & > .input {
+        padding: 0px;
+        margin-left: @login-padding / 2;
+        width: @login-input-width;
+        line-height: 20px;
+        font-size: 12px;
+        border: 0px;
+      }
+    }
+  }
+}
+
+.inputBox::after {
+  .half-border;
+}
+
+.input::-webkit-input-placeholder {
+  color: #cccccc;
+}
+
+.input:-ms-input-placeholder {
+  color: #cccccc;
+}
+
+.input::placeholder {
+  color: #cccccc;
+}
+
+.button {
+  width: 100%;
+  height: 40px;
+  border-radius: @login-radius;
+  background: @theme-color;
+  color: #ffffff;
+  .display-flex(center, center);
+  font-size: 16px;
+}

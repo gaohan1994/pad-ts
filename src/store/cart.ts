@@ -44,18 +44,34 @@ export default function cart (state: Cart = initState, action: CartActions): Car
   switch (action.type) {
 
     case UPDATE_CART:
-      const { payload: { id, list } } = action;
+      const { payload: { id, list: updateList } } = action;
       return {
         ...state,
-        list: { [id]: list },
+        list: { 
+          ...state.list,
+          [id]: updateList 
+        },
       };
 
     case RECEIVE_CURRENT_CART_ID:
       const { payload: { currentCartId } } = action;
-      return {
-        ...state,
-        currentCartId,
-      };
+      /**
+       * @param {currentCartId} string 当redux中不存在该currentCartId的list时，创建一个空的
+       */
+      if (currentCartId && !state.list[currentCartId]) {
+        return {
+          ...state,
+          list: {
+            ...state.list,
+            [currentCartId]: []
+          }
+        };
+      } else {
+        return {
+          ...state,
+          currentCartId,
+        };
+      }
     
     case RECEIVE_CURRENT_DISH:
       const { payload: { currentDish } } = action;

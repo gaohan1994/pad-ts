@@ -34,6 +34,8 @@ import Order from './container/order/order';
 import Login from './container/sign/Login';
 import Table from './container/table/Table';
 import People from './container/table/people';
+import Pay from './container/pay/Pay';
+
 /**
  * @param title -- 网页 title
  *
@@ -57,6 +59,8 @@ export interface DocumentTitleProps {
  * ------ 解决方案 ------
  * 在 AnimatedSwitch 提供的钩子函数中在ENTER LEAVE ACTIVE中设置不同的标记
  * 根据标记判断是否进入并且动态修改 position
+ * 
+ * @param {Login} 组件采用redux的方式
  *
  * @class RouterConfig
  * @extends {React.StateLessComponent<DocumentTitleProps>}
@@ -81,26 +85,28 @@ const RouterConfig = ({ title }: DocumentTitleProps) => {
               };
             }}
           >
-            {/* <AuthRoute path="/" exact={true} component={App}/>
-            <AuthRoute path="/stores" component={Stores} />
-            <AuthRoute path="/store/:id" component={Store} />
-            <AuthRoute path="/interfacetest" component={InterfaceTest} />
-            <AuthRoute path="/orderlist" component={OrderList} />
-            <AuthRoute path="/order/:id" component={Order} /> */}
-
-            <Route path="/" exact={true} component={App} />
-            <Route path="/stores" component={Stores} />
-            <Route path="/meal/:id" component={Meal} />
-            <Route path="/store/:id" component={Store} />
-            <Route path="/interfacetest" component={InterfaceTest} />
-            <Route path="/orderlist" component={OrderList} />
-            <Route path="/order/:orderid" component={Order} />
-            <Route path="/table/:id" component={Table} />
-            <Route path="/people" component={People} />
-
-            <Route path="/login" Component={Login}/>
-            <Route path="/exception/:status" component={Exception} />
-            <Route component={NotFound}/>
+              {/* 
+                <AuthRoute path="/" exact={true} component={App}/>
+                <AuthRoute path="/stores" component={Stores} />
+                <AuthRoute path="/store/:id" component={Store} />
+                <AuthRoute path="/interfacetest" component={InterfaceTest} />
+                <AuthRoute path="/orderlist" component={OrderList} />
+                <AuthRoute path="/order/:id" component={Order} /> 
+              */}
+              
+              <Route path="/" exact={true} component={App} />
+              <Route path="/stores" component={Stores} />
+              <Route path="/meal/:id" component={Meal} />
+              <Route path="/store/:id" component={Store} />
+              <Route path="/interfacetest" component={InterfaceTest} />
+              <Route path="/orderlist" component={OrderList} />
+              <Route path="/order/:orderid" component={Order} />
+              <Route path="/table/:id" component={Table} />
+              <Route path="/people" component={People} />
+              <Route path="/pay" component={Pay} />
+              <Route path="/login" component={Login}/>
+              <Route path="/exception/:status" component={Exception} />
+              <Route component={NotFound}/>
           </AnimatedSwitch>
         </Router>
       </BasicLayout>

@@ -14,8 +14,8 @@ export type Sign = {
 
 export const initState = {
   loading: false,
-  userinfo: {
-    mchnt_cd: config.DEFAUL_MCHNT_CD
+  userinfo: { 
+    mchnt_cd: config.DEFAUL_MCHNT_CD,
   },
   mchntInfo: {},
 };

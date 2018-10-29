@@ -1,0 +1,82 @@
+@import "../../global.less";
+
+@table-item: 80px;
+@table-item-margin: 5px;
+
+
+.container {
+  padding: 20px;
+}
+
+.contents {
+  position: relative;
+
+  .display-flex(start, center);
+
+  & > div {
+    -webkit-box-sizing: border-box;
+            box-sizing: border-box;
+    position: relative;
+  }
+
+  & > .tables {
+    .display-flex();
+    -ms-flex-wrap: wrap;
+        flex-wrap: wrap;
+    width: (@table-item * 5) + (@table-item-margin * 5) + 5px;
+    height: (@table-item * 3) + (@table-item-margin * 3) + 5px;
+
+    & > .normalTable, & > .activeTable, & > .occupyTable {
+      position: relative;
+      width: @table-item;
+      height: @table-item;
+      margin: 0 @table-item-margin @table-item-margin 0;
+      font-size: 10px;
+      .display-flex(center, center);
+    }
+
+    & > .activeTable {
+      background: @theme-color;
+      color: #ffffff;
+    }
+
+    & > .normalTable {
+      background: @theme-gray;
+      color: #808080;
+    }
+
+    & > .occupyTable {
+      background: @theme-gray;
+      color: #cccccc;
+    }
+  }
+
+  & > .bar {
+    border: 2px solid @theme-color;
+    height: (@table-item * (7 / 12)) * 4;
+
+    & > .activeArea, & > .normalArea {
+      .display-flex(center, center);
+      position: relative;
+      width: @table-item;
+      height: @table-item * (7 / 12);
+    }
+
+    & > .activeArea {
+      background: @theme-gray;
+    }
+
+    & > .normalArea {
+      background: #ffffff;
+    }
+
+    & > .themeIcon {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: @table-item * 0.1;
+      height: 100%;
+      background: @theme-color;
+    }
+  }
+}

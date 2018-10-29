@@ -15,10 +15,13 @@ export type InterfaceConfig = {
 
 /**
  * @todo 配置不会因为环境改变的数据项
- * @param { DEFAULT_DOCUMENT_TITLE } string 默认head title
- * @param { DEFAULT_FETCH_METHOD } string 默认请求method defalut post
- * @param { DEFAULT_BALL_SPEED } number 购物车小球默认速度 220
- * @param { DEFAUL_MCHNT_CD } string 测试用 mchnt_cd
+ * @param {DEFAULT_DOCUMENT_TITLE} string 默认head title
+ * @param {DEFAULT_FETCH_METHOD} string 默认请求method defalut post
+ * @param {DEFAULT_BALL_SPEED} number 购物车小球默认速度 220
+ * @param {DEFAUL_MCHNT_CD} string 测试用 mchnt_cd
+ * @param {DEFAULT_PICTURE_LING} string 默认图片
+ * @param {TAKEAWAYCARTID} string 外卖的 cart id
+ * @param {NONEEDLAYOUTEPAGEROUTES} any[] 不需要layout的页面
  * @export
  * @interface DefaultCommonConfig
  */
@@ -130,7 +133,6 @@ const getMealFee = (params: any): any => {
       meal_fee = people_num * fee;
       break;
     default:
-
       break;
   }
 

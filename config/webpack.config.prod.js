@@ -239,6 +239,12 @@ module.exports = {
                     'card-actions-background': '#f5f8fa',
                     'brand-primary': '#f8c030',
                     'layout-header-background': '#f8c030',
+                    'layout-header-height': '40px',
+
+                    // menu
+                    'menu-bg': '#f8c030',
+                    'menu-highlight-color': '#ffffff',
+                    'menu-item-active-bg': '#e9b52b',
                   },
                   javascriptEnabled: true,
                 },

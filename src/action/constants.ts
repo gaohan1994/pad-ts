@@ -7,6 +7,12 @@ export type CHANGE_DOCUMENT_TITLE = typeof CHANGE_DOCUMENT_TITLE;
 export const CHANGE_LOADING = 'CHANGE_LOADING';
 export type CHANGE_LOADING = typeof CHANGE_LOADING;
 
+export const CHANGE_TABLE_MODAL_STATUS = 'CHANGE_TABLE_MODAL_STATUS';
+export type CHANGE_TABLE_MODAL_STATUS = typeof CHANGE_TABLE_MODAL_STATUS;
+
+export const CHANGE_LOGIN_STATUS = 'CHANGE_LOGIN_STATUS';
+export type CHANGE_LOGIN_STATUS = typeof CHANGE_LOGIN_STATUS;
+
 /**
  * @param { business 不与数据库交互的业务逻辑 }
  * @param { SAVE_CHOICE_TABLEINFO 保存用户选择的桌号 }

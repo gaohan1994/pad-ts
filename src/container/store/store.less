@@ -68,6 +68,7 @@
   & > .controllNumber {
     border-radius: 4px 4px 0 0;
     background: #cccccc;
+    .display-flex(center, center);
     &:hover {
       background: @theme-color;
     }
@@ -80,11 +81,17 @@
       &:hover {
         background: @theme-color;
       }
+      .display-flex(center, center);
       background: #cccccc;
       height: 100%;
       -webkit-box-flex: 1;
           -ms-flex: 1;
               flex: 1;
+      & > div {
+        width: 100%;
+        height: 100%;
+        .display-flex(center, center);
+      }
     }
   }
 }

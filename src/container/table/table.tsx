@@ -11,13 +11,21 @@ import { Dispatch, bindActionCreators } from 'redux';
 import { Modal } from 'antd';
 import TableController, { TableActions } from '../../action/table';
 import BusinessController, { BusinessActions } from '../../action/business';
-import { mergeProps } from '../../common/config';
-import { GetTableInfo, GetSelectedArea, GetSelectedAreaId, GetSelecetedTable } from '../../store/table';
+import { mergeProps, Navigate } from '../../common/config';
+import { 
+  GetTableInfo,
+  GetSelectedArea, 
+  GetSelectedAreaId, 
+  GetSelecetedTable,
+} from '../../store/table';
+import { GetCurrentCartList } from '../../store/cart';
 import { Stores } from '../../store';
 import Layout from '../../component/basicLayout/Layout';
 import styles from './table.less';
-import LeftBar, { HeadersData, FootersData } from 'src/component/LeftBar/LeftBar';
+import LeftBar, { HeadersData, FootersData } from '../../component/LeftBar/LeftBar';
 import { ContentsData } from '../../component/LeftBar/LeftBar';
+import { GetUserinfo } from '../../store/sign';
+import config from '../../common/config';
 
 const { Item } = Layout;
 
@@ -30,6 +38,7 @@ const { Item } = Layout;
  * @param { selectedTableInfo: 选中的 area 的数据 }
  * @param { selectedAreaI: 选中的 area 的id }
  * @param { selectedTable: 选中的桌子 }
+ * @param { currentCartId: 当前选中的 cart 购物车 }
  * @interface TableProps
  */
 interface TableProps {
@@ -42,6 +51,9 @@ interface TableProps {
   selectedAreaInfo: any;
   selectedAreaId: string;
   selectedTable: any;
+  list: any[];
+  userinfo: any;
+  currentCartId: string;
 }
 
 interface TableState {
@@ -133,28 +145,48 @@ class Table extends Component<TableProps, TableState> {
 
   render() {
     const { showModal } = this.state;
-    const { tableinfo, selectedAreaInfo, selectedAreaId, selectedTable } = this.props;
+    const { 
+      tableinfo, 
+      selectedAreaInfo, 
+      selectedAreaId, 
+      selectedTable, 
+      list, 
+      userinfo,
+      currentCartId,
+    } = this.props;
 
     const modalData = (selectedAreaInfo && typeof (selectedAreaInfo.peopelNum) === 'number')
-      ? new Array(selectedAreaInfo.peopelNum).fill({}).map((_: any, index: number) => {
-        return {
-          key: index + 1,
-          value: index + 1,
-        };
-      })
-      : [];
+    ? new Array(selectedAreaInfo.peopelNum).fill({}).map((_: any, index: number) => {
+      return {
+        key: index + 1,
+        value: index + 1,
+      };
+    })
+    : [];
 
-    const headers: HeadersData = {
+    /**
+     * @param {tableOrder} 选中 table 的数据
+     * @param {config.TAKEAWAYCARTID} 手动屏蔽外卖的数据
+     */ 
+    const { tableOrder } = selectedTable;
+    const headers: HeadersData = currentCartId !== config.TAKEAWAYCARTID ? {
       data: [
-        [{ key: '1', title: '订单号', value: '123123' }],
-        [{ key: '2', title: '桌号', value: '1' }, { key: '3', title: '用餐人数', value: '3人' }]
+        [{ key: '1', title: '订单号：', value: tableOrder && tableOrder.order_no || '' }],
+        [
+          { key: '2', title: '桌号：', value: selectedTable.table_no || '' }, 
+          { key: '3', title: '用餐人数：', value: tableOrder && tableOrder.people_num ? `${tableOrder.people_num}人` : '' },
+        ]
       ]
-    };
+    } : {};
 
-    const contents: ContentsData = {
-      data: [],
-    };
-    const footers: FootersData = {
+    const contents: ContentsData = currentCartId !== config.TAKEAWAYCARTID ? {
+      data: [
+        { itemIcon: '//net.huanmusic.com/llq/icon_mima.png', list: tableOrder && tableOrder.data || [], },
+        { itemIcon: '//net.huanmusic.com/llq/icon_mima.png', list },
+      ]
+    } : {};
+
+    const footers: FootersData = currentCartId !== config.TAKEAWAYCARTID ? {
       remarks: '整单备注：123123123',
       detail: [
         [{ key: '1', title: '订单号', value: '123123' }],
@@ -168,13 +200,17 @@ class Table extends Component<TableProps, TableState> {
         },
         {
           values: ['下单'],
-          onClick: () => { this.setState({ showModal: true }); },
+          onClick: tableOrder && tableOrder.people_num 
+            ? () => { Navigate.navto(`/store/${userinfo.mchnt_cd}`); }
+            : () => { this.setState({ showModal: true }); },
         },
       ]
+    } : {
+      buttons: []
     };
     return (
       <Layout>
-        <Item position="main">
+        <Item position="main" style={{paddingLeft: '10px'}}>
           <div style={{ height: `${document && document.documentElement && document.documentElement.clientHeight - 64}px` }} className={styles.tables}>
             {
               selectedAreaInfo && selectedAreaInfo.tables.map((table: any) => {
@@ -258,12 +294,19 @@ class Table extends Component<TableProps, TableState> {
   }
 }
 
-const mapStateToProps = (state: Stores) => ({
-  tableinfo: GetTableInfo(state),
-  selectedAreaInfo: GetSelectedArea(state),
-  selectedAreaId: GetSelectedAreaId(state),
-  selectedTable: GetSelecetedTable(state),
-});
+const mapStateToProps = (state: Stores) => {
+
+  const { list, currentCartId } = GetCurrentCartList(state);
+  return {
+    tableinfo: GetTableInfo(state),
+    selectedAreaInfo: GetSelectedArea(state),
+    selectedAreaId: GetSelectedAreaId(state),
+    selectedTable: GetSelecetedTable(state),
+    list,
+    currentCartId,
+    userinfo: GetUserinfo(state),
+  };
+};
 
 const mapDispatchToProps = (dispatch: Dispatch<TableActions | BusinessActions>) => ({
   fetchTableInfo: bindActionCreators(TableController.getTableInfo, dispatch),

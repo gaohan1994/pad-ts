@@ -6,6 +6,7 @@ import {
 } from './constants';
 import { ConsoleUtil } from '../common/request';
 import SignService from '../service/sign';
+// import StatusController from './status';
 export interface RegisterParams {
   user_id: string;
   passwd: string;
@@ -46,6 +47,46 @@ export type SignActions = ChangeSignLogin | ReceiveUserinfo;
 class Sign {
 
   /**
+   * @todo 清空登录数据 跳转到登录页面，打开showLogin
+   *
+   * @static
+   * @memberof Sign
+   */
+  static webLogout = () => async (dispatch: Dispatch) => {
+    ConsoleUtil('webLogout', 'sign');
+    
+    /**
+     * @param {RECEIVE_USERINFO} 先清空userinfo
+     */
+    dispatch({
+      type: RECEIVE_USERINFO,
+      payload: { userinfo: {} },
+    });
+
+    /**
+     * @param {showLoginPage} 显示登录页面
+     */
+    // StatusController.showLoginPage(dispatch);
+  }
+
+  static webLogin = (params: any) => async (dispatch: Dispatch) => {
+    ConsoleUtil('webLogin', 'login');
+    const result = await SignService.webLogin(params);
+
+    if (result.code === '10000') {
+      /**
+       * @param {result.biz_content} 登录成功返回数据
+       */
+      dispatch({
+        type: RECEIVE_USERINFO,
+        payload: { userinfo: result.biz_content },
+      });
+    } else {
+      Base.toastFail(`${result.msg || '登录失败~'}`);
+    }
+  }
+
+  /**
    * @todo 注册 
    *
    * @static
@@ -53,7 +94,7 @@ class Sign {
    */
   static doRegisterHandle = (params: RegisterParams) => async (dispatch: Dispatch) => {
     ConsoleUtil('doRegisterHandle');
-    //  const result = await SignService.registerUser(params);
+
     dispatch({
       type: CHANGE_SIGN_LOADING,
       loading: true,

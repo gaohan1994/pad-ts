@@ -8,6 +8,25 @@ import request from '../common/request';
 class OrderService {
 
   /**
+   * @todo 通过桌号查询订单信息
+   *
+   * @static
+   * @memberof OrderService
+   */
+  static orderQueryByTable = async (params: any): Promise<any> => {
+    return request(
+      '',
+      'post',
+      {
+        method: 'trade.order_query_by_table',
+        biz_content: {
+          ...params,
+        }
+      }
+    );
+  }
+
+  /**
    * @todo 上报订单信息
    *
    * @static

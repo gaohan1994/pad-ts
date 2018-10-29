@@ -306,10 +306,13 @@ class Helper extends Component <HelperProps, HeplerState> {
        */
       token = false;
 
+      console.log('data: ', data);
+      console.log('list: ', list);
+      console.log('selectedAttrs: ', selectedAttrs);
+      
       let
         attrIndex: number = -1,
         attrId: string = '';
-
       const { inCart, index, attrToken }: CheckItemAlreadyInCartReturn = CheckItemAlreadyInCart(data, list, selectedAttrs);
       if (inCart === true && typeof index === 'number' && attrToken) {
         token = true;

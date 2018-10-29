@@ -3,6 +3,8 @@ import {
   CHANGE_STATUS_SHOW,
   CHANGE_DOCUMENT_TITLE,
   CHANGE_LOADING,
+  CHANGE_TABLE_MODAL_STATUS,
+  CHANGE_LOGIN_STATUS,
 } from './constants';
 
 export interface ChangeStatus {
@@ -20,7 +22,22 @@ export interface ChangeLoading {
   loading: boolean;
 }
 
-export type StatusAtions = ChangeStatus | ChangeDocumentTitle | ChangeLoading;
+export interface ChangeTableModalStatus {
+  type: CHANGE_TABLE_MODAL_STATUS;
+  payload: any;
+}
+
+export interface ChagneLoginStatus {
+  type: CHANGE_LOGIN_STATUS;
+  payload: any;
+}
+
+export type StatusAtions = 
+  ChangeStatus | 
+  ChangeDocumentTitle | 
+  ChangeLoading |
+  ChangeTableModalStatus |
+  ChagneLoginStatus; 
 
 export const changeStatus = () => (dispatch: Dispatch) => {
   dispatch({
@@ -60,6 +77,37 @@ class Status {
       type: CHANGE_LOADING,
       loading: false,
     });
+  }
+
+  public changeTableModalStatus = (param: any) => async (dispatch: Dispatch) => {
+    const { changeTableModalStatus } = param;
+
+    dispatch({
+      type: CHANGE_TABLE_MODAL_STATUS,
+      payload: { changeTableModalStatus }
+    });
+  }
+
+  /**
+   * @todo 修改login 页面状态
+   *
+   * @memberof Status
+   */
+  public changeLoginStatus = async (param: any) => {
+    const { dispatch, showLogin } = param;
+
+    dispatch({
+      type: CHANGE_LOGIN_STATUS,
+      payload: { showLogin }
+    });
+  }
+
+  public hideLoginPage = (dispatch: Dispatch) => {
+    this.changeLoginStatus({ dispatch, showLogin: false });
+  }
+
+  public showLoginPage = (dispatch: Dispatch) => {
+    this.changeLoginStatus({ dispatch, showLogin: true });
   }
 }
 

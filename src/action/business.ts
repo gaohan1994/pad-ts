@@ -15,6 +15,8 @@ import numeral from 'numeral';
 import { Stores } from '../store';
 import Base from './base';
 import { GetUserinfo } from '../store/sign';
+import OrderService from '../service/order';
+import StatusController from './status';
 
 export interface SaveChoiceTableinfo {
   type: SAVE_CHOICE_TABLEINFO;
@@ -58,12 +60,18 @@ class Business {
 
   /**
    * ----- Menus Business -----
-   * 
-   * 切换堂食 外卖 订单
+   * @todo 切换堂食 外卖 订单
+   * @param {this.setSelectedTable} 先重置选中桌子
+   * @param {setCurrentCart} 重置 currentCart 至外卖ID，table页面手动处理不显示外卖ID的购物车
    */
   public changeModuleHandle = (type: string) => async (dispatch: Dispatch, state: () => Stores) => {
     const { mchnt_cd } = GetUserinfo(await state());
     let route: string = '';
+
+    await this.setSelectedTable({
+      dispatch,
+      table: { table_no: config.TAKEAWAYCARTID },
+    });
 
     switch (type) {
       case 'meal':
@@ -111,17 +119,15 @@ class Business {
    * @memberof Business
    */
   public saveChoicePeople = (people: any) => async (dispatch: Dispatch, state: () => Stores) => {
-    const { table: { selectedTable } } = await state();
-    if (typeof selectedTable.table_no === 'number') {
-      await dispatch({
-        type: SAVE_CHOICE_PEOPLE,
-        payload: {
-          people,
-        }
-      });
-    } else {
-      Base.toastFail('请先选择桌子');
-    }
+    const { mchnt_cd } = GetUserinfo(await state());
+    await dispatch({
+      type: SAVE_CHOICE_PEOPLE,
+      payload: {
+        people,
+      }
+    });
+
+    Navigate.navto(`/store/${mchnt_cd}`);
   }
 
   /**
@@ -215,22 +221,48 @@ class Business {
    *
    * @memberof Business
    */
-  public tableClickHandle = (table: any) => async (dispatch: Dispatch) => {
-    const { status } = table;
+  public tableClickHandle = (table: any) => async (dispatch: Dispatch, state: () => Stores) => {
+    StatusController.showLoading(dispatch);
 
-    const param = { dispatch, table };
-    await this.setSelectedTable(param);
+    const { mchnt_cd } = GetUserinfo(await state());
 
-    // 如果是1 说明有订单
-    if (numeral(status).value() === 1) {
-      console.log('table: ', table);
+    const tableParam = {
+      mchnt_cd,
+      table_no: table.table_no
+    };
+    /** 
+     * @param {1.先请求该桌子的订单信息}
+     * @param {2.根据是否存在订单，如果存在订单把订单数据加到table信息中并存入redux，如果不存在只存入table信息}
+     * @param {3.选择到对应table_no的cart list 在setSelectedTable中完成}
+     */ 
+    const result = await OrderService.orderQueryByTable(tableParam);
+
+    StatusController.hideLoading(dispatch);
+    
+    if (result.code === '10000') {
+      let param: any = { dispatch, table };
+
+      if (numeral(result.biz_content.table_status).value() === 1) {
+        param = {
+          ...param,
+          table: {
+            ...table,
+            tableOrder: result.biz_content
+          }
+        };    
+        this.setSelectedTable(param); // step 2
+      } else if (numeral(result.biz_content.table_status).value() === 0) {    
+        this.setSelectedTable(param); // step 2
+      } else {
+        Base.toastFail('请联系管理员查看该桌子信息');
+      }
     } else {
-      console.log('table: ', table);
+      Base.toastFail('请求接口错误');
     }
   }
 
   /**
-   * @todo 设置选中 table 
+   * @todo 1.设置选中 table  2.设置选中 cart 
    * @param { param: { dispatch, table: any } }
    *
    * @memberof Business
@@ -242,6 +274,12 @@ class Business {
       type: RECEIVE_SELECTED_TABLE,
       payload: { selectedTable: table },
     });
+
+    const setCurrentCartParam: SetCurrentCartParam = {
+      dispatch,
+      currentCartId: table.table_no,
+    };
+    CartController.setCurrentCart(setCurrentCartParam); // step 3
   }
 
   /**

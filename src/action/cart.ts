@@ -110,7 +110,8 @@ export const AttrParamHepler = (attrs: any[]): AttrParamHeplerReturn => {
  * 2.如果有 product_id 
  *  如果有传 attrs 判断 attrs 是否都存在该 product_id 中
  */
-export const CheckItemAlreadyInCart = (item: any, list: any[], attrs?: any[]): CheckItemAlreadyInCartReturn => {
+export const CheckItemAlreadyInCart = (item: any, list: any[] = [], attrs?: any[]): CheckItemAlreadyInCartReturn => {
+
   const productIdToken = list.findIndex(l => l.product_id === item.product_id);
   if (productIdToken === -1) {
     return { inCart: false, index: productIdToken };

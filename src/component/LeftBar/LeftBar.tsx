@@ -59,11 +59,29 @@ export const ListItem = (props: any) => {
     // 默认
     return (
       <div className={styles.listItem} onClick={onClick ? () => onClick({data}) : () => { console.log('noempty'); }}>
-        <div>{data.product_name}</div>
+        <div className={styles.listBox}>
+          {
+            data.itemIcon ? (
+              <span className={styles.itemIcon} style={{backgroundImage: `url(${data.itemIcon})`}} />
+            ) : ''
+          }
+          <div className={styles.listItemTexts}>
+            <div className={styles.mainText}>{data.product_name}</div>
+          </div>
+        </div>
+        <div className={styles.listItemTexts}>
+          {
+            typeof data.num === 'number' ? (
+              <div className={styles.mainText}>{data.num}</div>
+            ) : <div className={styles.mainText}>{data.number}</div>
+          }
+          <div className={styles.subText}>{data.price}</div>
+        </div>
       </div>
     );
   }
 };
+
 export interface TextItem {
   key: string;
   title: string;
@@ -75,6 +93,7 @@ export interface ContentData {
   id?: string;
   itemIcon?: string;
   list: any[];
+  onClick?: (param: any) => void;
 }
 
 export interface FooterButton {
@@ -91,7 +110,6 @@ export interface HeadersData {
 export interface ContentsData {
   title?: string;
   data?: ContentData[];
-  onClick?: (param?: any) => void;
 }
 
 export interface FootersData {
@@ -101,7 +119,6 @@ export interface FootersData {
 }
 
 export interface AnalysisContentsDataReturn {
-  onClick?: (param: any) => void;
   list: any[];
 }
 
@@ -114,26 +131,22 @@ export const analysisContentsData = (contents?: ContentsData): AnalysisContentsD
     const { data } = merge({}, contents, {});
   
     if (data && data.length > 0) {
-      let total: any[] = [];
-      
+      let total: any[] = [];    
       data.forEach((contentData: ContentData) => {
-        const { itemIcon, list } = contentData;
-        if (itemIcon) {
+        const { itemIcon = '', list, onClick = () => {/** no empty */} } = contentData;
+
+        if (list && list.length > 0) {
+
           const addIconList: any[] = list.map((item: any) => {
-            return {...item, itemIcon };
+            return {...item, itemIcon, onClick };
           });
           total = total.concat(addIconList);
-        } else {  
-          total = total.concat(list);
         }
       });
       
-      return {
-        onClick: contents.onClick,
-        list: total
-      };
+      return { list: total };
     } else {
-      return { list: [], onClick: contents.onClick, };
+      return { list: [] };
     }
   } else {
     return { list: [] };
@@ -167,8 +180,7 @@ class LeftBar extends Component<LeftBarProps, {}> {
       renderContent,
       renderFooter,
     } = this.props;
-
-    const { list, onClick: onItemClick } = analysisContentsData(contents);
+    const { list } = analysisContentsData(contents);
     return (
       <div className={styles.container}>
       
@@ -217,7 +229,7 @@ class LeftBar extends Component<LeftBarProps, {}> {
                 list ? (
                   list.map((listItem: any, index: number) => {
                     return (
-                      <ListItem key={index} data={listItem} onClick={onItemClick ? onItemClick : () => { console.log('console'); }}/>
+                      <ListItem key={index} data={listItem} onClick={listItem.onClick}/>
                     );
                   })
                 ) : ''
@@ -240,9 +252,14 @@ class LeftBar extends Component<LeftBarProps, {}> {
           ? renderFooter()
           : (
             <div className={`${styles.footer}`}>
-              <div className={`${styles.box} ${styles.remarks}`}>
-                {footers && footers.remarks || ''}
-              </div>
+              {
+                footers && footers.remarks ? (
+                  <div className={`${styles.box} ${styles.remarks}`}>
+                    {footers.remarks}
+                  </div>
+                ) : ''
+              }
+              
               <div className={`${styles.box}`} style={{margin: '0px'}}>
                 {
                   footers && footers.detail && footers.detail.length > 0 ? (

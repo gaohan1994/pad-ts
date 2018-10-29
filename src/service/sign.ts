@@ -10,6 +10,25 @@ import { RegisterParams } from '../action/sign';
 class SignService {
 
   /**
+   * @todo web 端登录接口
+   *
+   * @static
+   * @memberof SignService
+   */
+  static webLogin = async (params: any): Promise <any> => {
+    return request(
+      '',
+      'post',
+      {
+        method: 'user.web_login',
+        biz_content: {
+          ...params,
+        }
+      }
+    );
+  }
+
+  /**
    * @todo 注册用户
    * 
    * @static

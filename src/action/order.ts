@@ -245,7 +245,96 @@ export const GetTotalParams = (
   return { formatTotalNumber, formatTotalPrice };
 };
 
+export interface AnalysisStandardMoneyParam {
+  table: any;
+  order: any;
+}
+export interface AnalysisStandardMoneyReturn {
+  meel_fee: string;
+  total: string;
+}
+
+export const AnalysisStandardMoney = (params: AnalysisStandardMoneyParam): AnalysisStandardMoneyReturn => {
+  const { table, order } = params;
+
+  /**
+   * @param {feeType} 餐位费类型 0: 无，1: 定额, 2: 百分比, 3:人头
+   * @param {fee} 餐位费
+   */
+  const { feeType, fee } = table;
+  /**
+   * @param {people_num} 用餐人数
+   * @param {data} 菜品
+   */
+  const { people_num, data } = order;
+
+  /**
+   * @param {pureTotal} 未计算餐位费之前的菜品总额
+   * @param {currentMealFee} 重新计算的餐位费
+   * @param {currentTotal} 重新计算的总价
+   */
+  let pureTotal: number = 0;
+  let currentMealFee: number = 0;
+  let currentTotal: number = 0;
+
+  data.forEach((dish: any) => {
+    pureTotal += dish.subtotal;
+  });
+  const type = numeral(feeType).value();
+  switch (type) {
+    case 0:
+      break;
+    case 1:
+      // 定额
+      currentMealFee = fee;
+      break;
+    case 2:
+      // 百分比
+      currentMealFee = pureTotal * fee;
+      break;
+    case 3:
+      // 人头
+      currentMealFee = people_num * fee;
+      break;
+    default:
+      break;
+  }
+  currentTotal = currentMealFee + pureTotal;
+
+  console.log('pureTotal: ', pureTotal);
+  console.log('currentMealFee: ', currentMealFee);
+  console.log('currentTotal: ', currentTotal);
+
+  return { meel_fee: numeral(currentMealFee).format('0.00'), total: numeral(currentTotal).format('0.00') };
+};
+
 class OrderController extends Base {
+
+  /**
+   * @todo 根据桌号查询订单信息
+   *
+   * @static
+   * @memberof OrderController
+   */
+  static orderQueryByTable = (table_no: string) => async (dispatch: Dispatch, state: () => Stores) => {
+    ConsoleUtil('orderQueryByTable', 'orderQueryByTable');
+
+    const { mchnt_cd } = GetUserinfo(await state());
+
+    const param = {
+      mchnt_cd,
+      table_no,
+    };
+
+    const result = await OrderService.orderQueryByTable(param);
+    
+    if (result.code === '10000') {
+      console.log('result: ', result);
+    } else {
+      Base.toastFail('请求接口出错');
+    }
+  }
+
   /**
    * @todo 上报订单信息
    *

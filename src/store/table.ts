@@ -6,6 +6,7 @@ import {
   RECEIVE_TABLE_INFO,
   CHANGE_TABLE_AREA,
   RECEIVE_SELECTED_TABLE,
+  SAVE_CHOICE_PEOPLE,
 } from '../action/constants';
 import { TableActions } from '../action/table';
 import { BusinessActions } from '../action/business';
@@ -65,6 +66,16 @@ export default function table (
       return {
         ...state,
         selectedTable,
+      };
+
+    case SAVE_CHOICE_PEOPLE:
+      const { payload: { people } } = action;
+      return {
+        ...state,
+        selectedTable: {
+          ...state.selectedTable,
+          people: people.value,
+        }
       };
 
     default: return state;

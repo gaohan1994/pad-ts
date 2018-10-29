@@ -9,6 +9,25 @@ import request from '../common/request';
 class TableService {
 
   /**
+   * @todo 换桌
+   *
+   * @static
+   * @memberof TableService
+   */
+  static changeTable = async (params: any): Promise<any> => {
+    return request(
+      '',
+      'post',
+      {
+        method: 'trade.change_table_v2',
+        biz_content: {
+          ...params
+        }
+      }
+    );
+  }
+
+  /**
    * @todo 获取商户的台位信息
    *
    * @static
