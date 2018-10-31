@@ -3,6 +3,7 @@ import { Dispatch } from 'redux';
 import { 
   CHANGE_SIGN_LOADING,
   RECEIVE_USERINFO,
+  RECEIVE_OPERATORINFO,
 } from './constants';
 import { ConsoleUtil } from '../common/request';
 import SignService from '../service/sign';
@@ -43,8 +44,29 @@ export interface ReceiveUserinfo {
   };
 }
 
-export type SignActions = ChangeSignLogin | ReceiveUserinfo;
+export interface ReceiveOperatorinfo {
+  type: RECEIVE_OPERATORINFO;
+  payload: any;
+}
+
+export type SignActions = ChangeSignLogin | ReceiveUserinfo | ReceiveOperatorinfo;
 class Sign {
+
+  /**
+   * @todo 保存登录的操作员信息
+   *
+   * @static
+   * @memberof Sign
+   */
+  static receiveOperatorinfo = async (param: any) => {
+    const { dispatch, operatorInfo } = param;
+    dispatch({
+      type: RECEIVE_OPERATORINFO,
+      payload: {
+        operatorInfo: operatorInfo
+      }
+    });
+  }
 
   /**
    * @todo 清空登录数据 跳转到登录页面，打开showLogin
@@ -54,7 +76,6 @@ class Sign {
    */
   static webLogout = () => async (dispatch: Dispatch) => {
     ConsoleUtil('webLogout', 'sign');
-    
     /**
      * @param {RECEIVE_USERINFO} 先清空userinfo
      */
@@ -74,6 +95,14 @@ class Sign {
     const result = await SignService.webLogin(params);
 
     if (result.code === '10000') {
+      /**
+       * @param {receiveOperatorinfo} 保存操作员信息
+       */
+      const operaData = {
+        dispatch,
+        operatorInfo: params,
+      };
+      Sign.receiveOperatorinfo(operaData);
       /**
        * @param {result.biz_content} 登录成功返回数据
        */
@@ -163,6 +192,7 @@ class Sign {
       Base.toastFail('登录失败');
     }
   }
+
 }
 
 export default Sign;

@@ -26,8 +26,49 @@ import LeftBar, { HeadersData, FootersData } from '../../component/LeftBar/LeftB
 import { ContentsData } from '../../component/LeftBar/LeftBar';
 import { GetUserinfo } from '../../store/sign';
 import config from '../../common/config';
+import { GetCartParams, GetCartParamsReturn } from '../../action/cart';
+import numeral from 'numeral';
 
 const { Item } = Layout;
+
+/**
+ * @param {params} 传入订单和购物车，返回需要的详情 1.餐位费 2.合计
+ */
+export const GetOrderAndCartDetails = (params: any): any => {
+  const { table, order, cart } = params;
+
+  const orderTotal = order && order.total || 0;
+
+  if (!table) {
+    return {};
+  } else {
+    const { total: cartTotal }: GetCartParamsReturn = GetCartParams({ list: cart || [] });
+    
+    if (table.feeType === 0) {
+      /**
+       * @param {table} 判断如果该桌号没有餐位费直接返回 0 元 feeType === 0
+       */
+      return { meal_fee: '0.00', total: numeral(orderTotal + cartTotal).format('0.00') };
+    } else if (table.feeType === 1) {
+      /**
+       * @param {table.feeType === 1} 定额餐位费返回定额，订单单的总价加上购物车的总价(订单的总价已经包含了餐位费)
+       */
+      return { meal_fee: numeral(table.fee).format('0.00'), total: numeral(orderTotal + numeral(cartTotal).value()).format('0.00') };
+    } else if (table.feeType === 2) {
+      /**
+       * @param {table.feeType === 2} 百分比，餐位费返回原来餐位费 待修改
+       */
+      return { meal_fee: numeral(table.fee).format('0.00'), total: numeral(orderTotal + numeral(cartTotal).value()).format('0.00') };
+    } else if (table.feeType === 3) {
+      /**
+       * @param {table.feeType === 3} 按人头算，餐位费返回原来的，待修改
+       */
+      return { meal_fee: numeral(table.fee).format('0.00'), total: numeral(orderTotal + numeral(cartTotal).value()).format('0.00') };
+    } else {
+      return { };
+    }
+  }
+};
 
 /**
  * @param { tableClickHandle: 点击桌子的 action }
@@ -155,6 +196,14 @@ class Table extends Component<TableProps, TableState> {
       currentCartId,
     } = this.props;
 
+    const params = {
+      table: selectedTable,
+      order: selectedTable.tableOrder,
+      cart: list,
+    };
+
+    const { meal_fee, total } = GetOrderAndCartDetails(params);
+
     const modalData = (selectedAreaInfo && typeof (selectedAreaInfo.peopelNum) === 'number')
     ? new Array(selectedAreaInfo.peopelNum).fill({}).map((_: any, index: number) => {
       return {
@@ -181,21 +230,28 @@ class Table extends Component<TableProps, TableState> {
 
     const contents: ContentsData = currentCartId !== config.TAKEAWAYCARTID ? {
       data: [
-        { itemIcon: '//net.huanmusic.com/llq/icon_mima.png', list: tableOrder && tableOrder.data || [], },
-        { itemIcon: '//net.huanmusic.com/llq/icon_mima.png', list },
+        { itemIcon: '//net.huanmusic.com/llq/icon_dagou.png', list: tableOrder && tableOrder.data || [], },
+        { itemIcon: '//net.huanmusic.com/llq/icon_gouwuche1.png', list },
       ]
     } : {};
 
     const footers: FootersData = currentCartId !== config.TAKEAWAYCARTID ? {
-      remarks: '整单备注：123123123',
+      // remarks: '整单备注：123123123',
+
+      /**
+       * @param {detail} 餐位费 1.订单中的餐位费 2.购物车中的餐位费 3.相加
+       */
       detail: [
-        [{ key: '1', title: '订单号', value: '123123' }],
-        [{ key: '2', title: '桌号', value: '1' }, { key: '3', title: '用餐人数', value: '3人' }]
+        [
+          { key: '1', title: '餐位费', value: '' }, 
+          { key: '1-1', title: `￥${meal_fee || '0.00'}`, value: '' }
+        ],
+        [{ key: '2', title: '合计', value: '' }, { key: '3', title: `￥${total || '0.00'}`, value: '' }]
       ],
       buttons: [
         {
           style: { background: '#474747' },
-          values: ['结账', '188.00'],
+          values: ['结账', `￥${total || '0.00'}`],
           onClick: () => { console.log('hello'); },
         },
         {
@@ -208,6 +264,7 @@ class Table extends Component<TableProps, TableState> {
     } : {
       buttons: []
     };
+
     return (
       <Layout>
         <Item position="main" style={{paddingLeft: '10px'}}>

@@ -19,8 +19,8 @@ body {
 @theme-gray: #f3f3f3;
 @item-name-color: #4f4f4f;
 @item-attr-color: #808080;
-
 @content-border: 5px solid #f3f3f3;
+@order-header-bg: #fffaed;
 
 :global {
   .ant-spin-nested-loading {
@@ -28,6 +28,21 @@ body {
 
     & > .ant-spin-container {
       height: 100%;
+    }
+  }
+
+  .ant-table-thead > tr > th {
+    background: @order-header-bg !important;
+  }
+
+  .my-attr-modal {
+    & > .am-modal-content {
+      padding: 0px;
+      min-width: 400px;
+
+      & > .am-modal-body {
+        padding: 0px;
+      }
     }
   }
 }

@@ -1,24 +1,19 @@
 import React, { Component } from 'react';
-import { Table } from 'antd';
+import { Table, Select } from 'antd';
 import { ColumnProps } from 'antd/lib/table';
-// import Menus from 'src/component/Menus';
-
-// import styles from './style.less';
-/**
- * react-redux
- */
+import styles from './orders.less';
 import { connect } from 'react-redux';
 import { Dispatch, bindActionCreators } from 'redux';
-import config, { mergeProps } from '../../common/config';
+import config, { mergeProps, formatOrderTime } from '../../common/config';
 import OrderController, { OrderQueryParams } from '../../action/order';
 import { Stores } from '../../store/index';
 import numeral from 'numeral';
-// import Base from '../../action/base';
 import {
   GetOrders,
   GetOrderLoading,
 } from '../../store/order';
-// import history from '../../history';
+
+const { Option } = Select;
 
 /**
  * @param { orderQuery: fetch order list function } 
@@ -35,6 +30,9 @@ interface OrdersProps {
 
 interface OrdersState {
   currentPage: number;
+  consumptionType: string;
+  orderType: string;
+  paymentType: string;
 }
 /**
  * @param { currentPage: number 当前页码 }
@@ -42,7 +40,12 @@ interface OrdersState {
  */
 let currentPage: number = 1;
 class OrderList extends Component<OrdersProps, OrdersState> {
-
+  state = {
+    currentPage: 1,
+    consumptionType: '',
+    orderType: '',
+    paymentType: '',
+  };
   componentDidMount() {
     this.fetchOrderList();
   }
@@ -80,19 +83,49 @@ class OrderList extends Component<OrdersProps, OrdersState> {
       {
         title: '订单号',
         dataIndex: 'order_no',
+        className: styles.header,
       },
       {
         title: '交易时间',
         dataIndex: 'datetime',
+        className: styles.header,
+        render: (time) => (formatOrderTime(time)),
       },
       {
-        title: '合计金额',
+        title: '台位 / 牌号',
+        dataIndex: 'tableName',
+        className: styles.header,
+      },
+      // {
+      //   title: '合计金额',
+      //   dataIndex: 'stdtrnsamt',
+      //   render: (total: any) => ( <div>{numeral(total).format('0.00')}</div> ),
+      // },
+      {
+        title: '优惠立减',
+        render: () => ( <div>0.00</div> ),
+        className: styles.header,
+      },
+      // {
+      //   title: '抹零金额',
+      //   dataIndex: 'stdtrnsamt',
+      //   render: (total: any) => ( <div>{numeral(total).format('0.00')}</div> ),
+      // },
+      {
+        title: '实付金额',
         dataIndex: 'stdtrnsamt',
-        render: (total: any) => ( <div>{numeral(total).format('0.00')}</div> ),
+        className: styles.header,
+        render: (total: any) => ( <div className={styles.activeText}>{numeral(total).format('0.00')}</div> ),
+      },
+      {
+        title: '付款类型',
+        className: styles.header,
+        render: () => ( <div>没有该条数据</div> ),
       },
       {
         title: '交易状态',
         dataIndex: 'trnsflag',
+        className: styles.header,
         render: (flag: any) => {
           /**
            * @param { trnsflag | -1: 交易失败, 0: 交易初始化, 1: 交易成功, 2: 交易撤销, 3: 交易退单, } 
@@ -100,15 +133,15 @@ class OrderList extends Component<OrdersProps, OrdersState> {
           const status = numeral(flag).value();
           switch (status) {
             case -1:
-              return ( <div>交易失败</div> );
+              return ( <div className={styles.activeText}>交易失败</div> );
               case 0:
-              return ( <div>交易初始化</div> );
+              return ( <div className={styles.activeText}>交易初始化</div> );
               case 1:
-              return ( <div>交易成功</div> );
+              return ( <div className={styles.activeText}>交易成功</div> );
               case 2:
-              return ( <div>交易撤销</div> );
+              return ( <div className={styles.activeText}>交易撤销</div> );
               case 3:
-              return ( <div>交易退单</div> );
+              return ( <div className={styles.activeText}>交易退单</div> );
             default:
               return '';
           }
@@ -117,16 +150,39 @@ class OrderList extends Component<OrdersProps, OrdersState> {
     ];
 
     return (
-      <div>
-        {/* <Menus /> */}
-        <Table 
-          columns={columns} 
-          dataSource={orders} 
-          rowKey="order_no"
-          loading={loading}
-          pagination={{ pageSize: 10 }}
-          onChange={this.onChangeHandle}
-        />
+      <div className={styles.container}>
+        <div className={styles.content}>
+          <div>
+            <Select 
+              className={styles.select} 
+              defaultValue="all"
+              // value={}
+              style={{ width: 120 }}
+            >
+              <Option value="all">消费类型</Option>
+              <Option value="weixin">微信</Option>
+              <Option value="zhifubao">支付宝</Option>
+            </Select>
+
+            <Select className={styles.select} defaultValue="all" style={{ width: 120 }}>
+              <Option value="all">全部</Option>
+              <Option value="1">待支付</Option>
+            </Select>
+
+            <Select className={styles.select} defaultValue="lucy" style={{ width: 120 }}>
+              <Option value="lucy">Lucy</Option>
+            </Select>
+          </div>
+          <Table
+            columns={columns} 
+            dataSource={orders} 
+            rowKey={order => order.order_no}
+            loading={loading}
+            pagination={{ pageSize: 10 }}
+            onChange={this.onChangeHandle}
+            size="middle"
+          />
+        </div>
       </div>
     );
   }

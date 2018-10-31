@@ -33,6 +33,8 @@ export interface DefaultCommonConfig {
   DEFAUL_MCHNT_CD: string;
   DEFAULT_PICTURE_LING: string;
   TAKEAWAYCARTID: string;
+  STORE_DISH_ORDER_TYPE: string;
+  STORE_DISH_CART_TYPE: string;
 }
 
 const defaultCommonConfig: DefaultCommonConfig = {
@@ -43,6 +45,8 @@ const defaultCommonConfig: DefaultCommonConfig = {
   DEFAUL_MCHNT_CD: '60000000217',
   DEFAULT_PICTURE_LING: '//net.huanmusic.com/qg/pic_default.png',
   TAKEAWAYCARTID: 'TAKEAWAYCARTID',
+  STORE_DISH_ORDER_TYPE: 'order',
+  STORE_DISH_CART_TYPE: 'cart',
 };
 
 // 测试环境 http://202.101.149.132:7680/BKMS_HMS/GateWayAction.do

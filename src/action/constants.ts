@@ -39,6 +39,9 @@ export type CHANGE_SIGN_LOADING = typeof CHANGE_SIGN_LOADING;
 export const RECEIVE_USERINFO = 'RECEIVE_USERINFO';
 export type RECEIVE_USERINFO = typeof RECEIVE_USERINFO;
 
+export const RECEIVE_OPERATORINFO = 'RECEIVE_OPERATORINFO';
+export type RECEIVE_OPERATORINFO = typeof RECEIVE_OPERATORINFO;
+
 /** 
  * @todo menu module
  */

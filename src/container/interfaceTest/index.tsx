@@ -7,6 +7,7 @@ import * as React from 'react';
 /**
  * react-redux
  */
+import { TreeSelect, Button } from 'antd';
 import { connect } from 'react-redux';
 import { Dispatch, bindActionCreators } from 'redux';
 import { mergeProps } from '../../common/config';
@@ -40,9 +41,17 @@ interface InterfaceProps {
   addTableInfo: (params: {mchnt_cd: string; num: string}) => void;
   inventoryClean: (param: any) => void;
 }
+interface InterfaceState {
+  value: string;
+  searchValue: string;
+}
 
 const DEFAULT_MCHNT_CD = '60000000200';
-class InterfaceTest extends React.Component<InterfaceProps, {}> {
+class InterfaceTest extends React.Component<InterfaceProps, InterfaceState> {
+  state = {
+    value: '',
+    searchValue: '',
+  };
   /**
    * 注册
    *
@@ -211,6 +220,14 @@ class InterfaceTest extends React.Component<InterfaceProps, {}> {
     inventoryClean('S00001635');
   }
 
+  public onTreeChange = (value: any) => {
+    this.setState({ value });
+  }
+
+  public onSearchHandle = (value: string) => {
+    this.setState({ searchValue: value });
+  }
+
   public render() {
     const testInterfaces = [
       {
@@ -304,8 +321,42 @@ class InterfaceTest extends React.Component<InterfaceProps, {}> {
         ]
       }
     ];
+
+    const treeData = [{
+      title: 'Node1',
+      value: '0-0',
+      key: '0-0',
+      children: [{
+        title: 'Child Node1',
+        value: '0-0-1',
+        key: '0-0-1',
+      }, {
+        title: 'Child Node2',
+        value: '0-0-2',
+        key: '0-0-2',
+      }],
+    }, {
+      title: 'Node2',
+      value: '0-1',
+      key: '0-1',
+    }];
+
     return (
       <div className={styles.container}>
+        <TreeSelect
+          showSearch={true}
+          onSearch={this.onSearchHandle}
+          searchValue={this.state.searchValue}
+          style={{ width: 300 }}
+          value={this.state.value}
+          dropdownStyle={{ maxHeight: 400, overflow: 'auto' }}
+          treeData={treeData}
+          placeholder="Please select"
+          treeDefaultExpandAll={true}
+          onChange={this.onTreeChange}
+        />
+
+        <Button type="primary" onClick={() => this.onSearchHandle('')} >清空</Button>
         {testInterfaces.map((
           item: {moduleName: string; interfaces: {name: string; handle: () => void}[]},
           index,

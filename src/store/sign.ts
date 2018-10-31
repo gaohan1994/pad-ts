@@ -2,14 +2,17 @@ import config from '../common/config';
 import { 
   CHANGE_SIGN_LOADING,
   RECEIVE_USERINFO,
+  RECEIVE_OPERATORINFO,
 } from '../action/constants';
 import { SignActions } from '../action/sign';
 import { Stores } from './index';
 
+// 13101402833 abc123
+
 export type Sign = {
   loading: boolean;
   userinfo: any;
-  mchntInfo: any;
+  operatorInfo: any;
 };
 
 export const initState = {
@@ -17,7 +20,7 @@ export const initState = {
   userinfo: { 
     mchnt_cd: config.DEFAUL_MCHNT_CD,
   },
-  mchntInfo: {},
+  operatorInfo: {}
 };
 
 /**
@@ -48,10 +51,20 @@ export default function sign (
         userinfo
       };
 
+    case RECEIVE_OPERATORINFO:
+      const { payload: { operatorInfo } } = action;
+      return {
+        ...state,
+        operatorInfo,
+      };
+
     default: return state;
   }
 }
 
 export const GetUserinfo = (store: Stores) => store.sign.userinfo;
 
-export const GetMchntInfo = (store: Stores) => store.sign.mchntInfo;
+/**
+ * @param {GetOperatorInfo} 获得 operatorInfo
+ */
+export const GetOperatorInfo = (store: Stores) => store.sign.operatorInfo;

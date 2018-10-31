@@ -2,24 +2,32 @@
  * @todo created by Ghan 左侧功能栏组件
  */
 import React, { Component } from 'react';
-import numeral from 'numeral';
 import { merge } from 'lodash';
 import { connect } from 'react-redux';
 import { Pagination } from 'antd';
+import numeral from 'numeral';
 import { Stores } from '../../store';
 import { Dispatch } from 'redux';
 import { mergeProps } from '../../common/config';
 import styles from './styles.less';
+import { GetCurrentDish } from '../../store/cart';
 
 export const ListItem = (props: any) => {
-  const { data, onClick } = props;
+  const { data, onClick, currentDish } = props;
   if (data.attrType) {
     // 规格
     return data.number.map((attrItem: any, index: number) => {
       const { attrs } = attrItem;
-      
       return (
-        <div key={index} className={styles.listItem} onClick={onClick ? () => onClick({ data, currentAttr: attrItem }) : () => { console.log('noempty'); }}>
+        <div 
+          key={index} 
+          className={currentDish && currentDish.currentAttr && currentDish.currentAttr.id === attrItem.id
+            ? styles.activeListItem 
+            : styles.listItem} 
+          onClick={onClick 
+            ? () => onClick({ data, currentAttr: attrItem }) 
+            : () => { /** */ }}
+        >
           <div className={styles.listBox}>
             {
               data.itemIcon ? (
@@ -41,24 +49,30 @@ export const ListItem = (props: any) => {
               }
             </div>
           </div>
-          <div className={styles.listItemTexts}>
-            <div className={styles.mainText}>{attrItem.number}</div>
-            <div className={styles.subText}>{data.price}</div>
+          <div className={`${styles.listItemTexts}`}>
+            <div className={`${styles.mainText} ${styles.number}`}>
+              {`
+                x${numeral(data.is_weight).value() === 1 
+                  ? numeral(attrItem.number).format('0.00') 
+                  : numeral(attrItem.number).format('0')}
+              `}
+            </div>
+            <div className={styles.subText}>{`￥${data.price}`}</div>
           </div>
         </div>
       );
     });
-  } else if (numeral(data.is_weight).value() === 1) {
-    // 称斤
-    return (
-      <div className={styles.listItem} onClick={onClick ? () => onClick({data}) : () => { console.log('noempty'); }}>
-        <div>{data.product_name}</div>
-      </div>
-    );
   } else {
-    // 默认
+    // 称斤 和 默认
     return (
-      <div className={styles.listItem} onClick={onClick ? () => onClick({data}) : () => { console.log('noempty'); }}>
+      <div 
+        className={currentDish && currentDish.product_id === data.product_id 
+          ? styles.activeListItem 
+          : styles.listItem} 
+        onClick={onClick 
+          ? () => onClick({data}) 
+          : () => { /** */ }}
+      >
         <div className={styles.listBox}>
           {
             data.itemIcon ? (
@@ -69,13 +83,26 @@ export const ListItem = (props: any) => {
             <div className={styles.mainText}>{data.product_name}</div>
           </div>
         </div>
-        <div className={styles.listItemTexts}>
+        <div className={`${styles.listItemTexts}`}>
           {
             typeof data.num === 'number' ? (
-              <div className={styles.mainText}>{data.num}</div>
-            ) : <div className={styles.mainText}>{data.number}</div>
+              <div className={`${styles.mainText} ${styles.number}`}>
+                {`
+                  x${numeral(data.is_weight).value() === 1 
+                    ? numeral(data.num).format('0.00') 
+                    : numeral(data.num).format('0')}
+                `}
+              </div>
+            ) : (
+              <div className={`${styles.mainText} ${styles.number}`}>
+                {`
+                  x${numeral(data.is_weight).value() === 1 
+                    ? numeral(data.number).format('0.00') 
+                    : numeral(data.number).format('0')}
+                `}
+              </div>)
           }
-          <div className={styles.subText}>{data.price}</div>
+          <div className={styles.subText}>{`￥${data.price}`}</div>
         </div>
       </div>
     );
@@ -154,6 +181,7 @@ export const analysisContentsData = (contents?: ContentsData): AnalysisContentsD
 };
 
 interface LeftBarProps {
+  currentDish?: any;
   headers?: HeadersData;
   contents?: ContentsData;
   footers?: FootersData;
@@ -162,6 +190,12 @@ interface LeftBarProps {
   renderFooter?: () => JSX.Element;
 }
 
+interface LeftBarState {
+  currentPage: number;
+}
+
+const DEFAULT_LEFTBAR_PAGESIZE: number = 7;
+
 /**
  * @param { headers: 渲染 header 需要的数据，和renderHeader 只存在一个 }
  * @param { renderHeader: 自定义渲染 header 和 headers 冲突 }
@@ -169,10 +203,26 @@ interface LeftBarProps {
  * @class LeftBar
  * @extends {Component<LeftBarProps, {}>}
  */
-class LeftBar extends Component<LeftBarProps, {}> {
+class LeftBar extends Component<LeftBarProps, LeftBarState> {
+  state = {
+    currentPage: 1
+  };
+
+  /**
+   * @todo 分页handle 
+   *
+   * @memberof LeftBar
+   */
+  public onChangeCurrentPage = (page: number) => {
+    this.setState({
+      currentPage: page
+    });
+  }
 
   render() {
+    const { currentPage } = this.state;
     const {
+      currentDish,
       headers,
       contents,
       footers,
@@ -221,26 +271,35 @@ class LeftBar extends Component<LeftBarProps, {}> {
                   ? document && document.documentElement && document.documentElement.clientHeight - 180
                   : '',
                 overflow: 'auto',
-                paddingBottom: '40px',
+                padding: '0 0 40px 0',
               }}
             >
               {contents && contents.title ? <div>{contents.title}</div> : ''}
               {
                 list ? (
-                  list.map((listItem: any, index: number) => {
+                  list.slice(
+                    (currentPage - 1) * DEFAULT_LEFTBAR_PAGESIZE, currentPage * DEFAULT_LEFTBAR_PAGESIZE
+                  ).map((listItem: any, index: number) => {
                     return (
-                      <ListItem key={index} data={listItem} onClick={listItem.onClick}/>
+                      <ListItem 
+                        key={index} 
+                        data={listItem} 
+                        onClick={listItem.onClick}
+                        currentDish={currentDish}
+                      />
                     );
                   })
                 ) : ''
               }
               <div className={styles.pagination}>
                 <Pagination
+                  current={currentPage}
                   style={{marginTop: '10px'}}
                   total={list.length || 0} 
-                  pageSize={7} 
+                  pageSize={DEFAULT_LEFTBAR_PAGESIZE} 
                   size="small"
-                  onChange={(...rest) => { console.log(rest); }}
+                  hideOnSinglePage={true}
+                  onChange={this.onChangeCurrentPage}
                 />
               </div>
             </div>
@@ -323,7 +382,7 @@ class LeftBar extends Component<LeftBarProps, {}> {
 }
 
 const mapStateToProps = (state: Stores) => ({
-  
+  currentDish: GetCurrentDish(state),
 });
 
 const mapDispatchToProps = (dispatch: Dispatch) => ({

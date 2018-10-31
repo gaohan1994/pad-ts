@@ -61,6 +61,7 @@ export default function cart (state: Cart = initState, action: CartActions): Car
       if (currentCartId && !state.list[currentCartId]) {
         return {
           ...state,
+          currentCartId,
           list: {
             ...state.list,
             [currentCartId]: []

@@ -18,6 +18,9 @@ import { GetCurrentCartList, GetCurrentDish, GetCurrentCartListReturn } from '..
 import { GetSelecetedTable } from '../../store/table';
 import StatusController from '../../action/status';
 import TableModal from '../../component/TableModal/TableModal';
+import { GetOrderAndCartDetails } from '../table/Table';
+import Base from '../../action/base';
+import { ManageMenuParams } from '../../action/order';
 
 const { Item } = Layout;
 const { ItemBar } = Item;
@@ -40,6 +43,7 @@ interface StoreProps {
   sendOrder: () => void;
   emptyCart: () => void;
   changeModalHandle: (params: any) => void;
+  manageMenu: (param: ManageMenuParams) => void;
 }
 
 /**
@@ -159,13 +163,32 @@ class Store extends React.Component<StoreProps, StoreState> {
   }
 
   /**
-   * @todo left bar item click handle callback from LeftBar
-   *
+   * @param {type} 已经下单的菜和购物车中的菜要区别开
    * @memberof Store
    */
-  public onLeftBarClickHandle = (param: any) => {
+  public onLeftBarCartListClickHandle = (param: any) => {
     const { data, currentAttr } = param;
-    let currentDataParam: any = { product_id: data.product_id };
+    let currentDataParam: any = { 
+      product_id: data.product_id,
+      type: config.STORE_DISH_CART_TYPE,
+    };
+    if (currentAttr) {
+      currentDataParam.currentAttr = currentAttr;
+    }
+    this.setCurrentDish(currentDataParam);
+  }
+
+  /**
+   * @todo
+   * @param {type} 已经下单的菜和购物车中的菜要区别开
+   * @memberof Store
+   */
+  public onLeftBarOrderListClickHandle = (param: any) => {
+    const { data, currentAttr } = param;
+    let currentDataParam: any = {
+      product_id: data.product_id,
+      type: config.STORE_DISH_ORDER_TYPE, 
+    };
     if (currentAttr) {
       currentDataParam.currentAttr = currentAttr;
     }
@@ -178,12 +201,79 @@ class Store extends React.Component<StoreProps, StoreState> {
    * @memberof Store
    */
   public showChangeTableModal = () => {
-    console.log('showChangeTableModal: ');
     const { changeModalHandle } = this.props;
 
     const param = { changeTableModalStatus: true };
-
     changeModalHandle(param);
+  }
+
+  /**
+   * @todo 退菜
+   *
+   * @memberof Store
+   */
+  public onManageMenuHandle = () => {
+    const { currentDish, selectedTable, manageMenu } = this.props;
+
+    if (currentDish.type === config.STORE_DISH_ORDER_TYPE && selectedTable.tableOrder) {
+      /**
+       * @param {order} 该桌子的订单
+       * @param {selectedTable} 选中的桌子
+       */
+      const { tableOrder: order } = selectedTable;
+
+      const data = {
+        ...order.data.find((d: any) => d.product_id === currentDish.product_id),
+        num: 1,
+      };
+      const params: ManageMenuParams = {
+        type: 'retire',
+        order,
+        data: [data],
+        table: selectedTable,
+      };
+      manageMenu(params);
+    } else {
+      Base.toastFail('只有下单之后的菜品可以退菜~');
+    }
+  }
+
+  /**
+   * @todo 下单
+   *
+   * @memberof Store
+   */
+  public doOrderHandle = () => {
+    /**
+     * @param {selectedTable.tableOrder} selectedTable.tableOrder 存在那么走加菜如果不存在那说明是新桌走下单
+     * @param {list} 购物车
+     */
+    const { list, selectedTable, manageMenu } = this.props;
+
+    if (list && list.length > 0) {
+      if (selectedTable.tableOrder) {
+        /**
+         * @param {order} 已经存在的订单,走加菜接口
+         */
+        const { tableOrder: order } = selectedTable;
+
+        const params: ManageMenuParams = {
+          type: 'add',
+          order,
+          data: list,
+          table: selectedTable
+        };
+        console.log('params: ', params);
+        manageMenu(params);
+      } else {
+        /**
+         * @param {} 不存在订单走下单接口
+         */
+        console.log('create order');
+      }
+    } else {
+      Base.toastInfo('请选择要下单的菜品');
+    }
   }
 
   public render() {
@@ -194,9 +284,17 @@ class Store extends React.Component<StoreProps, StoreState> {
       selectedMenuList,
       currentCartId,
       selectedTable,
+      currentDish,
     } = this.props;
 
     const { tableOrder } = selectedTable;
+
+    const params = {
+      table: selectedTable,
+      order: selectedTable.tableOrder,
+      cart: list,
+    };
+    const { meal_fee, total } = GetOrderAndCartDetails(params);
 
     const headers: HeadersData = currentCartId === config.TAKEAWAYCARTID ? {
       data: [
@@ -214,32 +312,26 @@ class Store extends React.Component<StoreProps, StoreState> {
 
     const contents: ContentsData = {
       data: [
-        { itemIcon: '//net.huanmusic.com/llq/icon_mima.png', list, onClick: this.onLeftBarClickHandle },
-        { itemIcon: '//net.huanmusic.com/llq/icon_mima.png', list: tableOrder && tableOrder.data || [], onClick: this.onLeftBarClickHandle },
+        { itemIcon: '//net.huanmusic.com/llq/icon_dagou.png', list: tableOrder && tableOrder.data || [], onClick: this.onLeftBarOrderListClickHandle },
+        { itemIcon: '//net.huanmusic.com/llq/icon_gouwuche1.png', list, onClick: this.onLeftBarCartListClickHandle },
       ],
     };
 
     const footers: FootersData = {
       // remarks: '整单备注：123123123',
       detail: [
-        [
-          { key: '1', title: '餐位费：', value: '' }, 
-          { key: '1-2', title: '', value: '￥8.99'},
-        ],
-        [
-          { key: '2', title: '合计：', value: '' }, 
-          { key: '3', title: '', value: '￥160.99' },
-        ]
+        [{ key: '1', title: '餐位费', value: '' }, { key: '1-2', title: `￥${meal_fee || '0.00'}`, value: '' }],
+        [{ key: '2', title: '合计', value: '' }, { key: '2-2', title: `￥${total || '0.00'}`, value: '' }]
       ],
       buttons: [
         {
           style: { background: '#474747' },
-          values: ['结账', '188.00'],
+          values: ['结账', `￥${total || '0.00'}`],
           onClick: () => { console.log('hello'); },
         },
         {
           values: ['下单'],
-          onClick: () => { console.log('order'); },
+          onClick: () => this.doOrderHandle(),
         },
       ]
     };
@@ -254,20 +346,27 @@ class Store extends React.Component<StoreProps, StoreState> {
         img: '//net.huanmusic.com/llq/icon_renshu.png',
         value: '修改人数'
       } : {},
-      {
-        img: '//net.huanmusic.com/llq/icon_houchu.png',
-        value: '重打后厨'
-      },
-      {
-        img: '//net.huanmusic.com/llq/icon_houchu.png',
-        value: '重打前台'
-      },
+      // {
+      //   img: '//net.huanmusic.com/llq/icon_houchu.png',
+      //   value: '重打后厨'
+      // },
+      // {
+      //   img: '//net.huanmusic.com/llq/icon_houchu.png',
+      //   value: '重打前台'
+      // },
       {
         render: this.renderHelper,
       },
       {
         img: '//net.huanmusic.com/llq/icon_lajitong.png',
-        value: '删除'
+        value: '删除',
+      },
+      {
+        img: '//net.huanmusic.com/llq/icon_tuicai.png',
+        value: '退菜',
+        onClick: currentDish && currentDish.type === config.STORE_DISH_ORDER_TYPE
+          ? this.onManageMenuHandle
+          : () => {/** */}
       },
       // {
       //   img: '//net.huanmusic.com/llq/icon_houchu.png',
@@ -290,7 +389,18 @@ class Store extends React.Component<StoreProps, StoreState> {
                 ? selectedMenuList.map((dish: any) => {
                   return (
                     <Helper key={dish.product_id} data={dish} >
-                      <div className={styles.dish}>
+                      <div 
+                        className={numeral(dish.inventory).value() === 0
+                          ? styles.emptyDish
+                          : styles.dish}
+                      >
+                        {
+                          numeral(dish.inventory).value() === 0
+                          ? <div className={styles.mask} >
+                              <div>已售罄</div>
+                            </div>
+                          : ''
+                        }
                         <span>{dish.product_name}</span>
                         <span>￥{numeral(dish.price).format('0.00')}</span>
                       </div>
@@ -367,6 +477,7 @@ const mapDispatchToProps = (dispatch: Dispatch<MenuActions | BusinessActions>) =
   sendOrder: bindActionCreators(OrderController.sendOrder, dispatch),
   emptyCart: bindActionCreators(CartController.emptyCart, dispatch),
   changeModalHandle: bindActionCreators(StatusController.changeTableModalStatus, dispatch),
+  manageMenu: bindActionCreators(OrderController.manageMenu, dispatch),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps, mergeProps)(Store);

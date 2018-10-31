@@ -1,6 +1,8 @@
 @import "../../global.less";
 @import "../table/table.less";
 
+@mask-size: 42px;
+
 .dishes {
   padding-left: 10px;
   position: relative;
@@ -35,6 +37,32 @@
   border-radius: 14px;
   .direction;
   .display-flex(start, center);
+}
+
+.emptyDish {
+  .dish;
+
+  & > .mask {
+    width: 100%;
+    height: 100%;
+    left: 0;
+    top: 0;
+    position: absolute;
+    background: rgba(0, 0, 0, .6);
+    border-radius: 14px;
+    .display-flex(center, center);
+
+    & > div {
+      width: @mask-size;
+      height: @mask-size;
+      border-radius: @mask-size * .5;
+      border: 1px solid #ffffff;
+      color: #ffffff;
+      font-size: 10px;
+      line-height: @mask-size;
+      text-align: center;
+    }
+  }
 }
 
 .coustomCard {

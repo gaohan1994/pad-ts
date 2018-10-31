@@ -4,6 +4,8 @@ import { Dispatch } from 'redux';
 import { Stores } from '../store/index';
 import { GetCurrentCartList, GetCurrentCartListReturn } from '../store/cart';
 import { UPDATE_CART, RECEIVE_CURRENT_CART_ID, RECEIVE_CURRENT_DISH } from './constants';
+import { ReturnStandardProduct, GetTotalParams } from './order';
+import { isArrayFn } from '../common/config';
 import Base from './base';
 
 export interface UpdateCart {
@@ -67,6 +69,7 @@ export interface AttrParamHeplerReturn {
 export interface CartItemPayload {
   data: any;
   attrs?: any;
+  weight?: any;
   callback?: (param?: CallbackParam) => void;
 }
 
@@ -136,6 +139,36 @@ export const CheckItemAlreadyInCart = (item: any, list: any[] = [], attrs?: any[
   }
 };
 
+export interface GetCartParamsReturn { 
+  products: any[];
+  total: any;
+}
+
+/**
+ * @param {params} 传入 cart list 参数 返回需要的data
+ * @return {meal_fee} 餐位费
+ * @return {total} 合计
+ * @return {products} 标准化数据
+ */
+export const GetCartParams = (params: any): GetCartParamsReturn => {
+  const { list } = params;
+
+  let products: any[] = [];
+
+  list.forEach((item: any) => {
+    const StandardProduct = ReturnStandardProduct(item);
+    if (isArrayFn(StandardProduct) === false) {
+      products.push(StandardProduct);
+    } else if (isArrayFn(StandardProduct) === true) {
+      products = products.concat(StandardProduct);
+    }
+  });
+
+  const { formatTotalPrice } = GetTotalParams(products);
+  
+  return { products, total: formatTotalPrice };
+};
+
 class CartController {
 
   /**
@@ -163,33 +196,32 @@ class CartController {
   public addItem = (param: CartItemPayload) => async (dispatch: Dispatch, state: () => Stores) => {
     /**
      * @param { data 数据条目 }
+     * @param { weightToken 是否是称斤商品}
      * @param { attrs 如果有attrs 说明是规格商品如果没有那么是默认或者称斤 }
      * @param { list 购物车中的条目 } 
      * 
      * -- 1.判断是否是规格商品 -- 
-     * @param { 规格 先判断是否已经有了，如果没有 push 进去一份 }
-     * 
-     * -- 2.判断是否是称斤商品 --
-     * @param { 称斤 weight 参数传递称斤的数据 }
+     * @param { 规格 先判断是否在购物车 ，如果没有 push 进去一份,  再判断是否是称斤商品 }
      * 
      * -- 3.默认商品 --
-     * @param { 除了 data 啥也没 }
+     * @param { 判断是否是称斤商品 除了 data 啥也没 }
      */
-    const { data, attrs, callback } = param;
-    // const { cart: { list } } = await state();
+    const { data, attrs, weight, callback } = param;
+    let weightToken: boolean = false; 
+    if (numeral(data.is_weight).value() === 1 && weight) { weightToken = true; }
     const { list, currentCartId }: GetCurrentCartListReturn = GetCurrentCartList(await state());
-    // console.log('GetCurrentCartList list: ', list);
     if (attrs) {
       /**
+       * @param { weightToken } 判断是不是称斤
        * @param { inCart === false 购物车中不存在该商品 }
        * @param { inCart === true 购物车中存在该商品 }
        */
       const { inCart, index, attrToken }: CheckItemAlreadyInCartReturn = CheckItemAlreadyInCart(data, list, attrs);
-
+      
       if (inCart === false && index === -1) {
         const attrParam = {
           ...AttrParamHepler(attrs),
-          number: 1,
+          number: weightToken === true ? weight.value : 1,
         };
 
         data.number = [attrParam];
@@ -202,7 +234,7 @@ class CartController {
         // 商品存在于购物车但是没有这个规格
         const attrParam = {
           ...AttrParamHepler(attrs),
-          number: 1,
+          number: weightToken === true ? weight.value : 1,
         };
 
         list[index].number.push(attrParam);
@@ -213,7 +245,11 @@ class CartController {
       } else if (inCart === true) {
         if (typeof index === 'number' && attrToken) {
           const { attrIndex } = attrToken;
-          list[index].number[attrIndex].number += 1;
+          if (weightToken === true) {
+            list[index].number[attrIndex].number += weight.value;
+          } else {
+            list[index].number[attrIndex].number += 1;
+          }
 
           if (callback) {
             callback({ type: 'add', param: {list, currentCartId, currentCartItem: data, attrs, attrToken} });
@@ -225,18 +261,27 @@ class CartController {
         Base.toastFail('点餐失败~');
       }
 
-    } else if (numeral(data.is_weight).value() === 1) {
-      // 称斤
     } else {
       // 默认
       const token: CheckItemAlreadyInCartReturn = CheckItemAlreadyInCart(data, list);
-
       if (token.inCart === false) {
-        data.number = 1;
+
+        /**
+         * @param {weightToken} 判断是否是称斤商品
+         */
+        if (weightToken === true) {
+          data.number = weight.value;
+        } else {
+          data.number = 1;
+        }
         list.push(data);
       } else if (token.inCart === true) {
         if (typeof token.index === 'number') {
-          list[token.index].number += 1;
+          if (weightToken === true) {
+            list[token.index].number += weight.value;
+          } else {
+            list[token.index].number += 1;
+          }
         } 
       }
 
@@ -259,19 +304,38 @@ class CartController {
    * @memberof CartController
    */
   public reducItem = (param: CartItemPayload) => async (dispatch: Dispatch, state: () => Stores) => {
-    const { data, attrs, callback } = param;
+    console.log('reducItem: ');
+    const { data, attrs, weight, callback } = param;
     const { list, currentCartId }: GetCurrentCartListReturn = GetCurrentCartList(await state());
-    
+
+    let weightToken: boolean = false; 
+    if (numeral(data.is_weight).value() === 1 && weight) { weightToken = true; }
+
     if (attrs) {
       const { inCart, index, attrToken }: CheckItemAlreadyInCartReturn = CheckItemAlreadyInCart(data, list, attrs);
 
       if (inCart === true && typeof index === 'number' && attrToken) {
         const { attrIndex } = attrToken;
 
-        if (list[index].number[attrIndex].number === 1) {
-          list[index].number.splice(attrIndex, 1);
+        /**
+         * @param {weightToken} 当时称斤商品的时候减去称斤数
+         * @param {else} 其他走正常逻辑
+         */
+        if (weightToken === true) {
+          /**
+           * @param {list[index].number[attrIndex].number <= weight.value} 当要减去的数量大于等于存在购物车的数量删除
+           */
+          if (list[index].number[attrIndex].number <= weight.value) {
+            list[index].number.splice(attrIndex, 1);
+          } else {
+            list[index].number[attrIndex].number -= weight.value;
+          }
         } else {
-          list[index].number[attrIndex].number -= 1;
+          if (list[index].number[attrIndex].number === 1) {
+            list[index].number.splice(attrIndex, 1);
+          } else {
+            list[index].number[attrIndex].number -= 1;
+          }
         }
 
         if (callback) {
@@ -286,11 +350,21 @@ class CartController {
       const { inCart, index }: CheckItemAlreadyInCartReturn = CheckItemAlreadyInCart(data, list);
 
       if (inCart === true && typeof index === 'number') {
-        // console.log('list[index]', list[index]);
-        if (list[index].number === 1) {
-          list.splice(index, 1);
+        /**
+         * @param {weightToken} 当是默认称斤商品的时候 走称斤逻辑 其他走正常逻辑
+         */
+        if (weightToken === true) {
+          if (list[index].number <= weight.value) {
+            list.splice(index, 1);
+          } else {
+            list[index].number -= weight.value;
+          }
         } else {
-          list[index].number -= 1;
+          if (list[index].number === 1) {
+            list.splice(index, 1);
+          } else {
+            list[index].number -= 1;
+          }
         }
 
         if (callback) {

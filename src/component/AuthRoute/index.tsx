@@ -1,7 +1,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { Stores } from '../../store';
-import { GetMchntInfo } from '../../store/sign';
 import { Dispatch } from 'redux';
 import { mergeProps } from '../../common/config';
 import { Route, Redirect, RouteProps } from 'react-router';
@@ -49,7 +48,7 @@ class AuthRoute extends React.PureComponent<AuthRouteProps, {}> {
 // const AuthRoute
 
 const mapStateToProps = (state: Stores) => ({
-  mchntInfo: GetMchntInfo(state),
+
 });
 
 const mapDispatchToProps = (dispatch: Dispatch) => ({

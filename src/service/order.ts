@@ -8,6 +8,44 @@ import request from '../common/request';
 class OrderService {
 
   /**
+   * @todo 下单接口 v2
+   *
+   * @static
+   * @memberof MenuService
+   */
+  static sendOrderV2 = async (params: any): Promise<any> => {
+    return request(
+      '',
+      'post',
+      {
+        method: 'trade.send_order_v2',
+        biz_content: {
+          ...params,
+        }
+      }
+    );
+  }
+
+  /**
+   * @todo 加退菜
+   *
+   * @static
+   * @memberof MenuService
+   */
+  static manageMenu = async (params: any): Promise<any> => {
+    return request(
+      '',
+      'post',
+      {
+        method: 'trade.add_menu',
+        biz_content: {
+          ...params,
+        }
+      }
+    );
+  }
+
+  /**
    * @todo 通过桌号查询订单信息
    *
    * @static

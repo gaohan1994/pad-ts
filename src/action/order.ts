@@ -18,6 +18,17 @@ import { Stores } from '../store/index';
 import { GetUserinfo } from '../store/sign';
 import { randomString, isArrayFn } from '../common/config';
 import { GetCurrentCartList } from '../store/cart';
+import StatusController from './status';
+import BusinessController from './business';
+import CartController from './cart';
+import { merge } from 'lodash';
+
+export interface ManageMenuParams {
+  type: 'add' | 'retire';
+  order: any;
+  data: any;
+  table: any;
+}
 
 export interface Product {
   product_id: string;
@@ -159,21 +170,30 @@ export type OrderActions =
 /**
  * @return { product: Product | products: Product[] }
  * @param { item: product }
+ * @param {extendSupportFunction} 扩展函数
  */
-export const ReturnStandardProduct = (item: any): any => {
+export const ReturnStandardProduct = (
+  item: any, 
+  extendSupportFunction?: (param: any) => any,
+): any => {
   
   if (isArrayFn(item.number) === false) {
-    return {
+    const product = {
       product_id: item.product_id,
       product_name: item.product_name,
       price: numeral(item.price).format('0.00'),
       first_attr: '',
       second_attr: '',
-      num: item.number,
+      num: item.num || item.number,
     };
+    if (!extendSupportFunction) {
+      return product;
+    } else {
+      return extendSupportFunction(product);
+    }
   } else {
     const products = item.number.map((productAttr: any) => {
-      return {
+      const product = {
         product_id: item.product_id,
         product_name: item.product_name,
         price: numeral(item.price).format('0.00'),
@@ -181,6 +201,11 @@ export const ReturnStandardProduct = (item: any): any => {
         second_attr: productAttr.attrs[1] && productAttr.attrs[1].attrName,
         num: productAttr.number,
       };
+      if (!extendSupportFunction) {
+        return product;
+      } else {
+        return extendSupportFunction(product);
+      }
     });
 
     return products;
@@ -301,14 +326,176 @@ export const AnalysisStandardMoney = (params: AnalysisStandardMoneyParam): Analy
   }
   currentTotal = currentMealFee + pureTotal;
 
-  console.log('pureTotal: ', pureTotal);
-  console.log('currentMealFee: ', currentMealFee);
-  console.log('currentTotal: ', currentTotal);
-
   return { meel_fee: numeral(currentMealFee).format('0.00'), total: numeral(currentTotal).format('0.00') };
 };
 
 class OrderController extends Base {
+
+  /**
+   * @todo 下单接口 v2
+   *
+   * @static
+   * @memberof OrderController
+   */
+  static sendOrderV2 = (param: any) => async (dispatch: Dispatch, state: () => Stores) => {
+    StatusController.showLoading(dispatch);
+    const store: Stores = state();
+    const { mchnt_cd } = GetUserinfo(store);
+    
+    /**
+     * @param {params} 通用数据
+     */
+    const params = {
+      mchnt_cd,
+      term_datetime: moment().format('YYYYMMDDHHMMSS'),
+      stdtrnsamt: '',
+      discount: '0.00',
+      packing_price: '',
+      meal_fee: '',
+      change: '',
+      total: '',
+      total_num: '',
+      order_detail: [],
+    };
+
+    /**
+     * @param {IS_TAKE_OUT} 根据是否是外带传入下面的参数
+     */
+
+    console.log('params: ', params);
+  }
+ 
+  /**
+   * @todo 加 / 减 减多少菜 num 设置成多少
+   * @param {params} 加退菜格式的数据
+   *
+   * @static
+   * @memberof OrderController
+   */
+  static manageMenu = (param: ManageMenuParams) => async (dispatch: Dispatch, state: () => Stores) => {
+    StatusController.showLoading(dispatch);
+
+    const store: Stores = await state();
+    const { mchnt_cd } = GetUserinfo(store);
+
+    /**
+     * @param {type} 加菜还是退菜
+     * @param {order} 要修改的订单
+     * @param {data} list 数据
+     * @param {table} 选中的桌子
+     */
+    const { type, order, data, table } = param;
+
+    /**
+     * @param {data} 菜品数据 1.先标准化
+     * @param {products} 标准化菜品
+     */
+    let products: any[] = [];
+
+    /**
+     * @param {extendSupportFunction} 扩展函数把数据补齐
+     */
+    const extendSupportFunction = (item: any) => {
+      return {
+        ...item,
+        num: numeral(item.num).format('0'),
+        is_add_dish: type === 'add' ? '1' : '0',
+        subtotal: numeral(
+          numeral(item.price).value() * numeral(item.num).value()
+        ).format('0.00'),
+      };
+    };
+
+    data.forEach((item: any) => {
+      const StandardProduct = ReturnStandardProduct(item, extendSupportFunction);
+      if (isArrayFn(StandardProduct) === false) {
+        products.push(StandardProduct);
+      } else if (isArrayFn(StandardProduct) === true) {
+        products = products.concat(StandardProduct);
+      }
+    });
+
+    /**
+     * @param {formatTotalNumber} 标准化数据中的总条数
+     * @param {formatTotalPrice} 标准化数据的总价
+     */
+    const { formatTotalNumber, formatTotalPrice } = GetTotalParams(products);
+
+    /**
+     * @param {table.feeType === 2} 按比例计算餐位费，当退菜的时候这部分的餐位费应该撤掉
+     * @param {cutMealFee} number 应该砍掉的餐位费 或者是应该加上的餐位费
+     */
+    let cutMealFee: number = 0;
+    if (table.feeType === 2) {
+      cutMealFee = numeral(formatTotalPrice).value() * table.fee;
+    }
+
+    /**
+     * @param {total} 新的总价
+     */
+    const total = type === 'add' ? numeral(
+      numeral(order.stdtrnsamt).value() + numeral(formatTotalPrice).value() + cutMealFee,
+    ).format('0.00') : numeral(
+      numeral(order.stdtrnsamt).value() - numeral(formatTotalPrice).value() - cutMealFee,
+    ).format('0.00');
+
+    let params: any = {
+      order_no: order.order_no,
+      is_pos: 'false',
+      mchnt_cd,
+      total_num: formatTotalNumber,
+      order_detail: products,
+      discount: '0.00',
+      stdtrnsamt: total,
+      total: total,
+    };
+
+    /**
+     * @TODO 处理餐位费
+     * @param {table.feeType === 2} 当餐位费是按比例计算
+     * @param {meal_fee} 如果有就添加没有就不传
+     */
+    if (order.meal_fee && table.feeType === 2) {
+      params.meal_fee = type === 'add' 
+        ? numeral(order.meal_fee + cutMealFee).format('0.00') 
+        : numeral(order.meal_fee - cutMealFee).format('0.00');
+    } else if (order.meal_fee) {
+      params.meal_fee = numeral(order.meal_fee).format('0.00');
+    }
+
+    /**
+     * @param {OrderService.manageMenu} result 1.先退菜
+     * @param {BusinessController.setSelectedTable} 2.重新请求对应 order 接口并存入 redux
+     * @param {Base.toastInfo} 3.toast显示成功
+     */
+    const result = await OrderService.manageMenu(params);
+
+    if (result.code === '10000') {
+      const orderParam = { mchnt_cd, table_no: `${table.table_no}` };
+      
+      const { code: orderCode, biz_content: orderBizContent }: any = await OrderService.orderQueryByTable(orderParam);
+
+      if (orderCode === '10000') {
+        /**
+         * @param {1.hidelogin 2.toast 3.recovery cart}
+         */
+        StatusController.hideLoading(dispatch);
+        Base.toastInfo(type === 'add' ? '下单成功~' : '退菜成功~');
+        CartController.setCurrentDish({ dispatch, currentDish: {} });
+        let newTable: any = merge({}, table);
+        newTable.tableOrder = orderBizContent;
+  
+        let setTableParam: any = { dispatch, table: newTable };
+        BusinessController.setSelectedTable(setTableParam);
+      } else {
+        StatusController.hideLoading(dispatch);
+        Base.toastFail('请求订单信息失败!');
+      }
+    } else {
+      StatusController.hideLoading(dispatch);
+      Base.toastFail(type === 'add' ? '下单失败' : '退菜失败');
+    }
+  }
 
   /**
    * @todo 根据桌号查询订单信息

@@ -1,1 +1,154 @@
 @import '../../global.less';
+
+@modal-space: 20px;
+@modal-normal-color: #3c3c3c;
+@modal-footer-height: 50px;
+@modal-content-width: 400px;
+
+.header {
+  background: @theme-color;
+  color: #ffffff;
+  border-radius: 6px 6px 0 0;
+  line-height: 2;
+}
+
+.content {
+  max-height: @modal-content-width;
+  overflow-y: auto;
+  width: 100%;
+  padding: @modal-space @modal-space * 2 (@modal-space + @modal-footer-height) @modal-space * 2;
+}
+
+.attrName {
+  color: #b5b5b5;
+  font-size: 10px;
+  text-align: left;
+  margin-bottom: @modal-space / 2;
+}
+
+.button {
+  margin-bottom: @modal-space / 2;
+  padding: 0 @modal-space;
+  font-size: 10px;
+  border-radius: 10px;
+  line-height: 20px;
+  border: 1px solid;
+}
+
+.normalButton {
+  .button;
+  border-color: #b5b5b5;
+  color: @modal-normal-color;
+}
+
+.activeButton {
+  .button;
+  border-color: @theme-color;
+  color: @theme-color;
+  background: #fffcf1;
+}
+
+.footer {
+  position: absolute;
+  height: @modal-footer-height;
+  z-index: @page-footer-zindex;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: @theme-gray;
+}
+
+.price {
+  position: absolute;
+  left: @modal-space * 2;
+  color: #ec4444;
+  line-height: @modal-footer-height;
+  font-size: @modal-footer-height / 2.5;
+}
+
+.number {
+  position: absolute;
+  right: @modal-space * 2;
+}
+
+.icon {
+  .bg-img;
+  background-image: url('http://net.huanmusic.com/llq/icon_payment.png');
+  .count-px(70px, @modal-footer-height, 180px);
+  width: @count;
+  height: @count * .25;
+  top: (@modal-footer-height - (@count * .25)) / 2;
+}
+
+.smallIcon {
+  .bg-img;
+  .count-px(70px, @modal-footer-height, 40px);
+  width: @count;
+  height: @count;
+}
+
+.controll {
+  .count-px(70px, @modal-footer-height, 40px);
+  .display-flex(center, around);
+  top: (@modal-footer-height - @count) / 2;
+}
+
+.currentNumber {
+  text-align: center;
+  width: @modal-space;
+  font-size: 15px;
+  color: #666666;
+  margin: 0 (@modal-space / 2);
+}
+
+@login-padding: 40px;
+@login-title-color: #666666;
+@login-icon: 20px;
+@login-input-width: 200px;
+@login-radius: 6px;
+
+.inputBox {
+  border-radius: @login-radius;
+  background: @theme-gray;
+  padding: 10px 0;
+  position: relative;
+  .display-flex(center, between);
+
+  & > .input {
+    background: @theme-gray;
+    padding: 0px;
+    margin-left: @login-padding / 2;
+    width: @login-input-width;
+    line-height: 20px;
+    font-size: 12px;
+    border: 0px;
+  }
+
+  & > span {
+    display: block;
+    position: absolute;
+    right: 10px;
+    color: #666666;
+  }
+}
+
+.buttons {
+  margin-top: @modal-space;
+  width: 100%;
+  .display-flex(center, between);
+
+  & > .button {
+    color: #ffffff;
+    border-radius: @login-radius;
+    padding: 10px 0;
+    width: ((@modal-content-width - (@modal-space * 4)) / 2) - (@modal-space / 2);
+  }
+
+  & > .ok {
+    background: @theme-color;
+  }
+
+  & > .cancel {
+    background: #474747;
+  }
+}
