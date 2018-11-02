@@ -49,14 +49,14 @@ class Menus extends React.Component<MenusProps, {}> {
         key: '2',
         value: '外带',
         value_us: 'TAKE AWAY',
-        img: '//net.huanmusic.com/llq/menu_icon_dinein.png',
+        img: '//net.huanmusic.com/llq/menu_icon_take.png',
         handle: () => this.onNavHandle('store')
       },
       {
         key: '3',
         value: '订单',
         value_us: 'ORDER FORM',
-        img: '//net.huanmusic.com/llq/menu_icon_dinein.png',
+        img: '//net.huanmusic.com/llq/menu_icon_order.png',
         handle: () => this.onNavHandle('order')
       },
     ];
@@ -102,7 +102,7 @@ class Menus extends React.Component<MenusProps, {}> {
             >
               <span style={{backgroundImage: `url(${menu.img})`}} className={styles.icon}/>
               <span>{menu.value}</span>
-              <span style={{fontSize: '10px'}}>{menu.value_us}</span>
+              <span className={styles.small} >{menu.value_us}</span>
             </MenuItem>
           ))
         }

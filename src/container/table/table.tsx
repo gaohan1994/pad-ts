@@ -8,7 +8,7 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Dispatch, bindActionCreators } from 'redux';
-import { Modal } from 'antd';
+import { Modal, Pagination } from 'antd';
 import TableController, { TableActions } from '../../action/table';
 import BusinessController, { BusinessActions } from '../../action/business';
 import { mergeProps, Navigate } from '../../common/config';
@@ -28,6 +28,11 @@ import { GetUserinfo } from '../../store/sign';
 import config from '../../common/config';
 import { GetCartParams, GetCartParamsReturn } from '../../action/cart';
 import numeral from 'numeral';
+import Base from '../../action/base';
+import StatusController, { StatusAtions } from '../../action/status';
+import OrderController from '../../action/order';
+import PayPage from '../pay/Pay';
+import { GetShowPay } from '../../store/status';
 
 const { Item } = Layout;
 
@@ -36,15 +41,15 @@ const { Item } = Layout;
  */
 export const GetOrderAndCartDetails = (params: any): any => {
   const { table, order, cart } = params;
-
-  const orderTotal = order && order.total || 0;
-
+  const orderTotal = order && order.total ? numeral(order.total).value() : 0;
   if (!table) {
     return {};
   } else {
-    const { total: cartTotal }: GetCartParamsReturn = GetCartParams({ list: cart || [] });
-    
-    if (table.feeType === 0) {
+    const { total }: GetCartParamsReturn = GetCartParams({ list: cart || [] });
+    const cartTotal = numeral(total).value();
+    if (table.table_no === config.TAKEAWAYCARTID) {
+      return { meal_fee: '0.00', total: numeral(orderTotal + cartTotal).format('0.00') };
+    } else if (table.feeType === 0) {
       /**
        * @param {table} 判断如果该桌号没有餐位费直接返回 0 元 feeType === 0
        */
@@ -87,6 +92,7 @@ interface TableProps {
   fetchTableInfo: (id: string) => void;
   changeTableArea: (param: any) => void;
   saveChoicePeople: (param: any) => void;
+  setPayOrder: (param: any) => void;
   match: { params: { id: string } };
   tableinfo: any;
   selectedAreaInfo: any;
@@ -95,11 +101,16 @@ interface TableProps {
   list: any[];
   userinfo: any;
   currentCartId: string;
+  dispatch: Dispatch<StatusAtions>;
+  showPay: boolean;
 }
 
 interface TableState {
   showModal: boolean;
+  currentPage: number;
 }
+
+const TALBE_PAGE_SIZE: number = 4 * 5;
 
 /**
  * @todo 改版之后的table页面
@@ -110,6 +121,7 @@ interface TableState {
 class Table extends Component<TableProps, TableState> {
   state = {
     showModal: false,
+    currentPage: 1,
   };
   /**
    * @param { 1.先请求桌号 }
@@ -139,7 +151,17 @@ class Table extends Component<TableProps, TableState> {
    */
   public onAreaClickHandle = (area: any) => {
     const { changeTableArea } = this.props;
+    this.onChangePageHandle(1);
     changeTableArea(area);
+  }
+
+  /**
+   * @todo 修改当前页数
+   *
+   * @memberof Store
+   */
+  public onChangePageHandle = (page: number): void => {
+    this.setState({ currentPage: page });
   }
 
   /**
@@ -163,10 +185,6 @@ class Table extends Component<TableProps, TableState> {
     saveChoicePeople(param);
   }
 
-  public onChoicePeople = (...rest: any[]) => {
-    console.table(rest);
-  }
-
   public onShowModal = () => {
     this.setState({ showModal: true });
   }
@@ -184,8 +202,35 @@ class Table extends Component<TableProps, TableState> {
     this.onHideModal();
   }
 
+  /**
+   * @param {} 堂食模块中，若存在已下单，且购物车有菜品
+   * @param {} 1、在点菜页面，点击【结帐】，弹出提示框：内容“订单中有未下单菜品，是否直接下单并结帐”，两个按钮“是”、“否”。
+   * @param {} 1.1 点击“是”，下单——》显示结帐界面
+   * @param {} 1.2 点击“否”，关闭提示框，返回点餐界面。
+   * @param {} 2、若在选桌号页面，弹出toast：内容“订单中有未下单菜品”
+   */
+  public onOrderClickHandle = () => {
+    const { list, selectedTable, dispatch, setPayOrder } = this.props;
+    
+    if (list && list.length > 0) {
+      /**
+       * @param {list.length > 0} 购物车内有物品
+       */
+      Base.toastFail('购物车中有未下单菜品');
+    } else {
+      /**
+       * --- 购物车中没有商品直接显示结账 ---
+       * @param {showPay} 显示 payPage
+       * @param {setPayOrder} 把数据放进去
+       */
+      const params = { order: selectedTable.tableOrder };
+      StatusController.showPay(dispatch);
+      setPayOrder(params);
+    }
+  }
+
   render() {
-    const { showModal } = this.state;
+    const { showModal, currentPage } = this.state;
     const { 
       tableinfo, 
       selectedAreaInfo, 
@@ -194,6 +239,7 @@ class Table extends Component<TableProps, TableState> {
       list, 
       userinfo,
       currentCartId,
+      showPay,
     } = this.props;
 
     const params = {
@@ -252,7 +298,7 @@ class Table extends Component<TableProps, TableState> {
         {
           style: { background: '#474747' },
           values: ['结账', `￥${total || '0.00'}`],
-          onClick: () => { console.log('hello'); },
+          onClick: () => this.onOrderClickHandle(),
         },
         {
           values: ['下单'],
@@ -267,38 +313,68 @@ class Table extends Component<TableProps, TableState> {
 
     return (
       <Layout>
-        <Item position="main" style={{paddingLeft: '10px'}}>
-          <div style={{ height: `${document && document.documentElement && document.documentElement.clientHeight - 64}px` }} className={styles.tables}>
-            {
-              selectedAreaInfo && selectedAreaInfo.tables.map((table: any) => {
-                const { peopelNum } = selectedAreaInfo;
-                return (
-                  <div
-                    key={table.table_no}
-                    className={`
-                      ${styles.table}
-                      ${table.status === 1 ? styles.occupy : styles.unoccupy}
-                    `}
-                    style={{
-                      border: `${
-                        selectedTable.table_no === table.table_no 
-                          ? table.status === 1
-                            ? '2px solid #b78d1d'
-                            : '2px solid #f8c030'
-                          : ''
-                      }`
-                    }}
-                    onClick={() => this.onTableClickHandle(table)}
-                  >
-                    {table.table_name}
-                    <div>{table.status === 1 ? `占用` : `未占用`}</div>
-
-                    <div className={table.status === 1 ? styles.activeTip : styles.normalTip}>{`可供${peopelNum}人`}</div>
-                  </div>
-                );
-              })
-            }
-          </div>
+        <Item position="main" style={{paddingLeft: '10px', minWidth: '450px'}}>
+          <PayPage />
+          {
+            showPay === false ? (
+              <div 
+                style={{ maxHeight: `${document && document.documentElement && document.documentElement.clientHeight - 64}px` }} 
+                className={styles.tables}
+              >
+                {
+                  selectedAreaInfo && selectedAreaInfo.tables.slice((currentPage - 1) * TALBE_PAGE_SIZE, currentPage * TALBE_PAGE_SIZE).map((table: any) => {
+                    const { peopelNum } = selectedAreaInfo;
+                    return (
+                      <div
+                        key={table.table_no}
+                        className={`
+                          ${styles.table}
+                          ${table.status === 1 ? styles.occupy : styles.unoccupy}
+                        `}
+                        style={{
+                          border: `${
+                            selectedTable.table_no === table.table_no 
+                              ? table.status === 1
+                                ? '1px solid #b78d1d'
+                                : '1px solid #f8c030'
+                              : ''
+                          }`
+                        }}
+                        onClick={() => this.onTableClickHandle(table)}
+                      >
+                        {table.table_name}
+                        <div className={table.status === 1 ? styles.activeTip : styles.normalTip}>
+                          {
+                            selectedTable.table_no === table.table_no
+                              ? selectedTable.tableOrder
+                                  ? `￥${numeral(selectedTable.tableOrder.stdtrnsamt).format('0.00')}`
+                                  : `可供${peopelNum}人`
+                              : `可供${peopelNum}人`
+                          }
+                        </div>
+                      </div>
+                    );
+                  })
+                }
+              </div>
+            ) : ''
+          }
+          
+          {
+            showPay === false && selectedAreaInfo && selectedAreaInfo.tables.length > 0 ? (
+              <div className={styles.pagination}>
+                <Pagination
+                  current={currentPage}
+                  size="small" 
+                  total={selectedAreaInfo.tables.length}
+                  pageSize={TALBE_PAGE_SIZE}
+                  hideOnSinglePage={true}
+                  onChange={this.onChangePageHandle}
+                />  
+              </div>
+            ) : ''
+          }
+          
         </Item>
         <Item position="left">
           <LeftBar headers={headers} contents={contents} footers={footers} />
@@ -329,6 +405,7 @@ class Table extends Component<TableProps, TableState> {
           footer={null}
           onCancel={this.onCancelHandle}
           centered={true}
+          className="my-change-table-modal my-change-people-modal"
         >
           <div className={styles.people}>
             {
@@ -362,14 +439,17 @@ const mapStateToProps = (state: Stores) => {
     list,
     currentCartId,
     userinfo: GetUserinfo(state),
+    showPay: GetShowPay(state),
   };
 };
 
 const mapDispatchToProps = (dispatch: Dispatch<TableActions | BusinessActions>) => ({
+  dispatch,
   fetchTableInfo: bindActionCreators(TableController.getTableInfo, dispatch),
   changeTableArea: bindActionCreators(BusinessController.changeTableArea, dispatch),
   tableClickHandle: bindActionCreators(BusinessController.tableClickHandle, dispatch),
   saveChoicePeople: bindActionCreators(BusinessController.saveChoicePeople, dispatch),
+  setPayOrder: bindActionCreators(OrderController.setPayOrder, dispatch),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps, mergeProps)(Table);

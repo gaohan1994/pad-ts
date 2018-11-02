@@ -4,17 +4,18 @@ import { connect, Dispatch } from 'react-redux';
 import { Stores } from '../../store';
 import { mergeProps } from '../../common/config';
 import StatusController, { StatusAtions } from '../../action/status';
+import BusinessController from '../../action/business';
 import { GetChangeTableModalStatus } from '../../store/status';
 import { bindActionCreators } from 'redux';
 import styles from './styles.less';
 import { GetTableInfo } from '../../store/table';
 import numeral from 'numeral';
-import TableController from '../../action/table';
+import TableController, { ChangeTableParams } from '../../action/table';
 
 /**
  * @param {PAGESIZE} 每页数量
  */
-const PAGESIZE: number = 12;
+const PAGESIZE: number = 3 * 5;
 
 export const AnalysisSelectedTable = (tableinfo: any[], selectedAreaId: string): any => {
   if (tableinfo && tableinfo.length > 0 && selectedAreaId) {
@@ -35,7 +36,8 @@ interface TableModalProps {
   changeTableModalStatus?: boolean;
   tableInfo?: any;
   changeModalHandle?: (param: any) => void;
-  changeTable?: (param: any) => void;
+  changeTable?: (param: ChangeTableParams) => void;
+  tableClickHandle?: (param?: any) => void;
 }
 
 interface TableModalState {
@@ -65,7 +67,6 @@ class TableModal extends Component<TableModalProps, TableModalState> {
    * @memberof TableModal
    */
   public init = (props: TableModalProps) => {
-    console.log('props: ', props);
     const { tableInfo } = props;
 
     if (tableInfo && tableInfo.length > 0) {
@@ -125,17 +126,28 @@ class TableModal extends Component<TableModalProps, TableModalState> {
   public onTableClickHandle = (table: any) => {
     this.setState({
       selectedTable: table
-    }, () => {
-      console.log(this.state);
     });
   }
 
   public onConfirmHandle = () => {
     const { selectedTable } = this.state;
     const { changeTable } = this.props;
-    console.log('selectedTable: ', selectedTable);
     if (selectedTable.table_no && changeTable) {
-      changeTable({ table: selectedTable });
+      changeTable({ table: selectedTable, searchTableCallback: this.successCallback });
+    }
+  }
+
+  public successCallback = (param?: any) => {
+    const { tableClickHandle, changeModalHandle } = this.props;
+
+    /**
+     * @param {changeModalHandle} 隐藏modal
+     * @param {tableClickHandle} 请求一次新的桌子 
+     */
+    if (tableClickHandle && param && changeModalHandle) {
+      const params = { changeTableModalStatus: false, };
+      changeModalHandle(params);
+      tableClickHandle(param);
     }
   }
 
@@ -148,10 +160,10 @@ class TableModal extends Component<TableModalProps, TableModalState> {
       <Modal 
         visible={changeTableModalStatus} 
         centered={true} 
-        closable={false} 
-        onCancel={() => this.hideChangeTableModal()}
+        closable={false}
         title="选择要更换的桌位"
-        onOk={() => this.onConfirmHandle()}
+        className="my-change-table-modal"
+        footer={null}
       >
         <div className={styles.contents}>
           <div className={styles.tables}>
@@ -173,6 +185,7 @@ class TableModal extends Component<TableModalProps, TableModalState> {
                         : () => this.onTableClickHandle(table)
                       }
                     >
+                      <div className={styles.tableTip}>{`可供${selectedArea.peopelNum}人`}</div>
                       {table.table_name}
                     </div>
                   );
@@ -217,6 +230,10 @@ class TableModal extends Component<TableModalProps, TableModalState> {
             }
           </div>
         </div>
+        <div className={styles.buttons}>
+          <div className={`${styles.button} ${styles.cancel}`} onClick={() => this.hideChangeTableModal()}>取消</div>
+          <div className={`${styles.button} ${styles.confirm}`} onClick={() => this.onConfirmHandle()}>确定</div>
+        </div>
       </Modal>
     );
   }
@@ -231,6 +248,7 @@ const mapDispatchToProps = (dispatch: Dispatch<StatusAtions>) => ({
   dispatch,
   changeModalHandle: bindActionCreators(StatusController.changeTableModalStatus, dispatch),
   changeTable: bindActionCreators(TableController.changeTable, dispatch),
+  tableClickHandle: bindActionCreators(BusinessController.tableClickHandle, dispatch),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps, mergeProps)(TableModal);

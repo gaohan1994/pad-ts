@@ -17,6 +17,7 @@ export interface SmallCardProps {
   value?: string;
   onClick?: (param?: any) => any;
   className?: string;
+  style?: React.CSSProperties;
   render?: () => JSX.Element;
 } 
 
@@ -28,6 +29,7 @@ export class SmallCard extends Component <SmallCardProps, {}> {
       value,
       onClick,
       render,
+      style = {},
     } = this.props;
 
     if (render) {
@@ -37,6 +39,7 @@ export class SmallCard extends Component <SmallCardProps, {}> {
     } else {
       return (
         <div
+          style={style}
           className={`
             ${styles.smallCard}
             ${className || ''}

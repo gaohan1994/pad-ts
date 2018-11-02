@@ -3,11 +3,13 @@ import { Dispatch } from 'redux';
 import { 
   RECEIVE_MENU_TP,
   RECEIVE_ALL_MENU,
+  RECEIVE_SEARCH_MENU,
 } from './constants';
 import { ConsoleUtil } from '../common/request';
 import MenuService from '../service/menu';
 import { Stores } from '../store/index';
 import Base from './base';
+import { GetUserinfo } from '../store/sign';
 export interface GetMenuByIdParam {
   mchntCd: string;
   menutpId: string;
@@ -37,9 +39,46 @@ export interface ReceiveAllMenu {
   payload: any;
 }
 
-export type MenuActions = ReceiveMenuTp | ReceiveAllMenu;
+export interface SearchMenus {
+  type: RECEIVE_SEARCH_MENU;
+  payload: any;
+}
+
+export type MenuActions = ReceiveMenuTp | ReceiveAllMenu | SearchMenus;
 
 class MenuController extends Base {
+
+  /**
+   * @todo 搜索菜品
+   *
+   * @static
+   * @memberof MenuController
+   */
+  static searchMenus = (param: any) => async (dispatch: Dispatch, state: () => Stores) => {
+    ConsoleUtil('searchMenus', 'searchMenus');
+
+    const { mchnt_cd } = GetUserinfo(await state());
+    console.log('mchnt_cd: ', mchnt_cd);
+    const { value } = param;
+    const params = {
+      mchnt_cd,
+      value,
+    };
+
+    const result = await MenuService.searchMenus(params);
+
+    if (result.code === '10000') {
+      console.log('result: ', result);
+
+      dispatch({
+        type: RECEIVE_SEARCH_MENU,
+        payload: { searchMenu: result.biz_content }
+      });
+    } else {
+      Base.toastFail('搜索失败');
+    }
+  }
+
   /**
    * @todo 获取所有menuTp
    * @param { mchnt_cd 商户id }
@@ -212,13 +251,15 @@ class MenuController extends Base {
    * @memberof MenuController
    */
   static getAllSingleMenuNew = (mchnt_cd: string) => async (dispatch: Dispatch) => {
-    ConsoleUtil('getPromotion');
 
-    const params = { mchnt_cd };
-
+    const params = { 
+      mchnt_cd, 
+      num: '0', 
+      serial: '0',
+    };
+    console.log('params: ', params);
     const result = await MenuService.getAllSingleMenuNew(params);
     if (result.code === '10000') {
-      console.log(result);
       dispatch({
         type: RECEIVE_ALL_MENU,
         payload: {
@@ -226,7 +267,6 @@ class MenuController extends Base {
         }
       });
     } else {
-      console.log(result);
       Base.toastFail('请求菜单错误');
     }
   }

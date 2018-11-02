@@ -20,7 +20,7 @@ import OrderController, { OrderDetailSearchParams, ChangeOrderDetailParams } fro
 import TableController from '../../action/table';
 import { Stores } from '../../store/index';
 import { GetUserinfo } from '../../store/sign';
-import { GetOrder, GetChangeToken, GetOrderChange } from '../../store/order';
+import { GetOrder } from '../../store/order';
 import { GetTableInfo } from '../../store/table';
 import styles from './style.less';
 import Base from '../../action/base';
@@ -424,8 +424,6 @@ class OrderPage extends React.Component<OrderProps, OrderPageState> {
 const mapStateToProps = (state: Stores) => ({
   userinfo: GetUserinfo(state),
   order: GetOrder(state),
-  changeToken: GetChangeToken(state), 
-  orderChange: GetOrderChange(state),
   tableinfo: GetTableInfo(state),
 });
 

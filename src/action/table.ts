@@ -3,9 +3,11 @@ import { RECEIVE_TABLE_INFO } from './constants';
 import TableService from '../service/table';
 import { Dispatch } from 'redux';
 import Status from './status';
+import { merge } from 'lodash';
 import { Stores } from '../store';
 import { GetSelecetedTable } from '../store/table';
 import StatusController from './status';
+import BusinessController from './business';
 import { GetUserinfo } from '../store/sign';
 import { AnalysisStandardMoney, AnalysisStandardMoneyReturn, AnalysisStandardMoneyParam } from './order';
 
@@ -15,6 +17,11 @@ export interface ReceiveTableInfo {
 }
 
 export type TableActions = ReceiveTableInfo;
+
+export interface ChangeTableParams {
+  table: any; 
+  searchTableCallback: (param?: any) => void;
+}
 class TableController extends Base {
 
   /**
@@ -26,15 +33,16 @@ class TableController extends Base {
    * @static
    * @memberof TableController
    */
-  static changeTable = (param: any) => async (dispatch: Dispatch, state: () => Stores) => {
+  static changeTable = (param: ChangeTableParams) => async (dispatch: Dispatch, state: () => Stores) => {
     StatusController.showLoading(dispatch);
     const stateData = await state();
     const { mchnt_cd } = GetUserinfo(stateData);
     /**
      * @param {currentTable} 要换成的新桌子的数据
      * @param {preTable} 之前桌子的数据
+     * @param {searchTableCallback} 成功之后更新数据
      */
-    const { table: currentTable } = param;
+    const { table: currentTable, searchTableCallback } = param;
     const preTable = GetSelecetedTable(stateData);
     const { tableOrder } = preTable;
 
@@ -61,14 +69,75 @@ class TableController extends Base {
         StatusController.hideLoading(dispatch);
         /**
          * @param {换桌成功} 
-         * 1.隐藏 Modal
-         * 2.跳转到哪里？
+         * @param {} 1.隐藏 Modal
+         * @param {} 2.保存当前数据至 selectedTable
          */
+        if (searchTableCallback) {
+          searchTableCallback(currentTable);
+        }
       } else {
         Base.toastFail('换桌失败!');
       }
     } else {
       Base.toastFail('原桌号没有订单');
+    }
+  }
+
+  /**
+   * @todo 换人数
+   *
+   * @static
+   * @memberof TableController
+   */
+  static changePeople = (param: any) => async (dispatch: Dispatch, state: () => Stores) => {
+    StatusController.showLoading(dispatch);
+    const { people } = param;
+    const store = await state();
+    const { mchnt_cd } = GetUserinfo(store);
+    const table = GetSelecetedTable(store);
+    const { tableOrder } = table;
+
+    if (tableOrder) {
+      const params = {
+        mchnt_cd,
+        order_no: String(tableOrder.order_no),
+        pre_table_no: String(tableOrder.table_no),
+        table_no: String(tableOrder.table_no),
+        meal_fee: String(tableOrder.meal_fee),
+        is_pos: 'false',
+        total: String(tableOrder.total),
+        stdtrnsamt: String(tableOrder.total),
+        people_num: String(people),
+      }; 
+      const result = await TableService.changeTable(params);
+
+      if (result.code === '10000') {
+        StatusController.hideLoading(dispatch);
+        /**
+         * @param {换人成功} 
+         * @param {} 1.隐藏 Modal
+         * @param {} 2.保存当前数据至 selectedTable
+         */
+        const hideParams = {
+          changePeopleModalStatus: false,
+          dispatch
+        };
+        StatusController.changePeopleModalHandle(hideParams);
+
+        let newTable = merge({}, table);
+        newTable.tableOrder.people_num = people;
+
+        const changeParam = {
+          dispatch,
+          table: newTable
+        };
+        BusinessController.setSelectedTable(changeParam);
+      } else {
+        StatusController.hideLoading(dispatch);
+        Base.toastFail('换桌失败!');
+      }
+    } else {
+      Base.toastFail('请选择要修改的桌子');
     }
   }
 

@@ -1,0 +1,119 @@
+@import "../../global.less";
+
+@pay-space: 20px;
+@min-content: 400px;
+@normal-color: #666666;
+@price-color: #f84646;
+@input-height: 30px;
+@search-close-size: 30px;
+.container {
+  background: #ffffff;
+  width: 100%;
+  height: 100%;
+  .display-flex(center, center);
+}
+
+.calculator {
+  border: 1px solid @theme-gray;
+  padding: @pay-space;
+}
+
+.total {
+  min-width: @min-content;
+  padding: @pay-space (@pay-space / 2);
+  text-align: right;
+  border: 1px solid @theme-gray;
+
+  & > span {
+    font-size: 18px;
+    color: @normal-color;
+    & > em {
+      font-size: 26px;
+      color: @price-color;
+      font-style: normal;
+    }
+  }
+}
+
+.box {
+  margin-top: @pay-space / 2;
+  width: 100%;
+  position: relative;
+  .display-flex(start, between);
+}
+
+.inputBox {
+  color: @normal-color;
+  .display-flex(center, center);
+
+  & > span {
+    display: block;
+    padding: 0 @pay-space / 2;
+  }
+  & > input {
+    border: 1px solid @theme-gray;
+    line-height: @input-height;
+  }
+}
+
+
+.types {
+  .count-px(536px, @min-content, 110px);
+  width: @count;
+  .display-flex(center, center);
+  .direction;
+
+  & > .type {
+    width: @count;
+    height: @count;
+    margin-bottom: @pay-space / 10;
+    .bg-img;
+  }
+}
+
+.numbers {
+  .count-px(536px, @min-content, 104px);
+  width: @count * 3;
+  .display-flex(center, center);
+  -ms-flex-wrap: wrap;
+      flex-wrap: wrap;
+  & > div {
+    -webkit-box-sizing: border-box;
+            box-sizing: border-box;
+    border-top: 1px solid @theme-gray;
+    border-left: 1px solid @theme-gray;
+    width: @count;
+    height: @count * .8;
+    line-height: @count * .8;
+    text-align: center;
+    color: #333333;
+    font-size: 20px;
+  }
+}
+
+.button {
+  .count-px(536px, @min-content, 105px);
+  font-size: 20px;
+  width: @count;
+  height: @count * 3.18;
+  line-height: @count * 3.18;
+  text-align: center;
+  background: @theme-color;
+  color: #ffffff;
+}
+
+.close {
+  position: absolute;
+  right: 0;
+  top: 10px;
+  width: @search-close-size;
+  height: @search-close-size;
+  .bg-img;
+  background-image: url('//net.huanmusic.com/llq/icon_del.png');
+}
+
+.qrcode {
+  width: 100%;
+  height: 100%;
+  .display-flex(center, center);
+}

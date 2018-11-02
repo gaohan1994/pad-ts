@@ -1,0 +1,32 @@
+@import "../../global.less";
+@table-size: 100px;
+@table-bottom-height: 30px;
+@radius-width: 8px;
+@table-font: 12px;
+@number-space: 20px;
+.people {
+  margin: 0 auto;
+  .count-px(150px, 100px, 100px);
+  .display-flex(start, start);
+  -ms-flex-wrap: wrap;
+      flex-wrap: wrap;
+  width: (@count + @number-space) * 3;
+}
+
+.number {
+  .count-px(150px, 100px, 100px);
+  width: @count;
+  height: @count * 0.9;
+  line-height: @count * 0.9;
+  text-align: center;
+  margin: 0 @number-space @number-space 0;
+  background: @theme-gray;
+  color: #999999;
+  -webkit-transition: all .3s ease-out;
+  transition: all .3s ease-out;
+  border-radius: @radius-width - 2px;
+  &:hover {
+    background: @theme-color;
+    color: #ffffff;
+  }
+}

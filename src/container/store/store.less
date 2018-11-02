@@ -1,6 +1,8 @@
 @import "../../global.less";
 @import "../table/table.less";
 
+@dish-width: 100px;
+@dish-space: 10px;
 @mask-size: 42px;
 
 .dishes {
@@ -27,13 +29,12 @@
   position: relative;
   -webkit-box-sizing: border-box;
           box-sizing: border-box;
-  padding-left: 10px;
-  margin: 10px 10px 0 0;
+  padding-left: @dish-space;
+  margin: @dish-space @dish-space 0 0;
   background: @theme-color;
   color: #ffffff;
-  .count-px(150px, 100px, 150px);
-  width: @count;
-  height: @count * 0.66;
+  width: @dish-width;
+  height: @dish-width * 0.66;
   border-radius: 14px;
   .direction;
   .display-flex(start, center);

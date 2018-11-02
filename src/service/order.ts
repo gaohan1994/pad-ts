@@ -3,9 +3,57 @@
  * 
  * created by Ghan 9.7
  */
-import request from '../common/request';
+import request, { payRequest } from '../common/request';
 
 class OrderService {
+
+  static checkOrderStatus = async (params: any): Promise<any> => {
+    return payRequest(
+      '',
+      'post',
+      {
+        method: 'order.query_pay',
+        biz_content: {
+          ...params
+        }
+      }
+    );
+  }
+
+  /**
+   * @param 获取支付链接
+   */
+  static payOrder = async (params: any): Promise<any> => {
+    return payRequest(
+      '',
+      'post',
+      {
+        method: 'order.pay',
+        biz_content: {
+          ...params,
+        }
+      }
+    );
+  }
+
+  /**
+   * @todo 获取取餐号
+   *
+   * @static
+   * @memberof MenuService
+   */
+  static getCalledNumber = async (params: any): Promise<any> => {
+    return request(
+      '',
+      'post',
+      {
+        method: 'trade.get_called_num',
+        biz_content: {
+          ...params,
+        }
+      }
+    );
+  }
 
   /**
    * @todo 下单接口 v2

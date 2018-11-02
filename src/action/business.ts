@@ -7,6 +7,7 @@ import {
   SET_SELECTED_MENUTPID,
   CHANGE_TABLE_AREA,
   RECEIVE_SELECTED_TABLE,
+  RECEIVE_ALL_DISHES,
 } from './constants';
 import config, { Navigate } from '../common/config';
 import CartController, { SetCurrentCartParam } from './cart';
@@ -17,6 +18,7 @@ import Base from './base';
 import { GetUserinfo } from '../store/sign';
 import OrderService from '../service/order';
 import StatusController from './status';
+import OrderController from './order';
 
 export interface SaveChoiceTableinfo {
   type: SAVE_CHOICE_TABLEINFO;
@@ -48,13 +50,19 @@ export interface ReceiveSelectedTable {
   payload: any;
 }
 
+export interface ReceiveAllDishes {
+  type: RECEIVE_ALL_DISHES;
+  payload: any;
+}
+
 export type BusinessActions = 
   SaveChoiceTableinfo |
   SaveChoicePeople |
   ReceiveStoreListViewDataSource |
   SetSelectedMenu |
   ChangeTableArea | 
-  ReceiveSelectedTable;
+  ReceiveSelectedTable |
+  ReceiveAllDishes;
 
 class Business {
 
@@ -72,6 +80,12 @@ class Business {
       dispatch,
       table: { table_no: config.TAKEAWAYCARTID },
     });
+
+    /**
+     * @param {recoverPayOrder} 切换模块的时候重置 payOrder
+     */
+    await OrderController.recoverPayOrder(dispatch);
+    await StatusController.hidePay(dispatch);
 
     switch (type) {
       case 'meal':
@@ -138,9 +152,16 @@ class Business {
    */
   public fetchStoreData = (mchnt_cd: string) => async (dispatch: Dispatch, state: () => Stores) => {
     const { menu: { menutp } } = await state();
-    const param = { mchnt_cd };
+    const param = { mchnt_cd, num: '0', serial: '0' };
     const menuResult = await MenuService.getAllSingleMenuNew(param);
 
+    /**
+     * @param {dishes} 全部菜品存入，search 用
+     */
+    dispatch({
+      type: RECEIVE_ALL_DISHES,
+      payload: { dishes: menuResult.biz_content.data }
+    });
     if (menuResult.code === '10000') {
       const menu = menuResult.biz_content.data;
       const menuList: {} = {};

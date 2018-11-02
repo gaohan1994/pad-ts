@@ -12,6 +12,7 @@ import {
   GetOrders,
   GetOrderLoading,
 } from '../../store/order';
+import { GetUserinfo } from '../../store/sign';
 
 const { Option } = Select;
 
@@ -26,6 +27,7 @@ interface OrdersProps {
   orderQuery: (parmas: OrderQueryParams) => void;
   orders: any;
   loading: boolean;
+  userinfo: any;
 }
 
 interface OrdersState {
@@ -56,10 +58,10 @@ class OrderList extends Component<OrdersProps, OrdersState> {
    * @memberof OrderList
    */
   public fetchOrderList = () => {
-    const { orderQuery } = this.props;
+    const { orderQuery, userinfo } = this.props;
 
     const params = {
-      mchnt_cd: config.DEFAUL_MCHNT_CD,
+      mchnt_cd: userinfo.mchnt_cd,
       currentPage: `${currentPage}`,
       pageSize: `${config.DEFAULT_PAGE_SIZE}`,
     };
@@ -191,6 +193,7 @@ class OrderList extends Component<OrdersProps, OrdersState> {
 const mapStateToProps = (state: Stores) => ({
   orders: GetOrders(state),
   loading: GetOrderLoading(state),
+  userinfo: GetUserinfo(state),
 });
 
 const mapDispatchToProps = (dispatch: Dispatch<any>) => ({

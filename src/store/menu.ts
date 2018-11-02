@@ -4,6 +4,8 @@ import {
   RECEIVE_ALL_MENU,
   RECEIVE_STORE_LISTVIEW_DATASOURCE,
   SET_SELECTED_MENUTPID,
+  RECEIVE_SEARCH_MENU,
+  RECEIVE_ALL_DISHES,
 } from '../action/constants';
 import { MenuActions } from '../action/menu';
 import { BusinessActions } from '../action/business';
@@ -16,6 +18,8 @@ export type Menu = {
   menu: any[];
   menuList: any;
   selectedMenu: any;
+  searchMenu: any;
+  dishes: any[];
 };
 
 export const initState = {
@@ -23,6 +27,8 @@ export const initState = {
   menu: [],
   menuList: {},
   selectedMenu: {},
+  searchMenu: [],
+  dishes: [],
 };
 
 /**
@@ -69,6 +75,20 @@ export default function menu (
       return {
         ...state,
         selectedMenu: selectedMenu,
+      };
+
+    case RECEIVE_SEARCH_MENU:
+      const { payload: { searchMenu } } = action;
+      return {
+        ...state,
+        searchMenu,
+      };
+
+    case RECEIVE_ALL_DISHES:
+      const { payload: { dishes } } = action;
+      return {
+        ...state,
+        dishes,
       };
 
     default: return state;
@@ -119,3 +139,7 @@ export const GetSelectedMenu = (store: Stores) => {
     return {};
   }
 };
+
+export const GetSearchMenu = (store: Stores) => store.menu.searchMenu;
+
+export const GetAllDishes = (store: Stores) => store.menu.dishes;

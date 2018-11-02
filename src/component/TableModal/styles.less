@@ -1,8 +1,8 @@
 @import "../../global.less";
 
-@table-item: 80px;
+@table-item: 70px;
 @table-item-margin: 5px;
-
+@table-radius: 6px;
 
 .container {
   padding: 20px;
@@ -24,42 +24,65 @@
     -ms-flex-wrap: wrap;
         flex-wrap: wrap;
     width: (@table-item * 5) + (@table-item-margin * 5) + 5px;
-    height: (@table-item * 3) + (@table-item-margin * 3) + 5px;
-
+    max-height: (@table-item * 3) + (@table-item-margin * 3) + 5px;
     & > .normalTable, & > .activeTable, & > .occupyTable {
       position: relative;
       width: @table-item;
       height: @table-item;
       margin: 0 @table-item-margin @table-item-margin 0;
       font-size: 10px;
+      border-radius: @table-radius;
       .display-flex(center, center);
+
+      & > .tableTip {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        height: @table-item * .25;
+        line-height: @table-item * .25;
+        text-align: center;
+        font-size: 10px;
+        border-radius: 0 0 @table-radius @table-radius;
+        color: #ffffff;
+      }
     }
 
     & > .activeTable {
       background: @theme-color;
       color: #ffffff;
+      & > .tableTip {
+        background: #e5a808;
+      }
+
     }
 
     & > .normalTable {
       background: @theme-gray;
       color: #808080;
+      & > .tableTip {
+        background: @theme-color;
+      }
     }
 
     & > .occupyTable {
       background: @theme-gray;
       color: #cccccc;
+      & > .tableTip {
+        background: #cccccc;
+      }
     }
   }
 
   & > .bar {
     border: 2px solid @theme-color;
-    height: (@table-item * (7 / 12)) * 4;
+    // height: (@table-item * (7 / 12)) * 4;
 
     & > .activeArea, & > .normalArea {
       .display-flex(center, center);
       position: relative;
       width: @table-item;
-      height: @table-item * (7 / 12);
+      height: @table-item * (8 / 12);
     }
 
     & > .activeArea {
@@ -69,14 +92,44 @@
     & > .normalArea {
       background: #ffffff;
     }
+  }
+}
+.themeIcon {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: @table-item * 0.1;
+  height: 100%;
+  background: @theme-color;
+}
 
-    & > .themeIcon {
-      position: absolute;
-      left: 0;
-      top: 0;
-      width: @table-item * 0.1;
-      height: 100%;
-      background: @theme-color;
-    }
+.pagination {
+  position: absolute;
+  bottom: -30px;
+  right: 5px;
+}
+
+.buttons {
+  position: relative;
+  margin-top: @table-item * .7;
+  .display-flex(center, center);
+
+  & > .button {
+    .count-px(110px, @table-item, 180px);
+    width: @count;
+    height: @count * 5 / 18;
+    color: #ffffff;
+    border-radius: 3px;
+    text-align: center;
+    line-height: @count * 5 / 18;
+  }
+
+  & > .cancel {
+    background: #474747;
+    margin-right: @table-item * 0.4;
+  }
+
+  & > .confirm {
+    background: @theme-color;
   }
 }

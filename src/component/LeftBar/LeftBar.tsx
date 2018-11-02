@@ -85,7 +85,7 @@ export const ListItem = (props: any) => {
         </div>
         <div className={`${styles.listItemTexts}`}>
           {
-            typeof data.num === 'number' ? (
+            typeof data.num === 'number' || typeof data.num === 'string' ? (
               <div className={`${styles.mainText} ${styles.number}`}>
                 {`
                   x${numeral(data.is_weight).value() === 1 

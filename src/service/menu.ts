@@ -9,6 +9,25 @@ import request from '../common/request';
 class MenuService {
 
   /**
+   * @todo 搜索菜品
+   *
+   * @static
+   * @memberof MenuService
+   */
+  static searchMenus = async (params: any): Promise<any> => {
+    return request(
+      '',
+      'post',
+      {
+        method: '',
+        biz_content: {
+          ...params,
+        }
+      }
+    );
+  }
+
+  /**
    * @todo 获取所有菜单类型
    *
    * @static
@@ -262,11 +281,13 @@ class MenuService {
    * @memberof MenuService
    */
   static getAllSingleMenuNew = async (params: any): Promise<any> => {
+    console.log('params: ', params);
     return request(
       '',
       'post',
       {
-        method: 'menu.get_all_single_menu_new',
+        // method: 'menu.get_all_single_menu_new',
+        method: 'menu.get_all_menu_info_h5',
         biz_content: {
           ...params,
         }

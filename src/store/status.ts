@@ -3,6 +3,9 @@ import {
   CHANGE_LOADING, 
   CHANGE_TABLE_MODAL_STATUS,
   CHANGE_LOGIN_STATUS,
+  CHANGE_SEARCH_STATUS,
+  CHANGE_PAY_STATUS,
+  CHANGE_PEOPLE_MODAL_STATUS,
 } from '../action/constants';
 import { StatusAtions } from '../action/status';
 import { Stores } from './index';
@@ -14,7 +17,10 @@ export type Status = {
     title: string;
     loading: boolean;
     changeTableModalStatus: boolean;
+    changePeopleModalStatus: boolean;
     showLogin: boolean;
+    showSearch: boolean;
+    showPay: boolean;
 };
 
 export const initState = {
@@ -22,7 +28,10 @@ export const initState = {
     title: config.DEFAULT_DOCUMENT_TITLE,
     loading: false,
     changeTableModalStatus: false,
+    changePeopleModalStatus: false,
     showLogin: false,
+    showSearch: false,
+    showPay: false,
 };
 
 /**
@@ -59,6 +68,28 @@ export default function status ( state: Status = initState,  action: StatusAtion
         ...state,
         showLogin,
       };
+    
+    case CHANGE_SEARCH_STATUS:
+      const { payload: { showSearch } } = action;
+      return {
+        ...state,
+        showSearch,
+      };
+
+    case CHANGE_PAY_STATUS:
+      const { payload: { showPay } } = action;
+      return {
+        ...state,
+        showPay,
+      };
+
+    case CHANGE_PEOPLE_MODAL_STATUS:
+      const { payload: { changePeopleModalStatus } } = action;
+      return {
+        ...state,
+        changePeopleModalStatus
+      };
+    
     default: return state;
   }
 }
@@ -72,3 +103,9 @@ export const GetLoading = (state: Stores) => state.status.loading;
 export const GetChangeTableModalStatus = (state: Stores) => state.status.changeTableModalStatus;
 
 export const GetShowLogin = (state: Stores) => state.status.showLogin;
+
+export const GetSearchStatus = (state: Stores) => state.status.showSearch;
+
+export const GetShowPay = (state: Stores) => state.status.showPay;
+
+export const GetChangePeopleModalStatus = (state: Stores) => state.status.changePeopleModalStatus;

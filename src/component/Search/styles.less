@@ -1,0 +1,64 @@
+@import "../../global.less";
+@import "../../container/store/store.less";
+
+@search-space: 10px;
+@search-close-size: 30px;
+@search-radius: 4px;
+@search-font-size: 15px;
+.searchContainer {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  padding-left: @search-space;
+}
+
+.searchClose {
+  position: absolute;
+  right: 0;
+  top: 0;
+  width: @search-close-size;
+  height: @search-close-size;
+  .bg-img;
+  background-image: url('//net.huanmusic.com/llq/icon_del.png');
+}
+
+
+.searchInputBox {
+  position: relative;
+  margin-top: @search-space;
+  -webkit-box-sizing: border-box;
+  box-sizing: border-box;
+  width: 80%;
+  border: 1px solid #999999;
+  border-radius: @search-radius;
+  .display-flex(center, start);
+  height: @search-close-size;
+
+  & > .searchIcon {
+    margin-left: @search-space;
+    width: @search-close-size / 2;
+    height: @search-close-size / 2;
+    .bg-img;
+    background-image: url('//net.huanmusic.com/llq/icon_jianpan_sousuo.png');
+  }
+
+  & > input {
+    width: 100%;
+    border: 0px;
+    padding-left: @search-space;
+    color: #000000;
+    font-size: @search-font-size;
+  }
+
+  & > .searchInput::-webkit-input-placeholder {
+    color: #999999;
+  }
+
+  & > .searchInput:-ms-input-placeholder {
+    color: #999999;
+  }
+
+  & > .searchInput::placeholder {
+    color: #999999;
+  }
+}

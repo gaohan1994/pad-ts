@@ -10,7 +10,11 @@ import history from '../history';
  * @param FETCH_ENTRY -- 统一访问入口
  */
 export type InterfaceConfig = {
+  WX_PAY_FETCH_ENTTRY: string;
   FETCH_ENTRY: string;
+  INSIDE_FETCH_ENTRY: string;
+  DEV_OPERA_INFO: any;
+  DEV_WECHAT_OPENID: string;
 } & DefaultCommonConfig;
 
 /**
@@ -35,6 +39,8 @@ export interface DefaultCommonConfig {
   TAKEAWAYCARTID: string;
   STORE_DISH_ORDER_TYPE: string;
   STORE_DISH_CART_TYPE: string;
+  DEFAULT_TERMINAL_CD: string;
+  DEFAULT_TERMINAL_SN: string;
 }
 
 const defaultCommonConfig: DefaultCommonConfig = {
@@ -42,22 +48,32 @@ const defaultCommonConfig: DefaultCommonConfig = {
   DEFAULT_FETCH_METHOD: 'POST',
   DEFAULT_BALL_SPEED: 220,
   DEFAULT_PAGE_SIZE: 10,
-  DEFAUL_MCHNT_CD: '60000000217',
+  DEFAUL_MCHNT_CD: '60000000200', // 60000000217 60000000200
   DEFAULT_PICTURE_LING: '//net.huanmusic.com/qg/pic_default.png',
   TAKEAWAYCARTID: 'TAKEAWAYCARTID',
   STORE_DISH_ORDER_TYPE: 'order',
   STORE_DISH_CART_TYPE: 'cart',
+  DEFAULT_TERMINAL_CD: '00001104D1V0670019908',
+  DEFAULT_TERMINAL_SN: 'FB485E065EEEF191EE1E9ED8BA157A0DA65D6EBA812A4D29',
 };
 
 // 测试环境 http://202.101.149.132:7680/BKMS_HMS/GateWayAction.do
 const devConfig: InterfaceConfig = {
   ...defaultCommonConfig,
+  INSIDE_FETCH_ENTRY: 'http://172.30.20.100:5980/BKMS_HMS/GateWayAction.do',
   FETCH_ENTRY: 'http://202.101.149.132:7680/BKMS_HMS/GateWayAction.do',
+  WX_PAY_FETCH_ENTTRY: 'http://202.101.149.132:7680/BKMS/WeChatGateWayAction.do',
+  DEV_OPERA_INFO: { user_id: '13101402833' }, // user_id: '13101402833',
+  DEV_WECHAT_OPENID: 'TESTWECHATOPENID',
 };
 
 const proConfig: InterfaceConfig = {
   ...defaultCommonConfig,
+  INSIDE_FETCH_ENTRY: 'http://172.30.20.100:5980/BKMS_HMS/GateWayAction.do',
   FETCH_ENTRY: '//prod/GateWayAction.do',
+  WX_PAY_FETCH_ENTTRY: 'http://202.101.149.132:7680/BKMS/WeChatGateWayAction.do',
+  DEV_OPERA_INFO: {},
+  DEV_WECHAT_OPENID: '',
 };
 
 interface ProcessChoiceFilterFunc<T> {

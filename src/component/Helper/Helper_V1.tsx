@@ -148,6 +148,8 @@ class Helper extends Component <HelperProps, HeplerState> {
       clickFromPropsParam,
      } = this.props;
 
+    console.log('handleClickWithParam');
+
     let token: boolean = false;
 
     let type: string = 'normal';
@@ -168,7 +170,8 @@ class Helper extends Component <HelperProps, HeplerState> {
     }
     
     if (data.attrType) { token = true; }
-    
+    console.log('data: ', data);
+    console.log('token: ', token);
     /**
      * @todo 如果是减少条目
      */
@@ -191,13 +194,16 @@ class Helper extends Component <HelperProps, HeplerState> {
        * @todo 增加条目
        */
       if (token === true) {
+        console.log('token === true');
         // 如果是 规格商品
         if (currentAttr) {
+          console.log('currentAttr');
           // 如果是外部传入 attr
           if (clickFromPropsParam) {
             this.addItemFromProps(clickFromPropsParam);
           }
         } else {
+          console.log('onShowConfigModal');
           // 外部没传入 则选择 attr
           this.onShowConfigModal();
         }

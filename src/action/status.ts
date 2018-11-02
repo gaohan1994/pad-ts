@@ -5,6 +5,9 @@ import {
   CHANGE_LOADING,
   CHANGE_TABLE_MODAL_STATUS,
   CHANGE_LOGIN_STATUS,
+  CHANGE_SEARCH_STATUS,
+  CHANGE_PAY_STATUS,
+  CHANGE_PEOPLE_MODAL_STATUS,
 } from './constants';
 
 export interface ChangeStatus {
@@ -32,12 +35,42 @@ export interface ChagneLoginStatus {
   payload: any;
 }
 
+export interface ShowSearch {
+  type: CHANGE_SEARCH_STATUS;
+  payload: any;
+}
+
+export interface HideSearch {
+  type: CHANGE_SEARCH_STATUS;
+  payload: any;
+}
+
+export interface ShowPay {
+  type: CHANGE_PAY_STATUS;
+  payload: any;
+}
+
+export interface HidePay {
+  type: CHANGE_PAY_STATUS;
+  payload: any;
+}
+
+export interface ChangePeopleModalStatus {
+  type: CHANGE_PEOPLE_MODAL_STATUS;
+  payload: any;
+}
+
 export type StatusAtions = 
   ChangeStatus | 
   ChangeDocumentTitle | 
   ChangeLoading |
   ChangeTableModalStatus |
-  ChagneLoginStatus; 
+  ChagneLoginStatus |
+  ShowSearch |
+  HideSearch |
+  ShowPay |
+  HidePay | 
+  ChangePeopleModalStatus; 
 
 export const changeStatus = () => (dispatch: Dispatch) => {
   dispatch({
@@ -54,6 +87,62 @@ export const changeDocumentTitle = (title: string) => (dispatch: Dispatch) => {
 };
 
 class Status {
+
+  public changePeopleModalHandle = (params: any) => {
+    const { changePeopleModalStatus, dispatch } = params;
+    dispatch({
+      type: CHANGE_PEOPLE_MODAL_STATUS,
+      payload: { changePeopleModalStatus }
+    });
+  }
+
+  /**
+   * @todo 显示 pay page
+   *
+   * @memberof Status
+   */
+  public showPay = async (dispatch: Dispatch) => {
+    dispatch({
+      type: CHANGE_PAY_STATUS,
+      payload: { showPay: true }
+    });
+  }
+
+  /**
+   * @todo 隐藏 pay page
+   *
+   * @memberof Status
+   */
+  public hidePay = async (dispatch: Dispatch) => {
+    dispatch({
+      type: CHANGE_PAY_STATUS,
+      payload: { showPay: false }
+    });
+  }
+
+  /**
+   * @todo show global search
+   *
+   * @memberof Status
+   */
+  public showSearch = async (dispatch: Dispatch) => {
+    dispatch({
+      type: CHANGE_SEARCH_STATUS,
+      payload: { showSearch: true }
+    });
+  }
+
+  /**
+   * @todo hide global search
+   *
+   * @memberof Status
+   */
+  public hideSearch = async (dispatch: Dispatch) => {
+    dispatch({
+      type: CHANGE_SEARCH_STATUS,
+      payload: { showSearch: false }
+    });
+  }
 
   /**
    * @todo show global loading

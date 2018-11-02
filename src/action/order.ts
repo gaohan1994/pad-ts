@@ -10,24 +10,45 @@ import {
   CHANGE_ORDER_PEOPLE_NUMBER,
   CHANGE_ORDER_TABLE_NUMBER,
   CHAGNE_ORDER_LOADING,
+  RECEIVE_CALLED_NUMBER,
+  UPDATE_CART,
+  RECEIVE_PAY_ORDER,
 } from './constants';
 import { ConsoleUtil } from '../common/request';
 import OrderService from '../service/order';
 import Base from './base';
 import { Stores } from '../store/index';
-import { GetUserinfo } from '../store/sign';
-import { randomString, isArrayFn } from '../common/config';
+import { GetUserinfo, GetOperatorInfo } from '../store/sign';
+import config, { randomString, isArrayFn, Navigate } from '../common/config';
 import { GetCurrentCartList } from '../store/cart';
 import StatusController from './status';
 import BusinessController from './business';
 import CartController from './cart';
 import { merge } from 'lodash';
+import { GetSelecetedTable } from '../store/table';
+import { GetCalledNumber } from '../store/order';
 
-export interface ManageMenuParams {
+export interface CheckOrderStatusReturn {
+  success: boolean;
+  status?: string;
+}
+export interface CheckOrderStatusParams {
+  mchnt_cd: string;
+  order_no: string;
+}
+export interface PayOrderParam {
+  order: any;
+  callback: (param: PayOrderReturn) => void;
+}
+export interface SendOrderV2Params {
+  needPay: boolean;
+}
+export interface ManageMenuParams extends SendOrderV2Params {
   type: 'add' | 'retire';
   order: any;
   data: any;
   table: any;
+  currentCartId: string;
 }
 
 export interface Product {
@@ -119,6 +140,10 @@ export interface UpdateOrderDetailParam {
   account_paid: string;
 }
 
+export interface PayOrderReturn {
+  success: boolean;
+  url?: string;
+}
 export interface CloseOrderParams {
   order_no: string;
   mchnt_cd?: string;
@@ -160,12 +185,24 @@ export interface ChangeOrderLoading {
   payload: any;
 }
 
+export interface ReceiveCalledNumber {
+  type: RECEIVE_CALLED_NUMBER;
+  payload: any;
+}
+
+export interface ReceivePayOrder {
+  type: RECEIVE_PAY_ORDER;
+  payload: any;
+}
+
 export type OrderActions = 
   ReceiveOrderList 
   | ReceiveOrderDetail 
   | ChangeOrderToken
   | ChangeOrderDetail
-  | ChangeOrderLoading;
+  | ChangeOrderLoading
+  | ReceiveCalledNumber
+  | ReceivePayOrder;
 
 /**
  * @return { product: Product | products: Product[] }
@@ -184,7 +221,8 @@ export const ReturnStandardProduct = (
       price: numeral(item.price).format('0.00'),
       first_attr: '',
       second_attr: '',
-      num: item.num || item.number,
+      num: `${item.num || item.number}`,
+      subtotal: numeral(numeral(item.price).value() * numeral(item.num || item.number).value()).format('0.00'),
     };
     if (!extendSupportFunction) {
       return product;
@@ -199,7 +237,14 @@ export const ReturnStandardProduct = (
         price: numeral(item.price).format('0.00'),
         first_attr: productAttr.attrs[0] && productAttr.attrs[0].attrName,
         second_attr: productAttr.attrs[1] && productAttr.attrs[1].attrName,
-        num: productAttr.number,
+        num: `${productAttr.number}`,
+        subtotal: numeral(
+          (
+            numeral(item.price).value() + 
+            numeral(productAttr.attrs[0] && productAttr.attrs[0].attrPrice).value() +
+            numeral(productAttr.attrs[1] && productAttr.attrs[1].attrPrice).value()
+          ) * numeral(productAttr.number).value()
+         ).format('0.00'), 
       };
       if (!extendSupportFunction) {
         return product;
@@ -329,7 +374,225 @@ export const AnalysisStandardMoney = (params: AnalysisStandardMoneyParam): Analy
   return { meel_fee: numeral(currentMealFee).format('0.00'), total: numeral(currentTotal).format('0.00') };
 };
 
+interface GetMealAndTrueTotalMoneyParam {
+  table: any; 
+  products: any[];
+}
+
+interface GetMealAndTrueTotalMoneyReturn {
+  pureTotal: string;
+  meal_fee: string;
+  total: string;
+  totalNumber: string;
+}
+
+/**
+ * @param {table} 选中的桌子
+ * @param {products} 标准化数据
+ */
+export const GetMealAndTrueTotalMoney = (param: GetMealAndTrueTotalMoneyParam ): GetMealAndTrueTotalMoneyReturn => {
+  const { table, products } = param;
+  
+  /**
+   * @param {feeType} 餐位费类型 0: 无，1: 定额, 2: 百分比, 3:人头
+   * @param {fee} 餐位费
+   */
+  const { table_no, feeType, fee, people } = table;
+
+  /**
+   * @param {pureTotal} 未计算餐位费之前的菜品总额
+   * @param {currentMealFee} 重新计算的餐位费
+   * @param {currentTotal} 重新计算的总价
+   * @param {totalNumber} 菜品的总数
+   */
+  let pureTotal: number = 0;
+  let currentMealFee: number = 0;
+  let currentTotal: number = 0;
+  let totalNumber: number = products.length;
+
+  products.forEach((dish: any) => { 
+    pureTotal += numeral(dish.subtotal).value();
+  });
+
+  if (table_no === config.TAKEAWAYCARTID) {
+    /**
+     * @param {table_no === config.TAKEAWAYCARTID} 外卖不计算餐位费
+     */
+    return {
+      pureTotal: numeral(pureTotal).format('0.00'),
+      meal_fee: numeral(currentMealFee).format('0.00'), 
+      total: numeral(pureTotal).format('0.00'),
+      totalNumber: numeral(totalNumber).format('0'),
+    };
+  } else {
+    /**
+     * @param {table_no !== config.TAKEAWAYCARTID} 非外卖计算餐位费
+     */
+    const type = numeral(feeType).value();
+    switch (type) {
+      case 0:
+        break;
+      case 1:
+        // 定额
+        currentMealFee = fee;
+        break;
+      case 2:
+        // 百分比
+        currentMealFee = pureTotal * fee;
+        break;
+      case 3:
+        // 人头
+        currentMealFee = people * fee;
+        break;
+      default:
+        break;
+    }
+    currentTotal = currentMealFee + pureTotal;
+    
+    return {
+      pureTotal: numeral(pureTotal).format('0.00'),
+      meal_fee: numeral(currentMealFee).format('0.00'), 
+      total: numeral(currentTotal).format('0.00'),
+      totalNumber: numeral(totalNumber).format('0'),
+    };
+  }
+};
+
 class OrderController extends Base {
+
+  static checkOrderStatus = async (params: CheckOrderStatusParams): Promise<CheckOrderStatusReturn> => {
+    const result = await OrderService.checkOrderStatus(params);
+
+    if (result.code === '10000') {
+      return { success: true, status: result.biz_content.order_status };
+    } else {
+      return { success: false };
+    }
+  }
+
+  /**
+   * @todo 设置 payorder 但是没有 bind action 的函数
+   *
+   * @static
+   * @memberof OrderController
+   */
+  static setPayOrderWidthoutBind = async (param: any) => {
+    const { dispatch, order } = param;
+    dispatch({
+      type: RECEIVE_PAY_ORDER,
+      payload: { payOrder: order }
+    });
+  }
+  /**
+   * @param 设置 pay order 
+   */
+  static setPayOrder = (param: any) => async (dispatch: Dispatch, state: () => Stores) => {
+    const { order } = param;
+    dispatch({
+      type: RECEIVE_PAY_ORDER,
+      payload: { payOrder: order }
+    });
+  }
+
+  /**
+   * @param {recoverPayOrder} 清空准备支付的数据
+   */
+  static recoverPayOrder = (dispatch: Dispatch) => {
+    // 
+    dispatch({
+      type: RECEIVE_PAY_ORDER,
+      payload: { payOrder: {} }
+    });
+  }
+
+  /**
+   * @todo 获取支付链接 
+   *
+   * @static
+   * @memberof OrderController
+   */
+  static payOrder = (param: PayOrderParam) => async (dispatch: Dispatch, state: () => Stores): Promise<any> => {
+    StatusController.showLoading(dispatch);
+    const { mchnt_cd } = GetUserinfo(await state());
+    const { order, callback }: PayOrderParam = param;
+    /**
+     * @param {} 1.先访问order状态看看当前状态是否是未支付
+     * @param {} 2.如果是未支付在支付
+     */
+    const checkParam: CheckOrderStatusParams = { mchnt_cd, order_no: order.order_no };
+    const { success, status }: CheckOrderStatusReturn = await OrderController.checkOrderStatus(checkParam);
+
+    if (success === true) {
+      const formatStatus = numeral(status).value();
+      if (formatStatus === 0) {
+        /**
+         * @param {formatStatus === 0} 未支付
+         */
+        const params = {
+          mchnt_cd,
+          order_no: order.order_no,
+          amount: numeral(order.stdtrnsamt).format('0.00'),
+          wechat_openid: config.DEV_WECHAT_OPENID,
+        };
+        
+        const result = await OrderService.payOrder(params);
+        if (result.code === '10000') {
+          StatusController.hideLoading(dispatch);
+          /**
+           * @param {result.payUrl} 支付链接
+           */
+          callback({
+            success: true,
+            url: result.biz_content.payUrl
+          });
+        } else {
+          Base.toastFail(result.msg || '请求支付失败');
+          callback({ success: false });
+        }
+      } else if (formatStatus === 4) {
+        StatusController.hideLoading(dispatch);
+        /**
+         * @param {formatStatus === 4} 已支付
+         */
+        Base.toastFail('订单已支付');
+      } else {
+        StatusController.hideLoading(dispatch);
+        /**
+         * @param {formatStatus} 其他支付状态
+         */
+        Base.toastFail('错误的订单状态');
+      }
+    } else {
+      StatusController.hideLoading(dispatch);
+      Base.toastFail('未查找到该订单的支付状态');
+      Navigate.navto('/orderlist');
+    }
+  }
+
+  /**
+   * @todo 获取取餐号
+   *
+   * @static
+   * @memberof OrderController
+   */
+  static getCalledNumber = () => async (dispatch: Dispatch, state: () => Stores) => {
+    const { mchnt_cd } = GetUserinfo(await state());
+    const params = {
+      mchnt_cd,
+      terminal_sn: config.DEFAULT_TERMINAL_SN
+    };
+    const result = await OrderService.getCalledNumber(params);
+
+    if (result.code === '10000') {
+      dispatch({
+        type: RECEIVE_CALLED_NUMBER,
+        payload: { calledNumber: result.biz_content.called_num },
+      });
+      console.log('result: ', result);
+    } else {
+      Base.toastFail('获取取餐号失败！');
+    }
+  }
 
   /**
    * @todo 下单接口 v2
@@ -337,32 +600,193 @@ class OrderController extends Base {
    * @static
    * @memberof OrderController
    */
-  static sendOrderV2 = (param: any) => async (dispatch: Dispatch, state: () => Stores) => {
+  static sendOrderV2 = (params: SendOrderV2Params) => async (dispatch: Dispatch, state: () => Stores) => {
     StatusController.showLoading(dispatch);
     const store: Stores = state();
+    /**
+     * @param {list} 购物车中的商品
+     * @param {currentCartId} 当前的购物车的ID
+     * @param {mchnt_cd} 商户号
+     * @param {table} 当前选中的 table
+     */
+    const { list, currentCartId } = GetCurrentCartList(store);
     const { mchnt_cd } = GetUserinfo(store);
-    
+    const table = GetSelecetedTable(store);
+    const { user_id } = GetOperatorInfo(store);
+
+    /**
+     * @param {extendSupportFunction} 扩展函数把数据补齐
+     */
+    const extendSupportFunction = (item: any) => {
+      return {
+        ...item,
+        is_add_dish: '0'
+      };
+    };
+    /**
+     * @param {products} 标准数据
+     */
+    let products: any[] = [];
+    list.forEach((item: any) => {
+      const StandardProduct = ReturnStandardProduct(item, extendSupportFunction);
+      if (isArrayFn(StandardProduct) === false) {
+        products.push(StandardProduct);
+      } else if (isArrayFn(StandardProduct) === true) {
+        products = products.concat(StandardProduct);
+      }
+    });
+    /**
+     * @param {pureTotal}
+     * @param {meal_fee} 餐位费 
+     * @param {total} 计算餐位费之后的实际付款
+     */
+    const { meal_fee, total, totalNumber }: GetMealAndTrueTotalMoneyReturn = GetMealAndTrueTotalMoney({table, products});
+
     /**
      * @param {params} 通用数据
      */
-    const params = {
+    let payloadParam: any = {
+      terminal_cd: config.DEFAULT_TERMINAL_CD,
+      terminal_sn: config.DEFAULT_TERMINAL_SN,
+      is_pos: 'false',
       mchnt_cd,
       term_datetime: moment().format('YYYYMMDDHHMMSS'),
-      stdtrnsamt: '',
+      stdtrnsamt: total,
       discount: '0.00',
-      packing_price: '',
-      meal_fee: '',
-      change: '',
-      total: '',
-      total_num: '',
-      order_detail: [],
+      meal_fee: meal_fee,
+      total: total,
+      total_num: totalNumber,
+      order_detail: products,
+      oper_id: user_id,
     };
 
     /**
      * @param {IS_TAKE_OUT} 根据是否是外带传入下面的参数
+     * @param {called_num} 外卖号
      */
+    if (currentCartId === config.TAKEAWAYCARTID) {
+      const calledNumber = GetCalledNumber(store);
+      payloadParam = {
+        ...payloadParam,
+        called_num: `${calledNumber}`,
+        is_take_out: '1',
+      };
+    } else {
+      payloadParam = {
+        ...payloadParam,
+        is_take_out: '0',
+        table_no: `${table.table_no}`,
+        people_num: `${table.people}`,
+        table_name: `${table.table_name}`,
+      };
+    }
+    const result = await OrderService.sendOrderV2(payloadParam);
+    console.log('sendOrderV2 result: ', result);
+    if (result.code === '10000') {
+      /**
+       * @todo 成功之后的处理
+       * @param {1.判断是否是外带，如果是外带显示结账，如果不是外带根据外面传入的参数进行判断是否展示结账}
+       */
+      StatusController.hideLoading(dispatch);
+      if (currentCartId === config.TAKEAWAYCARTID) {
+        /**
+         * --- 1.外带 ---
+         * @param {} 1.清空购物车
+         * @param {} 2.设置 selectedTable 
+         * @param {} 2.整合数据显示结账页面
+         */
+        await dispatch({
+          type: UPDATE_CART,
+          payload: { id: currentCartId, list: [] }
+        });
 
-    console.log('params: ', params);
+        const newOrder = {
+          ...payloadParam,
+          ...result.biz_content,
+        };
+
+        const newTable = {
+          table_no: config.TAKEAWAYCARTID,
+          tableOrder: {
+            ...newOrder,
+            data: newOrder.order_detail
+          }
+        };
+        console.log('newTable: ', newTable);
+        await BusinessController.setSelectedTable({
+          dispatch,
+          table: newTable,
+        });
+
+        console.log('newOrder: ', newOrder);
+        StatusController.showPay(dispatch);
+        OrderController.setPayOrderWidthoutBind({ order: newOrder, dispatch });
+      } else {
+        /**
+         * --- 2.堂食 ---
+         * @param {needPay} 根据传入的 needPay 决定是否需要显示支付
+         */
+        const { needPay } = params;
+
+        if (needPay === true) {
+          /**
+           * @param {needPay === true} 需要显示支付
+           * @param {} -1.请求菜单信息防止库存没了
+           * @param {} -2.请求桌子信息因为有桌子可能被占用了
+           * @param {} -3.请求所有订单信息因为有下单过了
+           * @param {} 1.因为下单成功清空 currentCart 数据
+           * @param {} 2.重置 selectedTable
+           * @param {} 4.整合订单信息 显示支付
+           */
+          await dispatch({
+            type: UPDATE_CART,
+            payload: { id: currentCartId, list: [] }
+          });
+
+          const newOrder = {
+            ...payloadParam,
+            ...result.biz_content,
+          };
+          console.log('newOrder: ', newOrder);
+
+          const newTable = {
+            ...table,
+            tableOrder: {
+              ...newOrder,
+              data: newOrder.order_detail
+            }
+          };
+          console.log('newTable: ', newTable);
+          await BusinessController.setSelectedTable({
+            dispatch,
+            table: newTable,
+          });
+
+          StatusController.showPay(dispatch);
+          OrderController.setPayOrderWidthoutBind({ order: newOrder, dispatch });
+        } else {
+          /**
+           * @param {needPay === false}
+           * @todo 0.跳转到首页 因为跳转到首页了，所以不用请求其他数据
+           * @param {} 1.因为下单成功清空 currentCart 数据
+           * @param {} 2.重置 selectedTable
+           * @param {} 3.跳转到首页
+           */
+          await dispatch({
+            type: UPDATE_CART,
+            payload: { id: currentCartId, list: [] }
+          });
+          await BusinessController.setSelectedTable({
+            dispatch,
+            table: { table_no: config.TAKEAWAYCARTID },
+          });
+          Navigate.navto(`/table/${mchnt_cd}`);
+        }
+      }
+    } else {
+      StatusController.hideLoading(dispatch);
+      Base.toastFail(result.msg || '下单失败');
+    }
   }
  
   /**
@@ -384,7 +808,7 @@ class OrderController extends Base {
      * @param {data} list 数据
      * @param {table} 选中的桌子
      */
-    const { type, order, data, table } = param;
+    const { type, order, data, table, needPay, currentCartId } = param;
 
     /**
      * @param {data} 菜品数据 1.先标准化
@@ -398,11 +822,7 @@ class OrderController extends Base {
     const extendSupportFunction = (item: any) => {
       return {
         ...item,
-        num: numeral(item.num).format('0'),
         is_add_dish: type === 'add' ? '1' : '0',
-        subtotal: numeral(
-          numeral(item.price).value() * numeral(item.num).value()
-        ).format('0.00'),
       };
     };
 
@@ -477,16 +897,42 @@ class OrderController extends Base {
 
       if (orderCode === '10000') {
         /**
-         * @param {1.hidelogin 2.toast 3.recovery cart}
+         * @param 下单成功
+         * @param {} 1.隐藏loading toast
+         * @param {} 2.存入 selectedTable
+         * @param {} 3.如果是加菜 清理 购物车
          */
         StatusController.hideLoading(dispatch);
         Base.toastInfo(type === 'add' ? '下单成功~' : '退菜成功~');
         CartController.setCurrentDish({ dispatch, currentDish: {} });
+
         let newTable: any = merge({}, table);
         newTable.tableOrder = orderBizContent;
-  
+
         let setTableParam: any = { dispatch, table: newTable };
-        BusinessController.setSelectedTable(setTableParam);
+        await BusinessController.setSelectedTable(setTableParam);
+        
+        if (type === 'add') {
+          await dispatch({
+            type: UPDATE_CART,
+            payload: { id: currentCartId, list: [] }, 
+          });
+        }
+
+        if (needPay === true) {
+          /**
+           * @param {needPay} 需要显示支付
+           */
+          console.log('orderBizContent: ', orderBizContent);
+
+          StatusController.showPay(dispatch);
+          OrderController.setPayOrderWidthoutBind({ order: orderBizContent, dispatch });
+        } else if (type === 'add') {
+          /**
+           * @param {needPay} 不需要显示支付 但是是加菜成功则跳转到首页
+           */
+          Navigate.navto(`/table/${mchnt_cd}`);
+        }
       } else {
         StatusController.hideLoading(dispatch);
         Base.toastFail('请求订单信息失败!');

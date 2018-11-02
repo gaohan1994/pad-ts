@@ -1,6 +1,10 @@
 @import "../../global.less";
 
+@table-size: 100px;
+@table-bottom-height: 30px;
 @radius-width: 8px;
+@table-font: 12px;
+@number-space: 20px;
 
 .tables {
   -ms-flex-wrap: wrap;
@@ -13,9 +17,12 @@
 .table {
   border-radius: @radius-width;
   margin: 10px 10px 0 0;
-  width: 100px;
-  height: 100px;
+  width: @table-size;
+  height: @table-size;
+  font-size: @table-font + 2px;
+  padding-top: ((@table-size - @table-bottom-height) - (@table-font + 2px)) / 2;
   position: relative;
+  text-align: center;
 }
 
 .occupy {
@@ -39,6 +46,7 @@
 
 .search {
   margin: 15px 0;
+  padding: 4px 0;
   .count-px(150px, 100px, 128px);
   width: @count;
   background: #f3f3f3;
@@ -89,10 +97,11 @@
   position: absolute;
   color: #ffffff;
   text-align: center;
-  height: 30px;
-  line-height: 30px;
+  height: @table-bottom-height;
+  line-height: @table-bottom-height;
   bottom: 0;
   left: 0;
+  font-size: @table-font;
   width: 100%;
   border-radius: 0 0 @radius-width @radius-width;
 }
@@ -106,9 +115,12 @@
 }
 
 .people {
-  .display-flex(center, around);
+  margin: 0 auto;
+  .count-px(150px, 100px, 100px);
+  .display-flex(start, start);
   -ms-flex-wrap: wrap;
       flex-wrap: wrap;
+  width: (@count + @number-space) * 3;
 }
 
 .number {
@@ -117,13 +129,22 @@
   height: @count * 0.9;
   line-height: @count * 0.9;
   text-align: center;
+  margin: 0 @number-space @number-space 0;
   background: @theme-gray;
   color: #999999;
   -webkit-transition: all .3s ease-out;
   transition: all .3s ease-out;
-
+  border-radius: @radius-width - 2px;
   &:hover {
     background: @theme-color;
     color: #ffffff;
   }
+}
+
+
+.pagination {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  z-index: 100;
 }

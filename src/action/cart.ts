@@ -8,6 +8,10 @@ import { ReturnStandardProduct, GetTotalParams } from './order';
 import { isArrayFn } from '../common/config';
 import Base from './base';
 
+export interface DeleteItemParam {
+  data: any;
+  attrs?: any;
+}
 export interface UpdateCart {
   type: UPDATE_CART;
   payload: any;
@@ -170,6 +174,41 @@ export const GetCartParams = (params: any): GetCartParamsReturn => {
 };
 
 class CartController {
+
+  /**
+   * @todo 删除购物车菜品
+   *
+   * @memberof CartController
+   */
+  public deleteItem = (param: DeleteItemParam) => async (dispatch: Dispatch, state: () => Stores) => {
+    console.log('param: ', param);
+    const { data, attrs } = param;
+    console.log('data: ', data);
+    const { list, currentCartId } = GetCurrentCartList(await state());
+
+    if (attrs) {
+      /**
+       * @param {attrs} 规格商品
+       */
+      const { inCart, index, attrToken }: CheckItemAlreadyInCartReturn = CheckItemAlreadyInCart(data, list, attrs);
+      if (inCart === true && typeof index === 'number'  && attrToken && typeof attrToken.attrIndex === 'number') {
+        list[index].number.splice(attrToken.attrIndex, 1);
+      }
+    } else {
+      /**
+       * @param {normal} 普通商品
+       */
+      const { inCart, index }: CheckItemAlreadyInCartReturn = CheckItemAlreadyInCart(data, list);
+      if (inCart === true && typeof index === 'number') {
+        list.splice(index, 1);
+      }
+    }
+
+    dispatch({
+      type: UPDATE_CART,
+      payload: { id: currentCartId, list: merge([], list) }
+    });
+  }
 
   /**
    * @todo set current Cart id

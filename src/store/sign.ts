@@ -20,7 +20,7 @@ export const initState = {
   userinfo: { 
     mchnt_cd: config.DEFAUL_MCHNT_CD,
   },
-  operatorInfo: {}
+  operatorInfo: config.DEV_OPERA_INFO
 };
 
 /**

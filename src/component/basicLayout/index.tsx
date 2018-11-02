@@ -2,7 +2,7 @@ import * as React from 'react';
 import { Dispatch, bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import styles from './index.less';
-import { Layout, Spin } from 'antd';
+import { Layout, Spin, Select } from 'antd';
 import Menus from 'src/component/Menus';
 import { Stores } from '../../store/index';
 import { GetLoading, GetShowLogin } from '../../store/status';
@@ -10,14 +10,16 @@ import { mergeProps } from 'src/common/config';
 import Login from '../../container/sign/Login';
 import SignController, { SignActions } from '../../action/sign';
 
-import { GetUserinfo } from '../../store/sign';
+import { GetUserinfo, GetOperatorInfo } from '../../store/sign';
 
 const { Sider, Content, Header } = Layout;
+const { Option } = Select;
 
 interface LayoutPageProps {
   loading?: boolean;
   showLogin?: boolean;
   userinfo?: any;
+  opeartorInfo?: any;
   webLogout?: () => void;
 }
 
@@ -28,31 +30,43 @@ interface LayoutPageProps {
  * @extends {React.Component<LayoutPageProps, {}>}
  */
 class LayoutPage extends React.Component<LayoutPageProps, {}> {
-
-  public onStoreClickHandle = () => {
+  public onSelect = (type: string) => {
     const { webLogout } = this.props;
-    if (webLogout) {
-      webLogout();
-    }
+    switch (type) {
+      case 'exit':
+        if (webLogout) { webLogout(); }
+        break;
+      default:
+        break;
+    } 
   }
 
   public render() {
     const { 
       loading,
-      // showLogin,
       userinfo,
+      opeartorInfo,
     } = this.props;
 
-    // if (showLogin === false) {
-
-    if (userinfo.mchnt_cd) {
+    console.log('userinfo: ', userinfo);
+    if (userinfo.mchnt_cd && opeartorInfo.user_id) {
       return (
         <Layout
           className={styles.container}
         >
           <Header className={styles.header}>
             <div className={styles.icon} style={{backgroundImage: `url(//net.huanmusic.com/llq/menu_icon_dinein.png)`}}/>
-            <span className={styles.text} onClick={this.onStoreClickHandle}>测试店家</span>  
+            <span className={styles.text}>测试店家</span>
+            <div className={styles.user}>
+              <Select 
+                value={opeartorInfo.user_id}
+                onSelect={this.onSelect}
+                className="my-sign-select"
+              >
+                {/* <Option value="user_id">{opeartorInfo.user_id}</Option> */}
+                <Option value="exit">退出</Option>
+              </Select>
+            </div>
           </Header>
           <Layout>
             <Sider
@@ -80,6 +94,7 @@ const mapStateToProps = (state: Stores) => ({
   loading: GetLoading(state),
   showLogin: GetShowLogin(state),
   userinfo: GetUserinfo(state),
+  opeartorInfo: GetOperatorInfo(state),
 });
 
 const mapDispatchToProps = (dispatch: Dispatch<SignActions>) => ({

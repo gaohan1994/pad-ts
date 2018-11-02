@@ -11,6 +11,7 @@ import {
 import { TableActions } from '../action/table';
 import { BusinessActions } from '../action/business';
 import { Stores } from './index';
+import config from '../common/config';
 
 export type Table = {
   selectedTable: any;
@@ -19,7 +20,9 @@ export type Table = {
 };
 
 export const initState = {
-  selectedTable: {},
+  selectedTable: {
+    table_no: config.TAKEAWAYCARTID
+  },
   selectedAreaId: '',
   tableinfo: []
 };
