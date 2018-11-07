@@ -223,18 +223,20 @@ class PayPage extends Component<PayPageProps, PayPageState> {
       return (
         <div className={styles.container}>
           <Modal
+            title="请扫描支付二维码"
             visible={showPayQRcode}
+            footer={null}
             onCancel={this.onHidePayQRcode}
-            onOk={this.onHidePayQRcode}
+            centered={true}
+            maskClosable={true}
             className="my-change-table-modal"
           >
             <div className={styles.qrcode}>
-              <QrcodeReact
-                value={payUrl}
-              />
+              <QrcodeReact value={payUrl} />
             </div>
             
           </Modal>
+          
           <div className={styles.close} onClick={this.onClosePayHandle} />
           <div className={styles.calculator}>
             <div className={styles.total}>

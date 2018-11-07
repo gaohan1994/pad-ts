@@ -181,9 +181,7 @@ class CartController {
    * @memberof CartController
    */
   public deleteItem = (param: DeleteItemParam) => async (dispatch: Dispatch, state: () => Stores) => {
-    console.log('param: ', param);
     const { data, attrs } = param;
-    console.log('data: ', data);
     const { list, currentCartId } = GetCurrentCartList(await state());
 
     if (attrs) {
@@ -366,12 +364,20 @@ class CartController {
            */
           if (list[index].number[attrIndex].number <= weight.value) {
             list[index].number.splice(attrIndex, 1);
+            /**
+             * @param {清掉该条的时候清空currentDish}
+             */
+            this.setCurrentDish({ dispatch, currentDish: {} });
           } else {
             list[index].number[attrIndex].number -= weight.value;
           }
         } else {
           if (list[index].number[attrIndex].number === 1) {
             list[index].number.splice(attrIndex, 1);
+            /**
+             * @param {清掉该条的时候清空currentDish}
+             */
+            this.setCurrentDish({ dispatch, currentDish: {} });
           } else {
             list[index].number[attrIndex].number -= 1;
           }
@@ -395,12 +401,20 @@ class CartController {
         if (weightToken === true) {
           if (list[index].number <= weight.value) {
             list.splice(index, 1);
+            /**
+             * @param {清掉该条的时候清空currentDish}
+             */
+            this.setCurrentDish({ dispatch, currentDish: {} });
           } else {
             list[index].number -= weight.value;
           }
         } else {
           if (list[index].number === 1) {
             list.splice(index, 1);
+            /**
+             * @param {清掉该条的时候清空currentDish}
+             */
+            this.setCurrentDish({ dispatch, currentDish: {} });
           } else {
             list[index].number -= 1;
           }
@@ -426,11 +440,20 @@ class CartController {
    * @memberof CartController
    */
   public emptyCart = () => async (dispatch: Dispatch, state: () => Stores) => {
-    const { currentCartId }: GetCurrentCartListReturn = GetCurrentCartList(await state());
-    dispatch({
-      type: UPDATE_CART,
-      payload: { id: currentCartId, list: [] }
-    });
+    const { currentCartId, list }: GetCurrentCartListReturn = GetCurrentCartList(await state());
+
+    if (list && list.length > 0) {
+      dispatch({
+        type: UPDATE_CART,
+        payload: { id: currentCartId, list: [] }
+      });
+    } else {
+      Base.toastFail('购物车内没有商品~');
+    }
+    /**
+     * @param {清空购物车的时候清空currentDish}
+     */
+    this.setCurrentDish({ dispatch, currentDish: {} });
   }
 
   /**

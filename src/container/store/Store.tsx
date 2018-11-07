@@ -196,7 +196,10 @@ class Store extends React.Component<StoreProps, StoreState> {
       selectedDish = {};
     }
 
-    if (selectedDish && selectedDish.product_id) {
+    if (
+      currentDish && currentDish.type === 'cart' && 
+      selectedDish && selectedDish.product_id
+    ) {
       return (
         <div className={styles.coustomCard}>
           <div className={styles.controllNumber}>
@@ -467,8 +470,18 @@ class Store extends React.Component<StoreProps, StoreState> {
 
     const contents: ContentsData = {
       data: [
-        { itemIcon: '//net.huanmusic.com/llq/icon_dagou.png', list: tableOrder && tableOrder.data || [], onClick: this.onLeftBarOrderListClickHandle },
-        { itemIcon: '//net.huanmusic.com/llq/icon_gouwuche1.png', list, onClick: this.onLeftBarCartListClickHandle },
+        { 
+          itemIcon: '//net.huanmusic.com/llq/icon_dagou.png', 
+          list: tableOrder && tableOrder.data || [], 
+          onClick: this.onLeftBarOrderListClickHandle,
+          type: 'order',
+        },
+        { 
+          itemIcon: '//net.huanmusic.com/llq/icon_gouwuche1.png', 
+          list, 
+          onClick: this.onLeftBarCartListClickHandle,
+          type: 'cart'
+        },
       ],
     };
 
@@ -529,7 +542,7 @@ class Store extends React.Component<StoreProps, StoreState> {
           : {},
         onClick: currentDish && currentDish.type === config.STORE_DISH_CART_TYPE
           ? this.deleteItem
-          : () => {/** */}
+          : () => { Base.toastFail('请先选择要从购物车中删除的菜品~'); }
       },
       {
         img: '//net.huanmusic.com/llq/icon_tuicai.png',
@@ -539,7 +552,7 @@ class Store extends React.Component<StoreProps, StoreState> {
           : {},
         onClick: currentDish && currentDish.type === config.STORE_DISH_ORDER_TYPE
           ? this.onManageMenuHandle
-          : () => {/** */}
+          : () => { Base.toastFail('选择一个已经下单的菜品才能进行退菜~'); }
       },
       // {
       //   img: '//net.huanmusic.com/llq/icon_houchu.png',

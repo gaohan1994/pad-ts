@@ -692,13 +692,16 @@ class OrderController extends Base {
         /**
          * --- 1.外带 ---
          * @param {} 1.清空购物车
-         * @param {} 2.设置 selectedTable 
-         * @param {} 2.整合数据显示结账页面
+         * @param {} 2.重置 currentDish
+         * @param {} 3.设置 selectedTable 
+         * @param {} 4.整合数据显示结账页面
          */
         await dispatch({
           type: UPDATE_CART,
           payload: { id: currentCartId, list: [] }
         });
+
+        await CartController.setCurrentDish({ dispatch, currentDish: {} });
 
         const newOrder = {
           ...payloadParam,
@@ -742,6 +745,8 @@ class OrderController extends Base {
             type: UPDATE_CART,
             payload: { id: currentCartId, list: [] }
           });
+
+          await CartController.setCurrentDish({ dispatch, currentDish: {} });
 
           const newOrder = {
             ...payloadParam,

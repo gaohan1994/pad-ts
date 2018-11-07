@@ -40,7 +40,7 @@ class Menus extends React.Component<MenusProps, {}> {
     this.menusData = [
       {
         key: '1',
-        value: '点餐',
+        value: '堂食',
         value_us: 'DINE IN',
         img: '//net.huanmusic.com/llq/menu_icon_dinein.png',
         handle: () => this.onNavHandle('meal')

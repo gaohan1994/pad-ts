@@ -83,9 +83,11 @@ class Business {
 
     /**
      * @param {recoverPayOrder} 切换模块的时候重置 payOrder
+     * @param {setCurrentDish} 重置currentDish
      */
     await OrderController.recoverPayOrder(dispatch);
     await StatusController.hidePay(dispatch);
+    await CartController.setCurrentDish({dispatch, currentDish: {}});
 
     switch (type) {
       case 'meal':

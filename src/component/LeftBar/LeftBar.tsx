@@ -14,6 +14,7 @@ import { GetCurrentDish } from '../../store/cart';
 
 export const ListItem = (props: any) => {
   const { data, onClick, currentDish } = props;
+  // console.log('data: ', data);
   if (data.attrType) {
     // 规格
     return data.number.map((attrItem: any, index: number) => {
@@ -21,7 +22,7 @@ export const ListItem = (props: any) => {
       return (
         <div 
           key={index} 
-          className={currentDish && currentDish.currentAttr && currentDish.currentAttr.id === attrItem.id
+          className={currentDish && currentDish.currentAttr && currentDish.currentAttr.id === attrItem.id && currentDish.type === data.type
             ? styles.activeListItem 
             : styles.listItem} 
           onClick={onClick 
@@ -66,7 +67,7 @@ export const ListItem = (props: any) => {
     // 称斤 和 默认
     return (
       <div 
-        className={currentDish && currentDish.product_id === data.product_id 
+        className={currentDish && currentDish.product_id === data.product_id && currentDish.type === data.type
           ? styles.activeListItem 
           : styles.listItem} 
         onClick={onClick 
@@ -121,6 +122,7 @@ export interface ContentData {
   itemIcon?: string;
   list: any[];
   onClick?: (param: any) => void;
+  type: 'order' | 'cart';
 }
 
 export interface FooterButton {
@@ -160,17 +162,17 @@ export const analysisContentsData = (contents?: ContentsData): AnalysisContentsD
     if (data && data.length > 0) {
       let total: any[] = [];    
       data.forEach((contentData: ContentData) => {
-        const { itemIcon = '', list, onClick = () => {/** no empty */} } = contentData;
+        const { itemIcon = '', list, onClick = () => {/** no empty */}, type } = contentData;
 
         if (list && list.length > 0) {
 
           const addIconList: any[] = list.map((item: any) => {
-            return {...item, itemIcon, onClick };
+            return {...item, itemIcon, onClick, type };
           });
           total = total.concat(addIconList);
         }
       });
-      
+      console.log('total: ', total);
       return { list: total };
     } else {
       return { list: [] };

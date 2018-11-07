@@ -70,7 +70,7 @@ const devConfig: InterfaceConfig = {
 const proConfig: InterfaceConfig = {
   ...defaultCommonConfig,
   INSIDE_FETCH_ENTRY: 'http://172.30.20.100:5980/BKMS_HMS/GateWayAction.do',
-  FETCH_ENTRY: '//prod/GateWayAction.do',
+  FETCH_ENTRY: 'http://202.101.149.132:7680/BKMS_HMS/GateWayAction.do',
   WX_PAY_FETCH_ENTTRY: 'http://202.101.149.132:7680/BKMS/WeChatGateWayAction.do',
   DEV_OPERA_INFO: {},
   DEV_WECHAT_OPENID: '',

@@ -56,7 +56,7 @@ class LayoutPage extends React.Component<LayoutPageProps, {}> {
         >
           <Header className={styles.header}>
             <div className={styles.icon} style={{backgroundImage: `url(//net.huanmusic.com/llq/menu_icon_dinein.png)`}}/>
-            <span className={styles.text}>测试店家</span>
+            <span className={styles.text}>{userinfo.mchnt_name || '测试店家'}</span>
             <div className={styles.user}>
               <Select 
                 value={opeartorInfo.user_id}

@@ -276,8 +276,8 @@ class Table extends Component<TableProps, TableState> {
 
     const contents: ContentsData = currentCartId !== config.TAKEAWAYCARTID ? {
       data: [
-        { itemIcon: '//net.huanmusic.com/llq/icon_dagou.png', list: tableOrder && tableOrder.data || [], },
-        { itemIcon: '//net.huanmusic.com/llq/icon_gouwuche1.png', list },
+        { type: 'order', itemIcon: '//net.huanmusic.com/llq/icon_dagou.png', list: tableOrder && tableOrder.data || [], },
+        { type: 'cart', itemIcon: '//net.huanmusic.com/llq/icon_gouwuche1.png', list },
       ]
     } : {};
 
@@ -381,22 +381,24 @@ class Table extends Component<TableProps, TableState> {
         </Item>
         <Item position="right">
           <div className={styles.right}>
-            <div className={styles.search}>
+            {/* <div className={styles.search}>
               <span className={styles.searchIcon} />
               <span>搜索</span>
+            </div> */}
+            <div style={{marginTop: '20px', width: '100%', height: 'auto'}}>
+              {tableinfo.map((area: any) => {
+                return (
+                  <div
+                    key={area.area_id}
+                    className={selectedAreaId === area.area_id ? styles.activeArea : styles.normalArea}
+                    onClick={() => this.onAreaClickHandle(area)}
+                  >
+                    {selectedAreaId === area.area_id ? <div className={styles.active} /> : ''}
+                    {area.area_name}
+                  </div>
+                );
+              })}
             </div>
-            {tableinfo.map((area: any) => {
-              return (
-                <div
-                  key={area.area_id}
-                  className={selectedAreaId === area.area_id ? styles.activeArea : styles.normalArea}
-                  onClick={() => this.onAreaClickHandle(area)}
-                >
-                  {selectedAreaId === area.area_id ? <div className={styles.active} /> : ''}
-                  {area.area_name}
-                </div>
-              );
-            })}
           </div>
         </Item>
         <Modal

@@ -148,8 +148,6 @@ class Helper extends Component <HelperProps, HeplerState> {
       clickFromPropsParam,
      } = this.props;
 
-    console.log('handleClickWithParam');
-
     let token: boolean = false;
 
     let type: string = 'normal';

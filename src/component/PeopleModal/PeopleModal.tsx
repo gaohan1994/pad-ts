@@ -37,7 +37,7 @@ class PeopleModal extends Component<PeopleModalProps, PeopleModalState> {
    */
   public onCloseModal = () => {
     const { dispatch } = this.props;
-    const params = { changePeopleModalStatus: true, dispatch };
+    const params = { changePeopleModalStatus: false, dispatch };
     StatusController.changePeopleModalHandle(params);
   }
 
@@ -71,6 +71,7 @@ class PeopleModal extends Component<PeopleModalProps, PeopleModalState> {
           footer={null}
           onCancel={this.onCloseModal}
           centered={true}
+          maskClosable={true}
           className="my-change-table-modal my-change-people-modal"
         >
           <div className={styles.people}>
