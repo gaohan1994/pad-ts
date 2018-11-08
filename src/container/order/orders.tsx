@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Table, /** Select */ } from 'antd';
+import { Table, Select } from 'antd';
 import { ColumnProps } from 'antd/lib/table';
 import styles from './orders.less';
 import { connect } from 'react-redux';
@@ -14,7 +14,7 @@ import {
 } from '../../store/order';
 import { GetUserinfo } from '../../store/sign';
 
-// const { Option } = Select;
+const { Option } = Select;
 
 /**
  * @param { orderQuery: fetch order list function } 
@@ -154,11 +154,10 @@ class OrderList extends Component<OrdersProps, OrdersState> {
     return (
       <div className={styles.container}>
         <div className={styles.content}>
-          {/* <div>
+          <div>
             <Select 
               className={styles.select} 
               defaultValue="all"
-              // value={}
               style={{ width: 120 }}
             >
               <Option value="all">消费类型</Option>
@@ -171,10 +170,10 @@ class OrderList extends Component<OrdersProps, OrdersState> {
               <Option value="1">待支付</Option>
             </Select>
 
-            <Select className={styles.select} defaultValue="lucy" style={{ width: 120 }}>
-              <Option value="lucy">Lucy</Option>
+            <Select className={styles.select} defaultValue="all" style={{ width: 120 }}>
+              <Option value="all">全部</Option>
             </Select>
-          </div> */}
+          </div>
           <Table
             columns={columns} 
             dataSource={orders} 

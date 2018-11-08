@@ -21,7 +21,7 @@ import styles from './global.less';
 /**
  * ------ routes ------
  */
-import App from './container/App';
+// import App from './container/App';
 import Stores from './container/store/Stores';
 import Meal from './container/store/Meal';
 import Store from './container/store/Store';
@@ -94,18 +94,20 @@ const RouterConfig = ({ title }: DocumentTitleProps) => {
                 <AuthRoute path="/order/:id" component={Order} /> 
               */}
               
-              <Route path="/" exact={true} component={App} />
+              <Route path="/" exact={true} component={Table} />
+
+              <Route path="/table/:id" component={Table} />
               <Route path="/stores" component={Stores} />
               <Route path="/meal/:id" component={Meal} />
               <Route path="/store/:id" component={Store} />
               <Route path="/interfacetest" component={InterfaceTest} />
               <Route path="/orderlist" component={OrderList} />
               <Route path="/order/:orderid" component={Order} />
-              <Route path="/table/:id" component={Table} />
               <Route path="/people" component={People} />
               <Route path="/pay" component={Pay} />
               <Route path="/login" component={Login}/>
               <Route path="/exception/:status" component={Exception} />
+              <Route path="/BKMS_HMS/build/index.html" component={Table} />
               <Route component={NotFound}/>
           </AnimatedSwitch>
         </Router>

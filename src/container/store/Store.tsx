@@ -463,7 +463,13 @@ class Store extends React.Component<StoreProps, StoreState> {
         [{ key: '1', title: '订单号：', value: tableOrder && tableOrder.order_no || '' }],
         [
           { key: '2', title: '桌号：', value: selectedTable.table_no || '' }, 
-          { key: '3', title: '用餐人数：', value: tableOrder && tableOrder.people_num ? `${tableOrder.people_num}人` : '' },
+          { 
+            key: '3', title: '用餐人数：', value: tableOrder && tableOrder.people_num 
+            ? `${tableOrder.people_num}人` 
+            : selectedTable.people
+              ? `${selectedTable.people}人`
+              : ``
+          },
         ]
       ]
     };

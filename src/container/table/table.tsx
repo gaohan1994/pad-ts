@@ -89,7 +89,7 @@ export const GetOrderAndCartDetails = (params: any): any => {
  */
 interface TableProps {
   tableClickHandle: (param: any) => void;
-  fetchTableInfo: (id: string) => void;
+  fetchTableInfo: (id: string) => any;
   changeTableArea: (param: any) => void;
   saveChoicePeople: (param: any) => void;
   setPayOrder: (param: any) => void;
@@ -138,9 +138,18 @@ class Table extends Component<TableProps, TableState> {
    *
    * @memberof Table
    */
-  public fetchTable = () => {
-    const { fetchTableInfo, match: { params: { id } } } = this.props;
-    fetchTableInfo(id);
+  public fetchTable = async () => {
+    const { fetchTableInfo, userinfo, tableClickHandle } = this.props;
+    const { mchnt_cd } = userinfo;
+
+    /**
+     * @param {result} 成功之后返回结果
+     * @param {tableClickHandle} 默认初始选中第一个桌子
+     */
+    const { success, result } = await fetchTableInfo(mchnt_cd);
+    if (success === true && result[0] && result[0].tables && result[0].tables[0]) {
+      tableClickHandle(result[0].tables[0]);
+    }
   }
 
   /**

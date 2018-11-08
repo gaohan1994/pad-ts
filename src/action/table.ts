@@ -147,7 +147,7 @@ class TableController extends Base {
    * @static
    * @memberof TableController
    */
-  static getTableInfo = (mchnt_cd: string) => async (dispatch: Dispatch) => {
+  static getTableInfo = (mchnt_cd: string) => async (dispatch: Dispatch): Promise<any> => {
     Status.showLoading(dispatch);
     const params = { mchnt_cd };
     const result = await TableService.getTableInfo(params);
@@ -157,8 +157,14 @@ class TableController extends Base {
         type: RECEIVE_TABLE_INFO,
         payload: { tableinfo: result.biz_content.data }
       });
+
+      return {
+        success: true,
+        result: result.biz_content.data
+      };
     } else {
       Base.toastFail('请求桌号信息失败');
+      return { success: false };
     }
   }
 

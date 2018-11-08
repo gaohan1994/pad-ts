@@ -256,7 +256,7 @@ class OrderService {
       '',
       'post',
       {
-        method: 'trade.order_query',
+        method: 'trade.order_query_v2',
         biz_content: {
           ...params,
         }

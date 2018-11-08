@@ -24,10 +24,10 @@ body {
 
 :global {
   .ant-spin-nested-loading {
-    height: 100%;
+    height: 100% !important;
 
     & > .ant-spin-container {
-      height: 100%;
+      height: 100% !important;
     }
   }
 
@@ -37,11 +37,11 @@ body {
 
   .my-attr-modal {
     & > .am-modal-content {
-      padding: 0px;
-      min-width: 400px;
+      padding: 0px !important;
+      min-width: 400px !important;
 
       & > .am-modal-body {
-        padding: 0px;
+        padding: 0px !important;
       }
     }
   }
@@ -49,9 +49,9 @@ body {
   .my-change-table-modal {
     
     & > .ant-modal-content > .ant-modal-header {
-      padding: 10px 0;
-      text-align: center;
-      background: @theme-color;
+      padding: 10px 0 !important;
+      text-align: center !important;
+      background: @theme-color !important;
 
       & > .ant-modal-title {
         font-weight: normal;
@@ -66,13 +66,13 @@ body {
   }
 
   .my-sign-select {
-    color: #ffffff;
+    color: #ffffff !important;
     & > .ant-select-selection {
-      background: @theme-color;
-      border: 0px;
+      background: @theme-color !important;
+      border: 0px !important;
 
       & > .ant-select-arrow {
-        color: #ffffff;
+        color: #ffffff !important;
       }
     }
   }
@@ -86,9 +86,9 @@ body {
 }
 
 .display-flex(@align: start, @justify: start) {
-  display: -webkit-box;
-  display: -ms-flexbox;
-  display: flex;
+  display: -webkit-box !important;
+  display: -ms-flexbox !important;
+  display: flex !important;
   .flex-align(@align);
   .flex-justify(@justify);
 }

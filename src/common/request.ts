@@ -2,6 +2,7 @@ import moment from 'moment';
 import { checkStatus, ConstructErrorResponse } from './exception';
 import history from '../history';
 import config from '../common/config';
+import Base from '../action/base';
 
 /**
  * 加密处理
@@ -170,11 +171,14 @@ const request = (
             }
             return responseJson;
           } catch (error) {
+            Base.toastFail(error.msg || '网络异常');
             ConsoleUtil(error, '错误信息');
             errorCallback(error);
+            return error;
           }
         })
         .catch((err: any) => {
+            Base.toastFail('网络异常');
             errorCallback(err);
         })
         .catch((e: ConstructErrorResponse) => {
@@ -197,6 +201,7 @@ const request = (
         });
     } catch (error) {
         console.log('error: ', error);
+        Base.toastFail('网络异常');
         return error;
     }
 };
@@ -269,11 +274,14 @@ const payRequest = (
             }
             return responseJson;
           } catch (error) {
+            Base.toastFail('系统异常');
             ConsoleUtil(error, '错误信息');
             errorCallback(error);
+            return error;
           }
         })
         .catch((err: any) => {
+            Base.toastFail('网络异常');
             errorCallback(err);
         })
         .catch((e: ConstructErrorResponse) => {
@@ -296,6 +304,7 @@ const payRequest = (
         });
     } catch (error) {
         console.log('error: ', error);
+        Base.toastFail('网络异常');
         return error;
     }
 };

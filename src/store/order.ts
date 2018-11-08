@@ -49,8 +49,8 @@ export default function order (
     /**
      * @param { trnsflag | -1: 交易失败, 0: 交易初始化, 1: 交易成功, 2: 交易撤销, 3: 交易退单, }
      */
-    state.orders = state.orders.concat(orders);
-
+    // state.orders = state.orders.concat(orders);
+    state.orders = orders;
     return merge({}, state, {});
 
     /**

@@ -73,7 +73,7 @@ const proConfig: InterfaceConfig = {
   FETCH_ENTRY: 'http://202.101.149.132:7680/BKMS_HMS/GateWayAction.do',
   WX_PAY_FETCH_ENTTRY: 'http://202.101.149.132:7680/BKMS/WeChatGateWayAction.do',
   DEV_OPERA_INFO: {},
-  DEV_WECHAT_OPENID: '',
+  DEV_WECHAT_OPENID: 'TESTWECHATOPENID',
 };
 
 interface ProcessChoiceFilterFunc<T> {
